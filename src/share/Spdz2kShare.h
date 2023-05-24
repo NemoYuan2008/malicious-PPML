@@ -17,11 +17,31 @@ public:
     using DataType = std::conditional_t<K <= 32, uint32_t, uint64_t>;
     using ShareType = std::conditional_t<S + K <= 64, uint64_t, __uint128_t>;
 
+    inline Spdz2kShare operator+=(const Spdz2kShare &rhs);
+
+    friend inline Spdz2kShare operator+(const Spdz2kShare &lhs, const Spdz2kShare &rhs);
+
 
 private:
     MacType mac;
     ShareType x;
 };
+
+template<int K, int S>
+inline
+Spdz2kShare<K, S> Spdz2kShare<K, S>::operator+=(const Spdz2kShare &rhs) {
+    mac += rhs.mac;
+    x += rhs.x;
+    return *this;
+}
+
+template<int K, int S>
+inline
+Spdz2kShare<K, S> operator+(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S> &rhs) {
+    Spdz2kShare<K, S> ret(lhs);
+    ret += rhs;
+    return ret;
+}
 
 
 #endif //MALICIOUS_PPML_SPDZ2KSHARE_H
