@@ -5,10 +5,13 @@
 #include "share/Spdz2kShare.h"
 
 
+template <int K, int S>
 class Share {
+public:
+    using DataType = typename Spdz2kShare<K, S>::DataType;
 private:
-    Spdz2kShare sharedDelta;
-    std::int64_t openedDelta;
+    Spdz2kShare<K, S> sharedDelta;
+    DataType publicDelta;
 };
 
 

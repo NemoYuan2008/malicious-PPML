@@ -2,8 +2,7 @@
 #include "share/Share.h"
 
 int main() {
-    Share s, t;
-
+    Share<64, 64> s{};
 
     return 0;
 }
