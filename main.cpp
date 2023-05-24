@@ -2,7 +2,7 @@
 #include "share/Share.h"
 
 int main() {
-    Share s;
+    Share s, t;
 
 
     return 0;
