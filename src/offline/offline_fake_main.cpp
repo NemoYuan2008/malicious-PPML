@@ -1,9 +1,6 @@
 #include <iostream>
-#include "share/Share.h"
 
 int main() {
-    Share s;
-
-
+    std::cout << "Fake Offline\n";
     return 0;
 }
