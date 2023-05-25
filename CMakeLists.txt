@@ -4,7 +4,7 @@ project(malicious_PPML)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(malicious_PPML
-        main.cpp src/share/Share.cpp src/share/Spdz2kShare.cpp)
+        main.cpp src/share/Share.cpp src/share/Spdz2kShare.cpp src/protocols/OperationOffline.cpp src/protocols/OperationOffline.h)
 add_executable(offline_fake src/offline/offline_fake_main.cpp src/offline/FakeOffline.cpp src/offline/FakeOffline.h)
 
 
