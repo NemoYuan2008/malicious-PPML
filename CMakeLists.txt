@@ -5,9 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(malicious_PPML
         main.cpp src/share/Share.cpp src/share/Spdz2kShare.cpp)
-add_executable(offline_fake src/offline/offline_fake_main.cpp)
+add_executable(offline_fake src/offline/offline_fake_main.cpp src/offline/FakeOffline.cpp src/offline/FakeOffline.h)
 
 
-target_include_directories(malicious_PPML PUBLIC
-        src)
+target_include_directories(malicious_PPML PUBLIC src)
 target_link_libraries(malicious_PPML )
+
+target_include_directories(offline_fake PUBLIC src)

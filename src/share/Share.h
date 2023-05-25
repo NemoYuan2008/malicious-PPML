@@ -1,19 +1,21 @@
 #ifndef MALICIOUS_PPML_SHARE_H
 #define MALICIOUS_PPML_SHARE_H
 
-#include <cstdint>
+#include "share/types.h"
 #include "share/Spdz2kShare.h"
 
 
 template <int K, int S>
 class Share {
 public:
-    using DataType = typename Spdz2kShare<K, S>::DataType;
+    using KType = KType_t<K>;
+    using SType = SType_t<S>;
+    using KSType = KSType_t<K, S>;
 
     inline Share operator+=(const Share &rhs);
 private:
     Spdz2kShare<K, S> sharedDelta;
-    DataType publicDelta;
+    KType publicDelta;
 };
 
 template<int K, int S>
