@@ -13,6 +13,7 @@
 
 
 template<typename Tp>
+inline
 Tp getRand() {
     static_assert(std::is_integral_v<Tp>, "Template parameter must be an integral type");
     uint8_t buf[sizeof(Tp)];
