@@ -5,8 +5,8 @@
 #include "protocols/OperationOffline.h"
 
 int main() {
-    Spdz2kShare64 s(12, 23), k(2, 10);
-    auto t = s + k;
+    Spdz2kShare64 s(0x12, 0x23), k(0x2, 0x10);
+    std::cout << s;
 
     return 0;
 }

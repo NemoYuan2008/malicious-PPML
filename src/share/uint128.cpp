@@ -10,6 +10,7 @@ using std::setw;
 using std::hex;
 using std::dec;
 
+
 ostream &operator<<(ostream &os, __uint128_t x) {
     os << hex
        << setfill('0') << setw(16) << static_cast<uint64_t>(x >> 64)
