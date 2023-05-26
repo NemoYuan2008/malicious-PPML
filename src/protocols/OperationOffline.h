@@ -39,4 +39,16 @@ public:
     }
 };
 
+
+template<int K, int S>
+class MultiplicationOfflineFake : public MultiplicationOffline<K, S> {
+public:
+    MultiplicationOfflineFake(const Spdz2kShare<K, S> &p_delta_z, const Spdz2kShare<K, S> &p_delta_xy)
+            : MultiplicationOffline<K, S>(p_delta_z, p_delta_xy) {}
+
+    void runOffline(const Spdz2kShare<K, S> &delta_x, const Spdz2kShare<K, S> &delta_y) override {
+        //Read from file
+    }
+};
+
 #endif //MALICIOUS_PPML_OPERATIONOFFLINE_H
