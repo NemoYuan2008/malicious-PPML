@@ -2,7 +2,10 @@
 // Created by yuan on 23-5-26.
 //
 
+#include <type_traits>
+#include <sodium.h>
 #include "uint128.h"
+
 
 using std::ostream;
 using std::setfill;
@@ -18,3 +21,11 @@ ostream &operator<<(ostream &os, __uint128_t x) {
        << dec;
     return os;
 }
+
+
+__uint128_t rand128() {
+    uint8_t buf[16];
+    randombytes_buf(buf, 16);
+    return *reinterpret_cast<__uint128_t *>(buf);
+}
+

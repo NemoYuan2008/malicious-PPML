@@ -2,6 +2,7 @@
 #include "share/Spdz2kShare.h"
 #include "offline/FakeOffline.h"
 #include "protocols/GateOffline.h"
+#include "utils/rand.h"
 
 FakeOffline<32, 32, 2>::Shares w_shares, x_shares, b_shares, z_shares, wx_shares;
 
@@ -39,6 +40,10 @@ void party2() {
 
 int main() {
     fakeOffline();
+
+    auto x = getRand<__uint128_t>();
+    auto y = getRand<uint64_t>();
+    std::cout << x << ' ' << y;
 
     return 0;
 }
