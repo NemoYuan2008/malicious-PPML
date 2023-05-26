@@ -3,8 +3,12 @@ project(malicious_PPML)
 
 set(CMAKE_CXX_STANDARD 17)
 
+include_directories(src)
+
 add_executable(malicious_PPML
         main.cpp src/share/Share.cpp src/share/Spdz2kShare.cpp src/protocols/OperationOffline.cpp src/protocols/OperationOffline.h)
-target_include_directories(malicious_PPML PUBLIC src)
+add_library(uint128 src/share/Share.cpp src/share/uint128.cpp src/share/uint128.h)
 
 add_subdirectory(src/offline)
+
+add_subdirectory(tests)
