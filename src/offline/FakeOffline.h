@@ -27,6 +27,8 @@ public:
     using KSType = KSType_t<K, S>;
     using Shares = std::array<Spdz2kShare<K, S>, N>;
 
+    FakeOffline(SType p_key): key(p_key) {}
+
     inline static std::array<KSType, N> splitN(KSType x);
 
     inline static KSType rand();
@@ -64,7 +66,7 @@ typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(KSTyp
     auto x_i = splitN(x), mac_i = splitN(mac);
     Shares ret;
     for (int i = 0; i < N; ++i) {
-        ret[i] = Spdz2kShare<K, S>(x[i], mac_i[i]);
+        ret[i] = Spdz2kShare<K, S>(x_i[i], mac_i[i]);
     }
     return ret;
 }
