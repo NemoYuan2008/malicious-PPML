@@ -1,8 +1,8 @@
 #ifndef MALICIOUS_PPML_FAKEOFFLINE_H
 #define MALICIOUS_PPML_FAKEOFFLINE_H
 
+#include <cstdlib>
 #include <array>
-//#include <numeric>
 #include "share/types.h"
 #include "share/Spdz2kShare.h"
 
