@@ -7,6 +7,9 @@ template<int K, int S>
 class Spdz2kShare;
 
 template<int K, int S>
+inline bool operator==(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S> &rhs);
+
+template<int K, int S>
 inline Spdz2kShare<K, S> operator+(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S> &rhs);
 
 template<int K, int S>
@@ -27,6 +30,8 @@ public:
 
     Spdz2kShare(KSType x, KSType mac) : x(x), mac(mac) {}
 
+    friend inline bool operator==(const Spdz2kShare &lhs, const Spdz2kShare &rhs);
+
     inline Spdz2kShare operator+=(const Spdz2kShare &rhs);
 
     friend inline Spdz2kShare operator+<S, K>(const Spdz2kShare &lhs, const Spdz2kShare &rhs);
@@ -41,6 +46,10 @@ private:
     KSType mac;
 };
 
+template<int K, int S>
+inline bool operator==(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S> &rhs) {
+    return lhs.x == rhs.x && lhs.mac == rhs.mac;
+}
 
 template<int K, int S>
 inline
