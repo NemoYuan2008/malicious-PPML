@@ -4,6 +4,8 @@
 #include "protocols/GateOffline.h"
 #include "utils/rand.h"
 
+using std::cout;
+
 FakeOffline<32, 32, 2>::Shares w_shares, x_shares, b_shares, z_shares, wx_shares;
 
 
@@ -39,21 +41,26 @@ void party2() {
 }
 
 int main() {
-    FakeOffline<32, 32, 2>::KType clear = 2;
-    FakeOffline<32, 32, 2> offline(0x1);
-    auto shares = offline.generateShares(clear);
-    std::cout << shares[0] << '\n'
-              << shares[1] << '\n';
-
-    KSType_t<32, 32> x = 10;
-    auto x_split = FakeOffline<32, 32, 2>::splitN(x);
-    auto sum = std::accumulate(x_split.begin(), x_split.end(), 0UL);
-    std::cout << x_split[0] << ' ' << x_split[1] << ' ' << sum << '\n';
+//    FakeOffline<32, 32, 2>::KType clear = 2;
+//    FakeOffline<32, 32, 2> offline(0x1);
+//    auto shares = offline.generateShares(clear);
+//    std::cout << shares[0] << '\n'
+//              << shares[1] << '\n';
+//
+//    KSType_t<32, 32> x = 10;
+//    auto x_split = FakeOffline<32, 32, 2>::splitN(x);
+//    auto sum = std::accumulate(x_split.begin(), x_split.end(), 0UL);
+//    std::cout << x_split[0] << ' ' << x_split[1] << ' ' << sum << '\n';
 
 //    auto y = getRand<KSType_t<32, 32>>();
 //    auto y_split = FakeOffline<32, 32, 2>::splitN(x);
 //    auto sum = std::accumulate(x_split.begin(), x_split.end());
 //    BOOST_CHECK_EQUAL(std::accumulate(x_split.begin(), x_split.end()), x);
+
+    std::cout << getRand<uint32_t>() << ' ' << getRand<uint32_t>() << ' ' << getRand<uint32_t>() << '\n'
+              << getRand<uint64_t>() << ' ' << getRand<uint64_t>() << '\n'
+              << getRand<__uint128_t>() << ' ' << getRand<__uint128_t>() << '\n';
+
 
     return 0;
 }

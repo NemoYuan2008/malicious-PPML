@@ -15,16 +15,16 @@
 template<typename Tp>
 inline
 Tp getRand() {
+    using EngOutput_t = unsigned;
     static_assert(std::is_integral_v<Tp>, "Template parameter must be an integral type");
-    static_assert(sizeof(Tp) == 8 || sizeof(Tp) == 16);
+    static_assert(sizeof(Tp) >= sizeof(EngOutput_t));
 
     static std::random_device rd;
-    static std::independent_bits_engine<std::default_random_engine,
-            8 * sizeof(unsigned long long), unsigned long long> rng(rd());
+    static std::independent_bits_engine<std::default_random_engine, 8 * sizeof(EngOutput_t), EngOutput_t> rng(rd());
 
-    //Output of std::independent_bits_engine must be unsigned long long, so we have to use sizeof to determine buffer length
-    unsigned long long buf[sizeof(Tp) / sizeof(unsigned long long)];
-    std::generate(std::begin(buf), std::end(buf), rng);
+    //Output of std::independent_bits_engine must be EngOutput_t, so we have to use sizeof to determine buffer length
+    EngOutput_t buf[sizeof(Tp) / sizeof(EngOutput_t)];
+    std::generate(std::begin(buf), std::end(buf), []() { return rng(); });
     return *reinterpret_cast<Tp *>(buf);
 }
 
