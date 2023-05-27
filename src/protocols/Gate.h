@@ -1,7 +1,3 @@
-//
-// Created by 袁博实 on 2023/5/26.
-//
-
 #ifndef MALICIOUS_PPML_GATE_H
 #define MALICIOUS_PPML_GATE_H
 
@@ -11,11 +7,12 @@
 template<int K, int S>
 class Gate {
 public:
-    GateOffline<K, S> *offline;
+    using KType = KType_t<K>;
+    using SType = SType_t<S>;
+    using KSType = KSType_t<K, S>;
 
-    virtual void runOffline() {
-        offline->runOffline();
-    }
+protected:
+    KType
 };
 
 
