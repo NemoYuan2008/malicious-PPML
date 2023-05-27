@@ -17,7 +17,7 @@ public:
     using KSType = KSType_t<K, S>;
     using Shares = std::array<Spdz2kShare<K, S>, N>;
 
-    FakeOffline(SType p_key) : key(p_key) {}
+    FakeOffline(KSType p_key) : key(p_key) {}
 
     inline static std::array<KSType, N> splitN(KSType x);
 
@@ -27,11 +27,10 @@ public:
 
     inline static KType openShares(const Shares &shares);
 
-    SType getKey() const { return key; }
+    KSType getKey() const { return key; }
 
 private:
-    //TODO: really SType???
-    SType key;
+    KSType key;
 };
 
 template<int K, int S, int N>
