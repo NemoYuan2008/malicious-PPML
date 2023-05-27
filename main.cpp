@@ -6,6 +6,7 @@
 #include "utils/rand.h"
 
 using std::cout;
+using std::hex;
 
 FakeOffline<32, 32, 2>::Shares w_shares, x_shares, b_shares, z_shares, wx_shares;
 
@@ -42,17 +43,19 @@ void party2() {
 }
 
 int main() {
-//    FakeOffline<32, 32, 2>::KType clear = 2;
-//    FakeOffline<32, 32, 2> offline(0x1);
-//    auto shares = offline.generateShares(clear);
-//    std::cout << shares[0] << '\n'
-//              << shares[1] << '\n';
+    cout << hex;
 
     FakeOffline<32, 32, 2> f32_2(getRand<uint32_t>());
-    uint32_t clear32 = getRand<uint32_t>();
+
+    auto clear32 = getRand<uint32_t>();
     auto shares32 = f32_2.generateShares(clear32);
-    auto clear = FakeOffline<32, 32, 2>::openShares(shares32);
-    assert(clear32 == clear);
+    auto shareSum = shares32[0] + shares32[1];
+    auto opened = f32_2.openShares(shares32);
+
+    cout << "clear:\n" << clear32 << "\n\n"
+         << "shares:\n" << shares32[0] << '\n' << shares32[1] << "\n\n"
+         << "shareSum:\n" << hex << shareSum.getXi() << "\n\n"
+         << "opened:\n" << opened << "\n\n";
 
     return 0;
 }

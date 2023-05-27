@@ -37,7 +37,7 @@ private:
 template<int K, int S, int N>
 inline
 typename FakeOffline<K, S, N>::KType FakeOffline<K, S, N>::openShares(const FakeOffline::Shares &shares) {
-    KSType ret;  // Only need lower k bits
+    KType ret = 0;  // Only need lower k bits
     for (const auto &share: shares) {
         ret += share.getXi();
     }
@@ -54,7 +54,7 @@ std::array<KSType_t<K, S>, N> FakeOffline<K, S, N>::splitN(FakeOffline::KSType x
 }
 
 
-//It is OK to pass a KType argument
+//TODO: Add an overload with a KType param
 template<int K, int S, int N>
 typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(KSType x) {
     KSType mac = x * key;
