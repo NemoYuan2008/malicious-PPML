@@ -1,23 +1,13 @@
 #ifndef MALICIOUS_PPML_FAKEOFFLINE_H
 #define MALICIOUS_PPML_FAKEOFFLINE_H
 
-#include <cstdlib>
+
 #include <array>
+#include <algorithm>
+#include <numeric>
 #include "share/types.h"
 #include "share/Spdz2kShare.h"
-
-template<int K, int S>
-typename Spdz2kShare<K, S>::KSType rand() {
-    using KSType = typename Spdz2kShare<K, S>::KSType;
-    KSType ret;
-    auto *ptr = reinterpret_cast<uint8_t *>(&ret);
-    for (int i = 0; i < sizeof(ret); ++i) {
-        *ptr = rand();      //TODO: rand() is unsafe
-        ++ptr;
-    }
-    return ret;
-}
-
+#include "utils/rand.h"
 
 template<int K, int S, int N>
 class FakeOffline {
@@ -27,11 +17,9 @@ public:
     using KSType = KSType_t<K, S>;
     using Shares = std::array<Spdz2kShare<K, S>, N>;
 
-    FakeOffline(SType p_key): key(p_key) {}
+    FakeOffline(SType p_key) : key(p_key) {}
 
     inline static std::array<KSType, N> splitN(KSType x);
-
-    inline static KSType rand();
 
     inline Shares generateShares(KSType x);
 
@@ -42,24 +30,16 @@ private:
 };
 
 template<int K, int S, int N>
-std::array<typename FakeOffline<K, S, N>::KSType, N> FakeOffline<K, S, N>::splitN(FakeOffline::KSType x) {
+inline
+std::array<KSType_t<K, S>, N> FakeOffline<K, S, N>::splitN(FakeOffline::KSType x) {
     std::array<KSType, N> ret;
-    //TODO: randomize x
-    ret[0] = x;
+    std::generate(ret.begin(), ret.end() - 1, getRand<KSType>);
+    ret.back() = -std::accumulate(ret.begin(), ret.end() - 1, -x);
     return ret;
 }
 
-template<int K, int S, int N>
-typename FakeOffline<K, S, N>::KSType FakeOffline<K, S, N>::rand() {
-    KSType ret;
-    auto *ptr = reinterpret_cast<uint8_t *>(&ret);
-    for (int i = 0; i < sizeof(ret); ++i) {
-        *ptr = rand();      //TODO: rand() is unsafe
-        ++ptr;
-    }
-    return ret;
-}
 
+//It is OK to pass a KType argument
 template<int K, int S, int N>
 typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(KSType x) {
     KSType mac = x * key;
