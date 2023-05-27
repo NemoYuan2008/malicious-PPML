@@ -1,4 +1,5 @@
 #include <numeric>
+#include <type_traits>
 #include <boost/test/unit_test.hpp>
 
 #include "utils/rand.h"
@@ -7,12 +8,8 @@
 
 
 struct FakeOfflineFixture {
-    FakeOffline<32, 32, 2> f32_2;
-    FakeOffline<64, 64, 2> f64_2;
-
-//    FakeOfflineFixture() : f32_2(new FakeOffline<32, 32, 2>(getRand<uint32_t>())),
-//                           f64_2(new FakeOffline<64, 64, 2>(getRand<uint64_t>())) {}
-    FakeOfflineFixture(): f32_2(getRand<uint32_t>()), f64_2(getRand<uint64_t>()) {}
+    FakeOffline<32, 32, 2> f32_2{getRand<uint32_t>()};
+    FakeOffline<64, 64, 2> f64_2{getRand<uint64_t>()};
 };
 
 BOOST_FIXTURE_TEST_CASE(SplitNTest, FakeOfflineFixture) {
@@ -28,24 +25,26 @@ BOOST_FIXTURE_TEST_CASE(SplitNTest, FakeOfflineFixture) {
     BOOST_CHECK(std::accumulate(y_split.begin(), y_split.end(), zero_y) == y);
 }
 
-BOOST_FIXTURE_TEST_CASE(GenerateShareTest, FakeOfflineFixture) {
-    auto clear32 = getRand<uint32_t>();
-    auto shares32 = f32_2.generateShares(clear32);
-//    auto sum32 = std::accumulate(shares32.begin(), shares32.end(), Spdz2kShare32());
-    auto clear = f32_2.openShares(shares32);
-    BOOST_CHECK_EQUAL(clear, clear32);
+BOOST_FIXTURE_TEST_CASE(GenerateShareTest32, FakeOfflineFixture) {
+    auto clear = getRand<uint32_t>();
+    auto shares = f32_2.generateShares(clear);
+    auto sumShare = std::accumulate(shares.begin(), shares.end(), Spdz2kShare32());
+    auto opened = f32_2.openShares(shares);
 
-//    auto clear64 = getRand<uint64_t>();
-
+    BOOST_CHECK_EQUAL(clear, static_cast<uint32_t>(sumShare.getXi()));
+    BOOST_CHECK_EQUAL(clear, opened);
+    BOOST_CHECK((std::is_same_v<decltype(clear), decltype(opened)>));
+    BOOST_CHECK_EQUAL(sumShare.getMi(), f32_2.getKey() * sumShare.getXi());
 }
 
-BOOST_AUTO_TEST_CASE(GenerateShareTest2) {
-    FakeOffline<32, 32, 2> f32_2(getRand<uint32_t>());
-    auto clear32 = getRand<uint32_t>();
-    auto shares32 = f32_2.generateShares(clear32);
-    auto clear = f32_2.openShares(shares32);
-    BOOST_CHECK_EQUAL(clear32, clear);
-    clear = FakeOffline<32, 32, 2>::openShares(shares32);
-    BOOST_CHECK_EQUAL(clear32, clear);
-}
+BOOST_FIXTURE_TEST_CASE(GenerateShareTest64, FakeOfflineFixture) {
+    auto clear = getRand<uint64_t>();
+    auto shares = f64_2.generateShares(clear);
+    auto sumShare = std::accumulate(shares.begin(), shares.end(), Spdz2kShare64());
+    auto opened = f64_2.openShares(shares);
 
+    BOOST_CHECK_EQUAL(clear, static_cast<uint64_t>(sumShare.getXi()));
+    BOOST_CHECK_EQUAL(clear, opened);
+    BOOST_CHECK((std::is_same_v<decltype(clear), decltype(opened)>));
+    BOOST_CHECK(sumShare.getMi() == f64_2.getKey() * sumShare.getXi());
+}
