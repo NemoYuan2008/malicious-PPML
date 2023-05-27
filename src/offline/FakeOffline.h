@@ -26,6 +26,7 @@ public:
     inline Shares getSpdz2kTriple(KSType a, KSType b);
 
 private:
+    //TODO: really SType???
     SType key;
 };
 
