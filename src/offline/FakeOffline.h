@@ -25,10 +25,24 @@ public:
 
     inline Shares getSpdz2kTriple(KSType a, KSType b);
 
+    inline static KType openShares(const Shares &shares);
+
+    SType getKey() const { return key; }
+
 private:
     //TODO: really SType???
     SType key;
 };
+
+template<int K, int S, int N>
+inline
+typename FakeOffline<K, S, N>::KType FakeOffline<K, S, N>::openShares(const FakeOffline::Shares &shares) {
+    KSType ret;  // Only need lower k bits
+    for (const auto &share: shares) {
+        ret += share.getXi();
+    }
+    return ret;
+}
 
 template<int K, int S, int N>
 inline

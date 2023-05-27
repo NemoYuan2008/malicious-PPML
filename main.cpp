@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cassert>
 #include "share/Spdz2kShare.h"
 #include "offline/FakeOffline.h"
 #include "protocols/GateOffline.h"
@@ -46,21 +47,12 @@ int main() {
 //    auto shares = offline.generateShares(clear);
 //    std::cout << shares[0] << '\n'
 //              << shares[1] << '\n';
-//
-//    KSType_t<32, 32> x = 10;
-//    auto x_split = FakeOffline<32, 32, 2>::splitN(x);
-//    auto sum = std::accumulate(x_split.begin(), x_split.end(), 0UL);
-//    std::cout << x_split[0] << ' ' << x_split[1] << ' ' << sum << '\n';
 
-//    auto y = getRand<KSType_t<32, 32>>();
-//    auto y_split = FakeOffline<32, 32, 2>::splitN(x);
-//    auto sum = std::accumulate(x_split.begin(), x_split.end());
-//    BOOST_CHECK_EQUAL(std::accumulate(x_split.begin(), x_split.end()), x);
-
-    std::cout << getRand<uint32_t>() << ' ' << getRand<uint32_t>() << ' ' << getRand<uint32_t>() << '\n'
-              << getRand<uint64_t>() << ' ' << getRand<uint64_t>() << '\n'
-              << getRand<__uint128_t>() << ' ' << getRand<__uint128_t>() << '\n';
-
+    FakeOffline<32, 32, 2> f32_2(getRand<uint32_t>());
+    uint32_t clear32 = getRand<uint32_t>();
+    auto shares32 = f32_2.generateShares(clear32);
+    auto clear = FakeOffline<32, 32, 2>::openShares(shares32);
+    assert(clear32 == clear);
 
     return 0;
 }

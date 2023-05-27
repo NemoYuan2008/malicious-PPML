@@ -33,7 +33,7 @@ public:
 
     Spdz2kShare() = default;
 
-    Spdz2kShare(KSType x, KSType mac) : x(x), mac(mac) {}
+    Spdz2kShare(KSType x, KSType mac) : xi(x), mi(mac) {}
 
     friend inline bool operator==<S, K>(const Spdz2kShare &lhs, const Spdz2kShare &rhs);
 
@@ -47,24 +47,27 @@ public:
 
     friend std::ostream &operator<<<S, K>(std::ostream &os, const Spdz2kShare &rhs);
 
+    KSType getXi() const { return xi; }
+
+    KSType getMi() const { return mi; }
 
 private:
-    KSType x;
-    KSType mac;
+    KSType xi;
+    KSType mi;
 };
 
 
 
 template<int K, int S>
 bool operator==(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S> &rhs) {
-    return lhs.x == rhs.x && lhs.mac == rhs.mac;
+    return lhs.xi == rhs.xi && lhs.mi == rhs.mi;
 }
 
 template<int K, int S>
 inline
 Spdz2kShare<K, S> Spdz2kShare<K, S>::operator+=(const Spdz2kShare &rhs) {
-    mac += rhs.mac;
-    x += rhs.x;
+    mi += rhs.mi;
+    xi += rhs.xi;
     return *this;
 }
 
@@ -79,8 +82,8 @@ Spdz2kShare<K, S> operator+(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S
 template<int K, int S>
 inline
 Spdz2kShare<K, S> Spdz2kShare<K, S>::operator-=(const Spdz2kShare &rhs) {
-    mac -= rhs.mac;
-    x -= rhs.x;
+    mi -= rhs.mi;
+    xi -= rhs.xi;
     return *this;
 }
 
@@ -95,8 +98,8 @@ Spdz2kShare<K, S> operator-(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S
 template<int K, int S>
 std::ostream &operator<<(std::ostream &os, const Spdz2kShare<K, S> &rhs) {
     os << std::hex
-       << "x = " << rhs.x << ", "
-       << "mac = " << rhs.mac << std::dec;
+       << "xi = " << rhs.xi << ", "
+       << "mi = " << rhs.mi << std::dec;
     return os;
 }
 
