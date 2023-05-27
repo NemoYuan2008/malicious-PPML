@@ -21,6 +21,8 @@ public:
 
     inline static std::array<KSType, N> splitN(KSType x);
 
+    inline Shares generateShares(KType x);
+
     inline Shares generateShares(KSType x);
 
     inline Shares getSpdz2kTriple(KSType a, KSType b);
@@ -32,6 +34,7 @@ public:
 private:
     KSType key;
 };
+
 
 template<int K, int S, int N>
 inline
@@ -53,7 +56,13 @@ std::array<KSType_t<K, S>, N> FakeOffline<K, S, N>::splitN(FakeOffline::KSType x
 }
 
 
-//TODO: Add an overload with a KType param
+template<int K, int S, int N>
+typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(FakeOffline::KType x) {
+    auto mask = getRand<SType>();   //mask higher S bits of x
+    return generateShares(static_cast<KSType>(mask) << K | x);
+}
+
+
 template<int K, int S, int N>
 typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(KSType x) {
     KSType mac = x * key;
