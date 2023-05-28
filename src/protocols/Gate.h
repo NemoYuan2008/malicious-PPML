@@ -2,6 +2,7 @@
 #define MALICIOUS_PPML_GATE_H
 
 
+#include <memory>
 #include "protocols/GateOffline.h"
 
 template<int K, int S>
@@ -11,18 +12,27 @@ public:
     using SType = SType_t<S>;
     using KSType = KSType_t<K, S>;
 
-    virtual void runOffline(const Spdz2kShare<K, S> &delta_x, const Spdz2kShare<K, S> &delta_y) = 0;
+    Gate() = default;
+
+    Gate(const std::shared_ptr<Gate> &input_x, const std::shared_ptr<Gate> &input_y)
+            : input_x(input_x), input_y(input_y) {}
+
+    virtual void runOffline() = 0;
+
+    const Spdz2kShare<K, S> &getLambda_zShr() const { return lambda_zShr; }  //TODO: return ref of value?
 
 protected:
-    Spdz2kShare<K, S> delta_z;
+    //Maybe: define clearLambda here for debugging purpose
+    Spdz2kShare<K, S> lambda_zShr;
+    std::shared_ptr<Gate> input_x, input_y;
 };
 
 
 template<int K, int S>
 class AdditionGate : public Gate<K, S> {
 public:
-    virtual void runOffline(const Spdz2kShare<K, S> &delta_x, const Spdz2kShare<K, S> &delta_y) override {
-        this->delta_z = delta_x + delta_y;
+    void runOffline() override {
+        this->lambda_zShr = this->input_x->getLambda_zShr() + this->input_y->getLambda_zShr();
     }
 };
 
@@ -30,13 +40,13 @@ public:
 template<int K, int S>
 class MultiplicationGate : public Gate<K, S> {
 public:
-
-    void runOffline(const Spdz2kShare<K, S> &delta_x, const Spdz2kShare<K, S> &delta_y) override {
-//        this->delta_xy =
+    void runOffline() override {
+        // generate random lambda_zShr
+        // compute triple
     }
 
 protected:
-    Spdz2kShare<K, S> delta_xy;
+    Spdz2kShare<K, S> lambda_xyShr;
 };
 
 

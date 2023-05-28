@@ -39,7 +39,7 @@ public:
             : GateOffline<K, S>(p_delta_z), delta_xy(p_delta_xy) {}
 
     void runOffline(const Spdz2kShare<K, S> &delta_x, const Spdz2kShare<K, S> &delta_y) override {
-//        this->delta_xy =
+//        this->lambda_xyShr =
     }
 
     Spdz2kShare<K, S> delta_xy;
