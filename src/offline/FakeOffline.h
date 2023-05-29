@@ -17,7 +17,9 @@ public:
     using KSType = KSType_t<K, S>;
     using Shares = std::array<Spdz2kShare<K, S>, N>;
 
-    FakeOffline(KSType p_key) : key(p_key) {}
+    FakeOffline() : key(getRand<KSType>()) {}
+
+    explicit FakeOffline(KSType p_key) : key(p_key) {}
 
     inline static std::array<KSType, N> splitN(KSType x);
 
@@ -50,6 +52,7 @@ template<int K, int S, int N>
 inline
 std::array<KSType_t<K, S>, N> FakeOffline<K, S, N>::splitN(FakeOffline::KSType x) {
     std::array<KSType, N> ret;
+    // Get N-1 random numbers and compute the last
     std::generate(ret.begin(), ret.end() - 1, getRand<KSType>);
     ret.back() = -std::accumulate(ret.begin(), ret.end() - 1, -x);
     return ret;
