@@ -14,7 +14,7 @@ using std::make_shared;
 
 int main() {
     auto in1 = make_shared<InputGate<Spdz2kShare32>>(), in2 = make_shared<InputGate<Spdz2kShare32>>();
-    auto a = make_shared<AdditionGate<Spdz2kShare32>>(in1, in2);
+    std::shared_ptr<Gate<Spdz2kShare32>> a = make_shared<AdditionGate<Spdz2kShare32>>(in1, in2);
     in1->setDeltaClear(10);
     in2->setDeltaClear(20);
     a->runOnline();

@@ -14,6 +14,8 @@ public:
     Gate(const std::shared_ptr<Gate> &input_x, const std::shared_ptr<Gate> &input_y)
             : input_x(input_x), input_y(input_y) {}
 
+    virtual ~Gate() = default;
+
     virtual void runOffline() = 0;
 
     virtual void runOnline() = 0;
