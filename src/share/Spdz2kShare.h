@@ -30,6 +30,7 @@ public:
     using KType = KType_t<K>;
     using SType = SType_t<S>;
     using KSType = KSType_t<K, S>;
+    using ClearType = KType;
 
     Spdz2kShare() = default;
 
