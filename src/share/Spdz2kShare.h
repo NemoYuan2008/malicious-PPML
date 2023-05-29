@@ -18,6 +18,9 @@ template<int K, int S>
 inline Spdz2kShare<K, S> operator-(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S> &rhs);
 
 template<int K, int S>
+inline Spdz2kShare<K, S> operator*(const Spdz2kShare<K, S> &lhs, typename Spdz2kShare<K, S>::ClearType rhs);
+
+template<int K, int S>
 std::ostream &operator<<(std::ostream &os, const Spdz2kShare<K, S> &rhs);
 
 
@@ -38,11 +41,13 @@ public:
 
     friend bool operator==<S, K>(const Spdz2kShare &lhs, const Spdz2kShare &rhs);
 
-    inline Spdz2kShare operator+=(const Spdz2kShare &rhs);
+    Spdz2kShare &operator+=(const Spdz2kShare &rhs);
+
+    Spdz2kShare &operator-=(const Spdz2kShare &rhs);
+
+    Spdz2kShare &operator*=(ClearType rhs);
 
     friend Spdz2kShare operator+<S, K>(const Spdz2kShare &lhs, const Spdz2kShare &rhs);
-
-    Spdz2kShare operator-=(const Spdz2kShare &rhs);
 
     friend Spdz2kShare operator-<S, K>(const Spdz2kShare &lhs, const Spdz2kShare &rhs);
 
@@ -66,9 +71,25 @@ bool operator==(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S> &rhs) {
 
 template<int K, int S>
 inline
-Spdz2kShare<K, S> Spdz2kShare<K, S>::operator+=(const Spdz2kShare &rhs) {
+Spdz2kShare<K, S> &Spdz2kShare<K, S>::operator+=(const Spdz2kShare &rhs) {
     mi += rhs.mi;
     xi += rhs.xi;
+    return *this;
+}
+
+template<int K, int S>
+inline
+Spdz2kShare<K, S> &Spdz2kShare<K, S>::operator-=(const Spdz2kShare &rhs) {
+    mi -= rhs.mi;
+    xi -= rhs.xi;
+    return *this;
+}
+
+template<int K, int S>
+inline
+Spdz2kShare<K, S> &Spdz2kShare<K, S>::operator*=(Spdz2kShare::ClearType rhs) {
+    xi *= rhs;
+    mi *= rhs;
     return *this;
 }
 
@@ -80,19 +101,19 @@ Spdz2kShare<K, S> operator+(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S
     return ret;
 }
 
-template<int K, int S>
-inline
-Spdz2kShare<K, S> Spdz2kShare<K, S>::operator-=(const Spdz2kShare &rhs) {
-    mi -= rhs.mi;
-    xi -= rhs.xi;
-    return *this;
-}
 
 template<int K, int S>
 inline
 Spdz2kShare<K, S> operator-(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S> &rhs) {
     Spdz2kShare<K, S> ret(lhs);
     ret -= rhs;
+    return ret;
+}
+
+template<int K, int S>
+inline Spdz2kShare<K, S> operator*(const Spdz2kShare<K, S> &lhs, typename Spdz2kShare<K, S>::ClearType rhs) {
+    Spdz2kShare<K, S> ret(lhs);
+    ret *= rhs;
     return ret;
 }
 
