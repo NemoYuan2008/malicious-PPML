@@ -7,6 +7,8 @@
 template<typename ShrType>
 class Gate {
 public:
+    using ClearType = typename ShrType::ClearType;
+
     Gate() = default;
 
     Gate(const std::shared_ptr<Gate> &input_x, const std::shared_ptr<Gate> &input_y)
@@ -14,12 +16,19 @@ public:
 
     virtual void runOffline() = 0;
 
-    const ShrType &getLambda_zShr() const { return lambda_zShr; }
+    virtual void runOnline() = 0;
+
+    const ShrType &getLambdaShr() const { return lambdaShr; }
+
+    ClearType getDeltaClear() const { return deltaClear; }
+
+    void setDeltaClear(ClearType p_deltaClear) { deltaClear = p_deltaClear; }
 
 protected:
     //Maybe: define clearLambda here for debugging purpose
-    ShrType lambda_zShr;
-    std::shared_ptr<Gate> input_x, input_y;
+    ShrType lambdaShr{};      //We don't set it in ctor, it's set in offline phase
+    ClearType deltaClear{};   //We don't set it in ctor, it's set in online phase
+    std::shared_ptr<Gate<ShrType>> input_x, input_y;
 };
 
 

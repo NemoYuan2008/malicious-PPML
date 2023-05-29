@@ -4,19 +4,28 @@
 
 #include "protocols/Gate.h"
 
-template<typename ShareType>
-class InputGate : public Gate<ShareType> {
+template<typename ShrType>
+class InputGate : public Gate<ShrType> {
 public:
+    using typename Gate<ShrType>::ClearType;
+
     InputGate() = default;  // parent of InputGate should be nullptr
 
     void runOffline() override {
-        // Generate random lambda_zShr, where the owner knows lambda_zShr.
-        // Owner computes delta_zClear and broadcast it.
-        // Parties save delta_zClear
+        // Generate random lambdaShr, where the owner knows lambdaShr.
     }
 
+    void runOnline() override {
+        // Owner computes deltaClear and broadcast it.
+        // Parties save deltaClear
+    }
+
+    ClearType getLambda_zClear() const { return lambda_zClear; }
+
+    void setLambda_zClear(ClearType lambdaZClear) { lambda_zClear = lambdaZClear; }  //for debugging
+
 protected:
-    typename ShareType::ClearType lambda_zClear;    //should be known to owner
+    ClearType lambda_zClear;    //should be known to owner
 };
 
 

@@ -3,11 +3,19 @@
 
 #include "protocols/Gate.h"
 
-template<typename ShareType>
-class AdditionGate : public Gate<ShareType> {
+template<typename ShrType>
+class AdditionGate : public Gate<ShrType> {
 public:
+    using typename Gate<ShrType>::ClearType;
+
+    using Gate<ShrType>::Gate;
+
     void runOffline() override {
-        this->lambda_zShr = this->input_x->getLambda_zShr() + this->input_y->getLambda_zShr();
+        this->lambdaShr = this->input_x->getLambdaShr() + this->input_y->getLambdaShr();
+    }
+
+    void runOnline() override {
+        this->deltaClear = this->input_x->getDeltaClear() + this->input_y->getDeltaClear();
     }
 };
 
