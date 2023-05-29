@@ -23,6 +23,10 @@ public:
         //TODO: open delta_zShr and set this->deltaShr
     }
 
+    const ShrType &getLambdaXyShr() const { return lambda_xyShr; }
+
+    void setLambdaXyShr(const ShrType &lambdaXyShr) { lambda_xyShr = lambdaXyShr; }
+
 protected:
     ShrType lambda_xyShr;
 };

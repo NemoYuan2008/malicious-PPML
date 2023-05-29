@@ -22,7 +22,7 @@ public:
 
     ClearType getLambda_zClear() const { return lambda_zClear; }
 
-    void setLambda_zClear(ClearType lambdaZClear) { lambda_zClear = lambdaZClear; }  //for debugging
+    void setLambda_zClear(ClearType lambdaZClear) { lambda_zClear = lambdaZClear; }
 
 protected:
     ClearType lambda_zClear;    //should be known to owner

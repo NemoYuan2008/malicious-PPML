@@ -24,7 +24,15 @@ public:
 
     ClearType getDeltaClear() const { return deltaClear; }
 
+    void setLambdaShr(ShrType lambdaShr) { Gate::lambdaShr = lambdaShr; }
+
     void setDeltaClear(ClearType p_deltaClear) { deltaClear = p_deltaClear; }
+
+    void setInputX(const std::shared_ptr<Gate<ShrType>> &inputX) { input_x = inputX; }
+
+    void setInputY(const std::shared_ptr<Gate<ShrType>> &inputY) { input_y = inputY; }
+
+    void setInputXY(const std::shared_ptr<Gate> &x, const std::shared_ptr<Gate> &y) { input_x = x, input_y = y; }
 
 protected:
     //Maybe: define clearLambda here for debugging purpose
