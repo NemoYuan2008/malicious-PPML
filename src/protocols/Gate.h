@@ -3,7 +3,6 @@
 
 
 #include <memory>
-#include "protocols/GateOffline.h"
 
 template<typename ShrType>
 class Gate {
@@ -15,34 +14,12 @@ public:
 
     virtual void runOffline() = 0;
 
-    const ShrType &getLambda_zShr() const { return lambda_zShr; }  //TODO: return ref of value?
+    const ShrType &getLambda_zShr() const { return lambda_zShr; }
 
 protected:
     //Maybe: define clearLambda here for debugging purpose
     ShrType lambda_zShr;
     std::shared_ptr<Gate> input_x, input_y;
-};
-
-
-template<typename ShareType>
-class AdditionGate : public Gate<ShareType> {
-public:
-    void runOffline() override {
-        this->lambda_zShr = this->input_x->getLambda_zShr() + this->input_y->getLambda_zShr();
-    }
-};
-
-
-template<typename ShareType>
-class MultiplicationGate : public Gate<ShareType> {
-public:
-    void runOffline() override {
-        // generate random lambda_zShr
-        // compute triple
-    }
-
-protected:
-    ShareType lambda_xyShr;
 };
 
 
