@@ -3,7 +3,6 @@
 
 #include "share/Spdz2kShare.h"
 #include "offline/FakeOffline.h"
-#include "protocols/GateOffline.h"
 #include "utils/rand.h"
 #include "protocols/Gate.h"
 #include "protocols/InputGate.h"
