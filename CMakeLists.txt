@@ -14,3 +14,5 @@ add_subdirectory(src/offline)
 add_subdirectory(src/share)
 
 add_subdirectory(tests)
+
+add_subdirectory(network)
