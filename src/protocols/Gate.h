@@ -20,6 +20,10 @@ public:
 
     virtual void runOnline() = 0;
 
+    bool isEvaluatedOffline() const { return evaluatedOffline; }
+
+    bool isEvaluatedOnline() const { return evaluatedOnline; }
+
     const ShrType &getLambdaShr() const { return lambdaShr; }
 
     ClearType getDeltaClear() const { return deltaClear; }
@@ -34,11 +38,29 @@ public:
 
     void setInputXY(const std::shared_ptr<Gate> &x, const std::shared_ptr<Gate> &y) { input_x = x, input_y = y; }
 
+
+protected:
+    void runOfflineRecursive() {   //used in runOffline
+        if (input_x && input_x->isEvaluatedOffline())
+            input_x->runOffline();
+        if (input_y && input_y->isEvaluatedOffline())
+            input_y->runOffline();
+    }
+
+    void runOnlineRecursive() {    //used in runOnline
+        if (input_x && input_x->isEvaluatedOnline())
+            input_x->runOnline();
+        if (input_y && input_y->isEvaluatedOnline())
+            input_y->runOnline();
+    }
+
 protected:
     //Maybe: define clearLambda here for debugging purpose
     ShrType lambdaShr{};      //We don't set it in ctor, it's set in offline phase
     ClearType deltaClear{};   //We don't set it in ctor, it's set in online phase
     std::shared_ptr<Gate<ShrType>> input_x, input_y;
+    bool evaluatedOffline = false;
+    bool evaluatedOnline = false;
 };
 
 
