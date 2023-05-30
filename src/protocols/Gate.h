@@ -38,19 +38,22 @@ public:
 
     void setInputXY(const std::shared_ptr<Gate> &x, const std::shared_ptr<Gate> &y) { input_x = x, input_y = y; }
 
+    void setEvaluatedOffline() { evaluatedOffline = true; }     //for debugging
+
+    void setEvaluatedOnline() { evaluatedOnline = true; }       //for debugging
 
 protected:
     void runOfflineRecursive() {   //used in runOffline
-        if (input_x && input_x->isEvaluatedOffline())
+        if (input_x && !input_x->isEvaluatedOffline())
             input_x->runOffline();
-        if (input_y && input_y->isEvaluatedOffline())
+        if (input_y && !input_y->isEvaluatedOffline())
             input_y->runOffline();
     }
 
     void runOnlineRecursive() {    //used in runOnline
-        if (input_x && input_x->isEvaluatedOnline())
+        if (input_x && !input_x->isEvaluatedOnline())
             input_x->runOnline();
-        if (input_y && input_y->isEvaluatedOnline())
+        if (input_y && !input_y->isEvaluatedOnline())
             input_y->runOnline();
     }
 

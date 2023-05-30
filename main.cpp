@@ -7,17 +7,24 @@
 #include "protocols/Gate.h"
 #include "protocols/InputGate.h"
 #include "protocols/AdditionGate.h"
+#include "protocols/Circuit.h"
 
 using std::cout;
 using std::hex;
 using std::make_shared;
 
 int main() {
+    Circuit<Spdz2kShare32> circuit;
     auto in1 = make_shared<InputGate<Spdz2kShare32>>(), in2 = make_shared<InputGate<Spdz2kShare32>>();
-    std::shared_ptr<Gate<Spdz2kShare32>> a = make_shared<AdditionGate<Spdz2kShare32>>(in1, in2);
+    auto a = circuit.add(in1, in2);
+    auto b = circuit.add(a, in2);
+    circuit.addEndpoint(b);
+
     in1->setDeltaClear(10);
     in2->setDeltaClear(20);
-    a->runOnline();
+
+    circuit.runOnline();
+    cout << b->getDeltaClear() << '\n';
 
     return 0;
 }
