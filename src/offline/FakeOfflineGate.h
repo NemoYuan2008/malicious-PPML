@@ -2,6 +2,8 @@
 #define MALICIOUS_PPML_FAKEOFFLINEGATE_H
 
 
+#include <fstream>
+#include <memory>
 #include "protocols/Gate.h"
 #include "protocols/InputGate.h"
 #include "protocols/AdditionGate.h"
@@ -10,26 +12,33 @@
 
 
 template<typename ShrType>
-class FakeGate : public Gate<ShrType> {
+class FakeGate {
 public:
-    using Gate<ShrType>::Gate;
     using typename Gate<ShrType>::ClearType;
 
-    void runOffline() = 0;
+    explicit FakeGate(std::ofstream &ofs) : Gate<ShrType>(), file(ofs) {}
 
-    void runOnline() override {}    // dummy override
+    FakeGate(const std::shared_ptr<FakeGate> &input_x, const std::shared_ptr<FakeGate> &input_y, std::ofstream &ofs)
+            : Gate<ShrType>(input_x, input_y), file(ofs) {}
+
+    FakeGate(const std::shared_ptr<FakeGate> &input_x, const std::shared_ptr<FakeGate> &input_y)
+            : FakeGate(input_x, input_y, input_x->file) {}
+
+    virtual void runOffline() = 0;
 
     ClearType getLambdaClear() const { return lambdaClear; }
 
 protected:
-    ClearType lambdaClear;
+    std::shared_ptr<FakeGate> input_x, input_y;
+    std::ofstream &file;
+    ClearType lambdaClear{};
 };
 
 
 template<typename ShrType>
 class FakeInputGate : public FakeGate<ShrType> {
 public:
-    using Gate<ShrType>::Gate;
+    using FakeGate<ShrType>::FakeGate;
     using typename Gate<ShrType>::ClearType;
 
     void runOffline() override {
@@ -43,7 +52,7 @@ public:
 template<typename ShrType>
 class FakeAdditionGate : public FakeGate<ShrType> {
 public:
-    using Gate<ShrType>::Gate;
+    using FakeGate<ShrType>::FakeGate;
     using typename Gate<ShrType>::ClearType;
 
     void runOffline() override {
