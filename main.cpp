@@ -9,22 +9,18 @@
 #include "protocols/AdditionGate.h"
 #include "protocols/Circuit.h"
 
+using std::cin;
 using std::cout;
 using std::hex;
 using std::make_shared;
 
 int main() {
-    Circuit<Spdz2kShare32> circuit;
-    auto x = make_shared<InputGate<Spdz2kShare32>>(), y = make_shared<InputGate<Spdz2kShare32>>();
-    auto a = circuit.add(x, y);
-    auto b = circuit.add(a, x);
-    auto c = circuit.add(a, b);
-    uint32_t xClear = 10, yClear = 20;
-    x->setDeltaClear(xClear);
-    y->setDeltaClear(yClear);
-    circuit.addEndpoint(b);
-    circuit.addEndpoint(c);
-    circuit.runOnline();
+    cin >> hex;
+    cout << hex;
+
+    __uint128_t x;
+    cin >> x;
+    cout << x;
 
     return 0;
 }
