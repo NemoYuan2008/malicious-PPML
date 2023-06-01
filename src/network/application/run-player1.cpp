@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <iomanip>
-#include "../network/network.h"
+#include "network/network.h"
 
 using namespace boost::asio;
 using ip::tcp;
