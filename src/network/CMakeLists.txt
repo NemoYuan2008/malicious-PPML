@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.25)
 project(demo)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "-march=haswell -mavx512f")
+#set(CMAKE_CXX_FLAGS "-march=haswell -mavx512f")
 
-set(CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -O3")
+#set(CMAKE_CXX_FLAGS_RELEASE "-Wall -Wextra -O3")
 
 add_library(NETWORK network.cpp network.h)
 target_link_libraries(NETWORK PUBLIC pthread)
