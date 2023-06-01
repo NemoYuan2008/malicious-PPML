@@ -4,22 +4,18 @@
 
 #include <fstream>
 #include <memory>
-#include "protocols/Gate.h"
-#include "protocols/InputGate.h"
-#include "protocols/AdditionGate.h"
-#include "protocols/MultiplicationGate.h"
 #include "utils/rand.h"
 
 
 template<typename ShrType>
 class FakeGate {
 public:
-    using typename Gate<ShrType>::ClearType;
+    using ClearType = typename ShrType::ClearType;
 
-    explicit FakeGate(std::ofstream &ofs) : Gate<ShrType>(), file(ofs) {}
+    explicit FakeGate(std::ofstream &ofs) : file(ofs) {}
 
     FakeGate(const std::shared_ptr<FakeGate> &input_x, const std::shared_ptr<FakeGate> &input_y, std::ofstream &ofs)
-            : Gate<ShrType>(input_x, input_y), file(ofs) {}
+            : input_x(input_x), input_y(input_y), file(ofs) {}
 
     FakeGate(const std::shared_ptr<FakeGate> &input_x, const std::shared_ptr<FakeGate> &input_y)
             : FakeGate(input_x, input_y, input_x->file) {}
@@ -28,10 +24,21 @@ public:
 
     ClearType getLambdaClear() const { return lambdaClear; }
 
+    bool isEvaluatedOffline() const { return evaluatedOffline; }
+
 protected:
-    std::shared_ptr<FakeGate> input_x, input_y;
+    void runOfflineRecursive() {   //used in runOffline
+        if (input_x && !input_x->isEvaluatedOffline())
+            input_x->runOffline();
+        if (input_y && !input_y->isEvaluatedOffline())
+            input_y->runOffline();
+    }
+
+protected:
+    std::shared_ptr<FakeGate> input_x{}, input_y{};
     std::ofstream &file;
     ClearType lambdaClear{};
+    bool evaluatedOffline = false;
 };
 
 
@@ -39,7 +46,7 @@ template<typename ShrType>
 class FakeInputGate : public FakeGate<ShrType> {
 public:
     using FakeGate<ShrType>::FakeGate;
-    using typename Gate<ShrType>::ClearType;
+    using typename FakeGate<ShrType>::ClearType;
 
     void runOffline() override {
         //Input gate mustn't have inputs
@@ -53,7 +60,7 @@ template<typename ShrType>
 class FakeAdditionGate : public FakeGate<ShrType> {
 public:
     using FakeGate<ShrType>::FakeGate;
-    using typename Gate<ShrType>::ClearType;
+    using typename FakeGate<ShrType>::ClearType;
 
     void runOffline() override {
         this->runOfflineRecursive();
@@ -66,8 +73,8 @@ public:
 template<typename ShrType>
 class FakeMultiplicationGate : public FakeGate<ShrType> {
 public:
-    using Gate<ShrType>::Gate;
-    using typename Gate<ShrType>::ClearType;
+    using FakeGate<ShrType>::FakeGate;
+    using typename FakeGate<ShrType>::ClearType;
 
     void runOffline() override {
         this->runOfflineRecursive();
