@@ -21,15 +21,15 @@ public:
 
     explicit FakeOffline(KSType p_key) : key(p_key) {}
 
-    inline static std::array<KSType, N> splitN(KSType x);
+    static std::array<KSType, N> splitN(KSType x);
 
-    inline Shares generateShares(KType x);
+    Shares generateShares(KType x);
 
-    inline Shares generateShares(KSType x);
+    Shares generateShares(KSType x);
 
-    inline Shares getSpdz2kTriple(KSType a, KSType b);
+    Shares getSpdz2kTriple(KSType a, KSType b);
 
-    inline static KType openShares(const Shares &shares);
+    static KType openShares(const Shares &shares);
 
     KSType getKey() const { return key; }
 
