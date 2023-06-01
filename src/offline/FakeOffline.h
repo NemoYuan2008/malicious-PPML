@@ -9,6 +9,16 @@
 #include "share/Spdz2kShare.h"
 #include "utils/rand.h"
 
+
+template<typename ShrType, int N>
+class FakeOfflineBase {
+    using ClearType = typename ShrType::ClearType;
+    using Shares = std::array<ShrType, N>;
+
+    virtual ClearType generateShares(ClearType x) = 0;
+};
+
+
 template<int K, int S, int N>
 class FakeOffline {
 public:
