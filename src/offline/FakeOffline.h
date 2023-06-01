@@ -10,40 +10,48 @@
 #include "utils/rand.h"
 
 
+//TODO: clean up code
+
 template<typename ShrType, int N>
 class FakeOfflineBase {
+public:
     using ClearType = typename ShrType::ClearType;
     using Shares = std::array<ShrType, N>;
 
-    virtual ClearType generateShares(ClearType x) = 0;
+    virtual Shares generateShares(ClearType x) = 0;
 };
 
 
+//TODO: check types
 template<int K, int S, int N>
-class FakeOffline {
+class FakeOffline : FakeOfflineBase<Spdz2kShare<K, S>, N> {
 public:
+    using typename FakeOfflineBase<Spdz2kShare<K, S>, N>::ClearType;
+    using typename FakeOfflineBase<Spdz2kShare<K, S>, N>::Shares;
+
+private:
     using KType = KType_t<K>;
     using SType = SType_t<S>;
     using KSType = KSType_t<K, S>;
-    using Shares = std::array<Spdz2kShare<K, S>, N>;
 
+public:
     FakeOffline() : key(getRand<KSType>()) {}
 
     explicit FakeOffline(KSType p_key) : key(p_key) {}
 
-    static std::array<KSType, N> splitN(KSType x);
-
-    Shares generateShares(KType x);
-
-    Shares generateShares(KSType x);
-
-    Shares getSpdz2kTriple(KSType a, KSType b);
+    Shares generateShares(ClearType x) override;
 
     static KType openShares(const Shares &shares);
 
+    static std::array<KSType, N> splitN(KSType x);
+
     KSType getKey() const { return key; }
 
+    Shares getSpdz2kTriple(KSType a, KSType b);   //We don't need it, triples are generated in FakeOfflineGate
+
 private:
+    Shares generateShares(KSType x);    //TODO: remove this function and rewrite generateShares(ClearType x)?
+
     KSType key;
 };
 
@@ -70,7 +78,7 @@ std::array<KSType_t<K, S>, N> FakeOffline<K, S, N>::splitN(FakeOffline::KSType x
 
 
 template<int K, int S, int N>
-typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(FakeOffline::KType x) {
+typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(FakeOffline::ClearType x) {
     auto mask = getRand<SType>();   //mask higher S bits of x
     return generateShares(static_cast<KSType>(mask) << K | x);
 }
