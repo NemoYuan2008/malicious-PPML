@@ -23,6 +23,8 @@ inline Spdz2kShare<K, S> operator*(const Spdz2kShare<K, S> &lhs, typename Spdz2k
 template<int K, int S>
 std::ostream &operator<<(std::ostream &os, const Spdz2kShare<K, S> &rhs);
 
+template<int K, int S>
+std::istream &operator>>(std::istream &is, Spdz2kShare<K, S> &rhs);
 
 //TODO: check types
 template<int K, int S>
@@ -52,6 +54,8 @@ public:
     friend Spdz2kShare operator-<S, K>(const Spdz2kShare &lhs, const Spdz2kShare &rhs);
 
     friend std::ostream &operator<<<S, K>(std::ostream &os, const Spdz2kShare &rhs);
+
+    friend std::istream &operator>><S, K>(std::istream &is, Spdz2kShare &rhs);
 
     KSType getXi() const { return xi; }
 
@@ -111,7 +115,8 @@ Spdz2kShare<K, S> operator-(const Spdz2kShare<K, S> &lhs, const Spdz2kShare<K, S
 }
 
 template<int K, int S>
-inline Spdz2kShare<K, S> operator*(const Spdz2kShare<K, S> &lhs, typename Spdz2kShare<K, S>::ClearType rhs) {
+inline
+Spdz2kShare<K, S> operator*(const Spdz2kShare<K, S> &lhs, typename Spdz2kShare<K, S>::ClearType rhs) {
     Spdz2kShare<K, S> ret(lhs);
     ret *= rhs;
     return ret;
@@ -120,18 +125,22 @@ inline Spdz2kShare<K, S> operator*(const Spdz2kShare<K, S> &lhs, typename Spdz2k
 template<int K, int S>
 inline
 std::ostream &operator<<(std::ostream &os, const Spdz2kShare<K, S> &rhs) {
-    os << std::hex
-       << "xi = " << rhs.xi << ", "
-       << "mi = " << rhs.mi << std::dec;
+    os << rhs.xi << " " << rhs.mi;
     return os;
 }
 
+template<int K, int S>
+inline
+std::istream &operator>>(std::istream &is, Spdz2kShare<K, S> &rhs) {
+    is >> rhs.xi >> rhs.mi;
+    return is;
+}
 
-extern template
-class Spdz2kShare<32, 32>;
-
-extern template
-class Spdz2kShare<64, 64>;
+//extern template
+//class Spdz2kShare<32, 32>;
+//
+//extern template
+//class Spdz2kShare<64, 64>;
 
 
 using Spdz2kShare32 = Spdz2kShare<32, 32>;
