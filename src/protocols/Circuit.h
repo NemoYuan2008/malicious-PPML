@@ -6,6 +6,8 @@
 #include <memory>
 #include "protocols/Gate.h"
 #include "protocols/AdditionGate.h"
+#include "protocols/InputGate.h"
+#include "protocols/MultiplicationGate.h"
 
 
 template<typename ShrType>
@@ -25,9 +27,23 @@ public:
         }
     }
 
+    std::shared_ptr<InputGate<ShrType>>
+    input() {
+        auto gate = std::make_shared<InputGate<ShrType>>();
+        gates.push_back(gate);
+        return gate;
+    }
+
     std::shared_ptr<AdditionGate<ShrType>>
     add(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
         auto gate = std::make_shared<AdditionGate<ShrType>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<MultiplicationGate<ShrType>>
+    multiply(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
+        auto gate = std::make_shared<MultiplicationGate<ShrType>>(input_x, input_y);
         gates.push_back(gate);
         return gate;
     }
