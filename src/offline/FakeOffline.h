@@ -17,7 +17,7 @@
 
 //TODO: check types
 template<int K, int S, int N>
-class FakeOffline : FakeOfflineBase<Spdz2kShare<K, S>, N> {
+class FakeOffline : public FakeOfflineBase<Spdz2kShare<K, S>, N> {
 public:
     using typename FakeOfflineBase<Spdz2kShare<K, S>, N>::ClearType;
     using typename FakeOfflineBase<Spdz2kShare<K, S>, N>::Shares;

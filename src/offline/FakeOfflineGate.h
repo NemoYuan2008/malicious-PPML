@@ -16,11 +16,11 @@ public:
     using ClearType = typename ShrType::ClearType;
     using Shares = std::array<ShrType, N>;
 
-    explicit FakeGate(std::ofstream &ofs, FakeOfflineBase<ShrType, N> &offline) : file(ofs), offline(offline) {}
+    explicit FakeGate(std::ostream &os, FakeOfflineBase<ShrType, N> &offline) : file(os), offline(offline) {}
 
     FakeGate(const std::shared_ptr<FakeGate> &input_x, const std::shared_ptr<FakeGate> &input_y,
-             std::ofstream &ofs, const FakeOfflineBase<ShrType, N> &offline)
-            : input_x(input_x), input_y(input_y), file(ofs), offline(offline) {}
+             std::ostream &os, const FakeOfflineBase<ShrType, N> &offline)
+            : input_x(input_x), input_y(input_y), file(os), offline(offline) {}
 
     FakeGate(const std::shared_ptr<FakeGate> &input_x, const std::shared_ptr<FakeGate> &input_y)
             : FakeGate(input_x, input_y, input_x->file, input_x->offline) {}
@@ -43,7 +43,7 @@ protected:
 
 protected:
     std::shared_ptr<FakeGate> input_x{}, input_y{};
-    std::ofstream &file;
+    std::ostream &file;
     const FakeOfflineBase<ShrType, N> &offline;
     ClearType lambdaClear{};
     Shares lambdaShares;
