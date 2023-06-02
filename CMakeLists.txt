@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(src)
 
 add_executable(malicious_PPML
-        main.cpp src/offline/FakeOffline.cpp src/protocols/Gate.cpp src/protocols/Gate.h src/utils/rand.h src/protocols/InputGate.h src/protocols/AdditionGate.h src/protocols/MultiplicationGate.h src/protocols/Circuit.h)
+        main.cpp src/protocols/Gate.cpp src/protocols/Gate.h src/utils/rand.h src/protocols/InputGate.h src/protocols/AdditionGate.h src/protocols/MultiplicationGate.h src/protocols/Circuit.h)
 
 target_link_libraries(malicious_PPML uint128)
 
