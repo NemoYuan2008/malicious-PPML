@@ -20,12 +20,12 @@ public:
         // Parties save deltaClear
     }
 
-    ClearType getLambda_zClear() const { return lambda_zClear; }
+    ClearType getLambda_zClear() const { return lambdaClear; }
 
-    void setLambda_zClear(ClearType lambdaZClear) { lambda_zClear = lambdaZClear; }
+    void setLambda_zClear(ClearType p_lambdaClear) { lambdaClear = p_lambdaClear; }
 
 protected:
-    ClearType lambda_zClear;    //should be known to owner
+    ClearType lambdaClear;    //should be known to owner
 };
 
 

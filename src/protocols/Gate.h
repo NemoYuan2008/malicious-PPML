@@ -36,6 +36,10 @@ public:
 
     void setInputY(const std::shared_ptr<Gate<ShrType>> &inputY) { input_y = inputY; }
 
+    const std::shared_ptr<Gate<ShrType>> &getInputX() const { return input_x; }
+
+    const std::shared_ptr<Gate<ShrType>> &getInputY() const { return input_y; }
+
     void setInputXY(const std::shared_ptr<Gate> &x, const std::shared_ptr<Gate> &y) { input_x = x, input_y = y; }
 
     void setEvaluatedOffline() { evaluatedOffline = true; }     //for debugging
