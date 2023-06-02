@@ -48,3 +48,4 @@ BOOST_FIXTURE_TEST_CASE(GenerateShareTest64, FakeOfflineFixture) {
     BOOST_CHECK((std::is_same_v<decltype(clear), decltype(opened)>));
     BOOST_CHECK(sumShare.getMi() == f64_2.getKey() * sumShare.getXi());
 }
+
