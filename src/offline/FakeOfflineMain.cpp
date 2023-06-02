@@ -8,25 +8,30 @@
 #include "offline/FakeCircuit.h"
 
 int main() {
-    std::cin >> std::hex;
-    std::cout << std::hex;
+    std::array<std::ofstream, 2> files{
+            std::ofstream("0.txt"),
+            std::ofstream("1.txt")
+    };
+    //We must write hex numbers
+    for (auto &f: files) {
+        f << std::hex;
+    }
 
     FakeOffline<32, 32, 2> offline;
-    std::array<std::ostream *, 2> files{&std::cout, &std::cout};
+    FakeCircuit<Spdz2kShare32, 2> circuit(files, offline);
 
     //a = x + y, b = a * x, c = z + b, d = a * c
-    auto x = std::make_shared<FakeInputGate<Spdz2kShare32, 2>>(files, offline);
-    auto y = std::make_shared<FakeInputGate<Spdz2kShare32, 2>>(files, offline);
-    auto z = std::make_shared<FakeInputGate<Spdz2kShare32, 2>>(files, offline);
+    auto x = circuit.input();
+    auto y = circuit.input();
+    auto z = circuit.input();
 
-    auto a = std::make_shared<FakeAdditionGate<Spdz2kShare32, 2>>(x, y);
-    auto b = std::make_shared<FakeMultiplicationGate<Spdz2kShare32, 2>>(a, x);
-    auto c = std::make_shared<FakeAdditionGate<Spdz2kShare32, 2>>(z, b);
-    auto d = std::make_shared<FakeMultiplicationGate<Spdz2kShare32, 2>>(a, c);
+    auto a = circuit.add(x, y);
+    auto b = circuit.multiply(a, x);
+    auto c = circuit.add(z, b);
+    auto d = circuit.multiply(a, c);
 
-    d->runOffline();
-
-    std::cout << x->getLambdaClear() << ' ' << y->getLambdaClear() << ' ' << a->getLambdaClear() << '\n';
+    circuit.addEndpoint(d);
+    circuit.runOffline();
 
     return 0;
 }

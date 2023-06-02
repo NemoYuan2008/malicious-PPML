@@ -17,7 +17,7 @@ public:
     using Shares = std::array<ShrType, N>;
 
     FakeGate(std::array<std::ostream *, N> &files,
-             FakeOfflineBase<ShrType, N> &offline)
+             const FakeOfflineBase<ShrType, N> &offline)
             : files(files), offline(offline) {}
 
     FakeGate(const std::shared_ptr<FakeGate> &input_x,

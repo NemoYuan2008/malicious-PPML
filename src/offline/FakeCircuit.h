@@ -17,6 +17,13 @@ public:
     FakeCircuit(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline)
             : files(files), offline(offline) {}
 
+    FakeCircuit(std::array<std::ofstream, N> &p_files, const FakeOfflineBase<ShrType, N> &offline)
+            : offline(offline) {
+        for (int i = 0; i < N; ++i) {
+            files[i] = &p_files[i];
+        }
+    }
+
     void runOffline() {
         for (const auto &gatePtr: endpoints) {
             gatePtr->runOffline();
@@ -25,7 +32,7 @@ public:
 
     std::shared_ptr<FakeInputGate<ShrType, N>>
     input() {
-        auto gate = std::make_shared<FakeInputGate<ShrType, N>>();
+        auto gate = std::make_shared<FakeInputGate<ShrType, N>>(files, offline);
         gates.push_back(gate);
         return gate;
     }
