@@ -5,6 +5,7 @@
 #include <array>
 #include <algorithm>
 #include <numeric>
+#include "offline/FakeOfflineBase.h"
 #include "share/types.h"
 #include "share/Spdz2kShare.h"
 #include "utils/rand.h"
@@ -12,14 +13,6 @@
 
 //TODO: clean up code
 
-template<typename ShrType, int N>
-class FakeOfflineBase {
-public:
-    using ClearType = typename ShrType::ClearType;
-    using Shares = std::array<ShrType, N>;
-
-    virtual Shares generateShares(ClearType x) = 0;
-};
 
 
 //TODO: check types
@@ -39,7 +32,7 @@ public:
 
     explicit FakeOffline(KSType p_key) : key(p_key) {}
 
-    Shares generateShares(ClearType x) override;
+    Shares generateShares(ClearType x) const override;
 
     static KType openShares(const Shares &shares);
 
@@ -47,10 +40,10 @@ public:
 
     KSType getKey() const { return key; }
 
-    Shares getSpdz2kTriple(KSType a, KSType b);   //We don't need it, triples are generated in FakeOfflineGate
+    Shares getSpdz2kTriple(KSType a, KSType b) const;   //We don't need it, triples are generated in FakeOfflineGate
 
 private:
-    Shares generateShares(KSType x);    //TODO: remove this function and rewrite generateShares(ClearType x)?
+    Shares generateShares(KSType x) const;    //TODO: remove this function and rewrite generateShares(ClearType x)?
 
     KSType key;
 };
@@ -78,14 +71,14 @@ std::array<KSType_t<K, S>, N> FakeOffline<K, S, N>::splitN(FakeOffline::KSType x
 
 
 template<int K, int S, int N>
-typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(FakeOffline::ClearType x) {
+typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(FakeOffline::ClearType x) const {
     auto mask = getRand<SType>();   //mask higher S bits of x
     return generateShares(static_cast<KSType>(mask) << K | x);
 }
 
 
 template<int K, int S, int N>
-typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(KSType x) {
+typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(KSType x) const {
     KSType mac = x * key;
     auto x_i = splitN(x), mac_i = splitN(mac);
     Shares ret;
@@ -96,7 +89,7 @@ typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(KSTyp
 }
 
 template<int K, int S, int N>
-typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::getSpdz2kTriple(KSType a, KSType b) {
+typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::getSpdz2kTriple(KSType a, KSType b) const {
     return generateShares(a * b);
 }
 
