@@ -2,15 +2,20 @@
 #define MALICIOUS_PPML_FAKECIRCUIT_H
 
 
+#include <ostream>
+#include <array>
 #include <vector>
 #include <memory>
-#include "FakeOfflineGate.h"
+
+#include "offline/FakeOffline.h"
+#include "offline/FakeOfflineGate.h"
 
 
 template<typename ShrType, int N>
 class FakeCircuit {
 public:
-    FakeCircuit() = default;
+    FakeCircuit(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline)
+            : files(files), offline(offline) {}
 
     void runOffline() {
         for (const auto &gatePtr: endpoints) {
@@ -46,6 +51,8 @@ public:
     }
 
 private:
+    std::array<std::ostream *, N> files;
+    const FakeOfflineBase<ShrType, N> &offline;
     std::vector<std::shared_ptr<FakeGate<ShrType, N>>> gates;
     std::vector<std::shared_ptr<FakeGate<ShrType, N>>> endpoints;
 };

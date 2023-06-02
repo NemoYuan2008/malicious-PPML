@@ -16,14 +16,19 @@ public:
     using ClearType = typename ShrType::ClearType;
     using Shares = std::array<ShrType, N>;
 
-    explicit FakeGate(std::ostream &os, FakeOfflineBase<ShrType, N> &offline) : file(os), offline(offline) {}
+    FakeGate(std::array<std::ostream *, N> &files,
+             FakeOfflineBase<ShrType, N> &offline)
+            : files(files), offline(offline) {}
 
-    FakeGate(const std::shared_ptr<FakeGate> &input_x, const std::shared_ptr<FakeGate> &input_y,
-             std::ostream &os, const FakeOfflineBase<ShrType, N> &offline)
-            : input_x(input_x), input_y(input_y), file(os), offline(offline) {}
+    FakeGate(const std::shared_ptr<FakeGate> &input_x,
+             const std::shared_ptr<FakeGate> &input_y,
+             std::array<std::ostream *, N> &files,
+             const FakeOfflineBase<ShrType, N> &offline)
+            : input_x(input_x), input_y(input_y), files(files), offline(offline) {}
 
-    FakeGate(const std::shared_ptr<FakeGate> &input_x, const std::shared_ptr<FakeGate> &input_y)
-            : FakeGate(input_x, input_y, input_x->file, input_x->offline) {}
+    FakeGate(const std::shared_ptr<FakeGate> &input_x,
+             const std::shared_ptr<FakeGate> &input_y)
+            : FakeGate(input_x, input_y, input_x->files, input_x->offline) {}
 
     virtual void runOffline() = 0;
 
@@ -43,7 +48,7 @@ protected:
 
 protected:
     std::shared_ptr<FakeGate> input_x{}, input_y{};
-    std::ostream &file;
+    std::array<std::ostream *, N> &files;
     const FakeOfflineBase<ShrType, N> &offline;
     ClearType lambdaClear{};
     Shares lambdaShares;
@@ -58,10 +63,14 @@ public:
     using typename FakeGate<ShrType, N>::ClearType;
 
     void runOffline() override {
-        //Input gate mustn't have input wires, no need to call runOfflineRecursive()
+        //No need to call runOfflineRecursive() for input gates
         this->lambdaClear = getRand<ClearType>();
         this->lambdaShares = this->offline.generateShares(this->lambdaClear);
-        //TODO: write lambdaShares to file
+
+        for (int i = 0; i < N; ++i) {
+            *this->files[i] << this->lambdaShares[i] << '\n';
+        }
+
         this->evaluatedOffline = true;
     }
 };
@@ -84,7 +93,9 @@ public:
                        this->input_y->getLambdaShares().begin(),
                        this->lambdaShares.begin(), std::plus<>());
 
-        //TODO: write lambdaShares to file
+        for (int i = 0; i < N; ++i) {
+            *this->files[i] << this->lambdaShares[i] << '\n';
+        }
 
         this->evaluatedOffline = true;
     }
@@ -107,7 +118,10 @@ public:
         this->lambdaShares = this->offline.generateShares(this->lambdaClear);
         this->lambda_xyShares = this->offline.generateShares(this->lambda_xyClear);
 
-        //TODO: write lambdaShares to file
+        for (int i = 0; i < N; ++i) {
+            *this->files[i] << this->lambdaShares[i] << ' ' << this->lambda_xyShares[i] << '\n';
+        }
+
         this->evaluatedOffline = true;
     }
 
