@@ -14,13 +14,13 @@
 template<typename ShrType, int N>
 class FakeCircuit {
 public:
-    FakeCircuit(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline)
-            : files(files), offline(offline) {}
+    FakeCircuit(std::array<std::ostream *, N> &filePtrs, const FakeOfflineBase<ShrType, N> &offline)
+            : files(filePtrs), offline(offline) {}
 
-    FakeCircuit(std::array<std::ofstream, N> &p_files, const FakeOfflineBase<ShrType, N> &offline)
+    FakeCircuit(std::array<std::ofstream, N> &fileObjects, const FakeOfflineBase<ShrType, N> &offline)
             : offline(offline) {
         for (int i = 0; i < N; ++i) {
-            files[i] = &p_files[i];
+            files[i] = &fileObjects[i];
         }
     }
 
