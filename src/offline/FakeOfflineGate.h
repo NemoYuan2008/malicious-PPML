@@ -110,6 +110,9 @@ public:
     using typename FakeGate<ShrType, N>::Shares;
 
     void runOffline() override {
+        if (this->isEvaluatedOffline())
+            return;
+
         this->runOfflineRecursive();
 
         this->lambda_xyClear = this->input_x->getLambdaClear() * this->input_y->getLambdaClear();
