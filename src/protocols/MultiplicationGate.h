@@ -20,6 +20,10 @@ protected:
 
 
 private:
+    void doReadOfflineFromFile(std::ifstream &ifs) override {
+        ifs >> this->lambdaShr >> this->lambda_xyShr;
+    }
+
     void doRunOffline() override {
         // generate random lambdaShr
         // compute triple
