@@ -17,8 +17,18 @@ public:
 
     virtual ~Gate() = default;
 
-    virtual void readOfflineFromFile(std::ifstream &ifs) {
-        ifs >> lambdaShr;
+    void readOfflineFromFile(std::ifstream &ifs) {
+        if (this->isReadOffline())
+            return;
+
+        if (input_x && input_x->isReadOffline())
+            input_x->readOfflineFromFile();
+        if (input_y && input_y->isReadOffline())
+            input_y->readOfflineFromFile();
+
+        this->doReadOfflineFromFile(ifs);
+
+        this->readOffline = true;
     }
 
     void runOffline() {
@@ -54,6 +64,10 @@ private:
     virtual void doRunOffline() = 0;
 
     virtual void doRunOnline() = 0;
+
+    virtual void doReadOfflineFromFile(std::ifstream &ifs) {
+        ifs >> this->lambdaShr;
+    }
 
 
 public:

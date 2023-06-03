@@ -16,10 +16,6 @@ public:
     void setLambda_zClear(ClearType p_lambdaClear) { lambdaClear = p_lambdaClear; }
 
 
-protected:
-    ClearType lambdaClear;    //should be known to owner
-
-
 private:
     void doRunOffline() override {
         // Generate random lambdaShr, where the owner knows lambdaShr.
@@ -29,6 +25,10 @@ private:
         // Owner computes deltaClear and broadcast it.
         // Parties save deltaClear
     }
+
+
+protected:
+    ClearType lambdaClear;    //should be known to owner
 };
 
 
