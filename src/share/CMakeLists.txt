@@ -1,2 +1,1 @@
-add_library(uint128 uint128.cpp uint128.h)
-target_link_libraries(uint128)
+add_library(uint128 OBJECT uint128.cpp uint128.h)
