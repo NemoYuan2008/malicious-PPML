@@ -71,6 +71,7 @@ public:
     using FakeGate<ShrType, N>::FakeGate;
     using typename FakeGate<ShrType, N>::ClearType;
 
+private:
     void doRunOffline() override {
         this->lambdaClear = getRand<ClearType>();
         this->lambdaShares = this->offline.generateShares(this->lambdaClear);
@@ -88,6 +89,7 @@ public:
     using FakeGate<ShrType, N>::FakeGate;
     using typename FakeGate<ShrType, N>::ClearType;
 
+private:
     void doRunOffline() override {
         // Compute lambdaClear and lambdaShares
         this->lambdaClear = this->input_x->getLambdaClear() + this->input_y->getLambdaClear();
@@ -110,6 +112,8 @@ public:
     using typename FakeGate<ShrType, N>::ClearType;
     using typename FakeGate<ShrType, N>::Shares;
 
+
+private:
     void doRunOffline() override {
         this->lambda_xyClear = this->input_x->getLambdaClear() * this->input_y->getLambdaClear();
         this->lambdaClear = getRand<ClearType>();
@@ -122,6 +126,8 @@ public:
         }
     }
 
+
+public:
     ClearType getLambdaXyClear() const { return lambda_xyClear; }
 
     const Shares &getLambdaXyShares() const { return lambda_xyShares; }
