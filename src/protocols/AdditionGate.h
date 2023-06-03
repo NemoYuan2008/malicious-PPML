@@ -10,19 +10,14 @@ public:
 
     using Gate<ShrType>::Gate;
 
-    void runOffline() override {
-//        if (this->isEvaluatedOffline())       TODO? also for Online
-//            return;
 
-        this->runOfflineRecursive();
+private:
+    void doRunOffline() override {
         this->lambdaShr = this->input_x->getLambdaShr() + this->input_y->getLambdaShr();
-        this->evaluatedOffline = true;
     }
 
-    void runOnline() override {
-        this->runOnlineRecursive();
+    void doRunOnline() override {
         this->deltaClear = this->input_x->getDeltaClear() + this->input_y->getDeltaClear();
-        this->evaluatedOnline = true;
     }
 };
 

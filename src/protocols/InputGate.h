@@ -11,21 +11,24 @@ public:
 
     InputGate() = default;  // parent of InputGate should be nullptr
 
-    void runOffline() override {
-        // Generate random lambdaShr, where the owner knows lambdaShr.
-    }
-
-    void runOnline() override {
-        // Owner computes deltaClear and broadcast it.
-        // Parties save deltaClear
-    }
-
     ClearType getLambda_zClear() const { return lambdaClear; }
 
     void setLambda_zClear(ClearType p_lambdaClear) { lambdaClear = p_lambdaClear; }
 
+
 protected:
     ClearType lambdaClear;    //should be known to owner
+
+
+private:
+    void doRunOffline() override {
+        // Generate random lambdaShr, where the owner knows lambdaShr.
+    }
+
+    void doRunOnline() override {
+        // Owner computes deltaClear and broadcast it.
+        // Parties save deltaClear
+    }
 };
 
 

@@ -2,6 +2,7 @@
 #define MALICIOUS_PPML_GATE_H
 
 
+#include <fstream>
 #include <memory>
 
 template<typename ShrType>
@@ -16,19 +17,57 @@ public:
 
     virtual ~Gate() = default;
 
-    virtual void runOffline() = 0;
+    virtual void readOfflineFromFile(std::ifstream &ifs) {
+        ifs >> lambdaShr;
+    }
 
-    virtual void runOnline() = 0;
+    void runOffline() {
+        if (this->isEvaluatedOffline())
+            return;
 
-    bool isEvaluatedOffline() const { return evaluatedOffline; }
+        if (input_x && !input_x->isEvaluatedOffline())
+            input_x->runOffline();
+        if (input_y && !input_y->isEvaluatedOffline())
+            input_y->runOffline();
 
-    bool isEvaluatedOnline() const { return evaluatedOnline; }
+        this->doRunOffline();
+
+        this->evaluatedOffline = true;
+    }
+
+    void runOnline() {
+        if (this->isEvaluatedOnline())
+            return;
+
+        if (input_x && !input_x->isEvaluatedOnline())
+            input_x->runOnline();
+        if (input_y && !input_y->isEvaluatedOnline())
+            input_y->runOnline();
+
+        this->doRunOnline();
+
+        this->evaluatedOnline = true;
+    }
+
+
+private:
+    virtual void doRunOffline() = 0;
+
+    virtual void doRunOnline() = 0;
+
+
+public:
+    [[nodiscard]] bool isEvaluatedOffline() const { return evaluatedOffline; }
+
+    [[nodiscard]] bool isEvaluatedOnline() const { return evaluatedOnline; }
+
+    [[nodiscard]] bool isReadOffline() const { return readOffline; }
 
     const ShrType &getLambdaShr() const { return lambdaShr; }
 
     ClearType getDeltaClear() const { return deltaClear; }
 
-    void setLambdaShr(ShrType lambdaShr) { Gate::lambdaShr = lambdaShr; }
+    void setLambdaShr(ShrType p_lambdaShr) { lambdaShr = p_lambdaShr; }
 
     void setDeltaClear(ClearType p_deltaClear) { deltaClear = p_deltaClear; }
 
@@ -47,27 +86,13 @@ public:
     void setEvaluatedOnline() { evaluatedOnline = true; }       //for debugging
 
 protected:
-    void runOfflineRecursive() {   //used in runOffline
-        if (input_x && !input_x->isEvaluatedOffline())
-            input_x->runOffline();
-        if (input_y && !input_y->isEvaluatedOffline())
-            input_y->runOffline();
-    }
-
-    void runOnlineRecursive() {    //used in runOnline
-        if (input_x && !input_x->isEvaluatedOnline())
-            input_x->runOnline();
-        if (input_y && !input_y->isEvaluatedOnline())
-            input_y->runOnline();
-    }
-
-protected:
     //Maybe: define clearLambda here for debugging purpose
     ShrType lambdaShr{};      //We don't set it in ctor, it's set in offline phase
     ClearType deltaClear{};   //We don't set it in ctor, it's set in online phase
     std::shared_ptr<Gate<ShrType>> input_x, input_y;
     bool evaluatedOffline = false;
     bool evaluatedOnline = false;
+    bool readOffline = false;
 };
 
 
