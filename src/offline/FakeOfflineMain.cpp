@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <memory>
+#include <filesystem>
 
 #include "share/Spdz2kShare.h"
 #include "offline/FakeOffline.h"
@@ -8,9 +8,10 @@
 #include "offline/FakeCircuit.h"
 
 int main() {
+    auto path = std::filesystem::temp_directory_path();
     std::array<std::ofstream, 2> files{
-            std::ofstream("0.txt"),
-            std::ofstream("1.txt")
+            std::ofstream(path / "0.txt"),
+            std::ofstream(path / "1.txt")
     };
     //We must write hex numbers
     for (auto &f: files) {
