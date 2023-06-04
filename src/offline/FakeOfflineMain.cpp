@@ -9,14 +9,12 @@
 
 int main() {
     auto path = std::filesystem::temp_directory_path();
+    std::cout << path << '\n';
+
     std::array<std::ofstream, 2> files{
             std::ofstream(path / "0.txt"),
             std::ofstream(path / "1.txt")
     };
-    //We must write hex numbers
-    for (auto &f: files) {
-        f << std::hex;
-    }
 
     FakeOffline<32, 32, 2> offline;
     FakeCircuit<Spdz2kShare32, 2> circuit(files, offline);

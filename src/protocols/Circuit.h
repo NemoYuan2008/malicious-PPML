@@ -15,15 +15,21 @@ class Circuit {
 public:
     Circuit() = default;
 
+    void readOfflineFromFile(std::ifstream &ifs) {
+        for (const auto &gate: endpoints) {
+            gate->readOfflineFromFile(ifs);
+        }
+    }
+
     void runOffline() {
-        for (const auto &gatePtr: endpoints) {
-            gatePtr->runOffline();
+        for (const auto &gate: endpoints) {
+            gate->runOffline();
         }
     }
 
     void runOnline() {
-        for (const auto &gatePtr: endpoints) {
-            gatePtr->runOnline();
+        for (const auto &gate: endpoints) {
+            gate->runOnline();
         }
     }
 

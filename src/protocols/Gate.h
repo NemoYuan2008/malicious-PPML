@@ -21,10 +21,10 @@ public:
         if (this->isReadOffline())
             return;
 
-        if (input_x && input_x->isReadOffline())
-            input_x->readOfflineFromFile();
-        if (input_y && input_y->isReadOffline())
-            input_y->readOfflineFromFile();
+        if (input_x && !input_x->isReadOffline())
+            input_x->readOfflineFromFile(ifs);
+        if (input_y && !input_y->isReadOffline())
+            input_y->readOfflineFromFile(ifs);
 
         this->doReadOfflineFromFile(ifs);
 
