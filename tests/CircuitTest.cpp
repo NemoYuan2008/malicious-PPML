@@ -1,6 +1,7 @@
 #include <memory>
 #include <boost/test/unit_test.hpp>
 
+#include "offline/FakeOffline.h"
 #include "share/Spdz2kShare.h"
 #include "protocols/Circuit.h"
 #include "protocols/InputGate.h"
@@ -37,6 +38,13 @@ struct CircuitFixture {
     }
 };
 
+template<typename ShrType>
+bool checkTriple(const ShrType &a, const ShrType &b, const ShrType &c) {
+    using KType = typename ShrType::KType;
+    return static_cast<KType>(a.getXi() * b.getXi()) == static_cast<KType>(c.getXi());
+}
+
+
 BOOST_AUTO_TEST_SUITE(CircuitTest)
 
     BOOST_FIXTURE_TEST_CASE(Circuit32, CircuitFixture<Spdz2kShare32>, *depends_on("FakeCircuitTest/FakeCircuit32")) {
@@ -51,8 +59,21 @@ BOOST_AUTO_TEST_SUITE(CircuitTest)
         BOOST_CHECK(c[0]->getLambdaShr() == z[0]->getLambdaShr() + b[0]->getLambdaShr());
         BOOST_CHECK(c[1]->getLambdaShr() == z[1]->getLambdaShr() + b[1]->getLambdaShr());
 
-        //Check multiplication gates
+        std::cout << a[0]->getLambdaShr() << '\n'
+                  << a[1]->getLambdaShr() << '\n'
+                  << x[0]->getLambdaShr() << '\n'
+                  << x[1]->getLambdaShr() << '\n'
+                  << b[0]->getLambdaShr() << '\n'
+                  << b[1]->getLambdaShr() << '\n';
 
+
+        //Check multiplication gates
+        BOOST_CHECK(
+                checkTriple(a[0]->getLambdaShr() + a[1]->getLambdaShr(), x[0]->getLambdaShr() + x[1]->getLambdaShr(),
+                            b[0]->getLambdaXyShr() + b[1]->getLambdaXyShr()));
+        BOOST_CHECK(
+                checkTriple(a[0]->getLambdaShr() + a[1]->getLambdaShr(), c[0]->getLambdaShr() + c[1]->getLambdaShr(),
+                            d[0]->getLambdaXyShr() + d[1]->getLambdaXyShr()));
     }
 
 BOOST_AUTO_TEST_SUITE_END()
