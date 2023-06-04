@@ -3,7 +3,7 @@
 #include <array>
 #include <boost/test/unit_test.hpp>
 
-#include "offline/FakeOfflineGate.h"
+#include "offline/FakeGate.h"
 #include "offline/FakeOffline.h"
 
 BOOST_AUTO_TEST_SUITE(FakeGateNoCircuitTest)

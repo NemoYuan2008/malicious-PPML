@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "offline/FakeOffline.h"
-#include "offline/FakeOfflineGate.h"
+#include "offline/FakeGate.h"
 
 
 template<typename ShrType, int N>

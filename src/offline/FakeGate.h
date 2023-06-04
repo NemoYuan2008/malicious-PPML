@@ -1,5 +1,5 @@
-#ifndef MALICIOUS_PPML_FAKEOFFLINEGATE_H
-#define MALICIOUS_PPML_FAKEOFFLINEGATE_H
+#ifndef MALICIOUS_PPML_FAKEGATE_H
+#define MALICIOUS_PPML_FAKEGATE_H
 
 
 #include <ostream>
@@ -142,4 +142,4 @@ protected:
     Shares lambda_xyShares;
 };
 
-#endif //MALICIOUS_PPML_FAKEOFFLINEGATE_H
+#endif //MALICIOUS_PPML_FAKEGATE_H

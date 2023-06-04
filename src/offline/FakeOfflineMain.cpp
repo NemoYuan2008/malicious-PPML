@@ -4,7 +4,7 @@
 
 #include "share/Spdz2kShare.h"
 #include "offline/FakeOffline.h"
-#include "offline/FakeOfflineGate.h"
+#include "offline/FakeGate.h"
 #include "offline/FakeCircuit.h"
 
 int main() {

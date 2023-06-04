@@ -1,11 +1,11 @@
 #include <memory>
+#include <filesystem>
 #include <boost/test/unit_test.hpp>
 
 #include "offline/FakeOffline.h"
 #include "share/Spdz2kShare.h"
 #include "protocols/Circuit.h"
 #include "protocols/InputGate.h"
-#include "utils/rand.h"
 
 using std::array;
 using std::shared_ptr;
