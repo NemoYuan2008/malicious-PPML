@@ -68,8 +68,10 @@ protected:
 template<typename ShrType, int N>
 class FakeInputGate : public FakeGate<ShrType, N> {
 public:
-    using FakeGate<ShrType, N>::FakeGate;
     using typename FakeGate<ShrType, N>::ClearType;
+
+    FakeInputGate(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline, int ownerId = 0)
+            : FakeGate<ShrType, N>(files, offline), ownerId(ownerId) {}
 
 private:
     void doRunOffline() override {
@@ -80,6 +82,9 @@ private:
             *this->files[i] << this->lambdaShares[i] << '\n';
         }
     }
+
+private:
+    int ownerId;
 };
 
 

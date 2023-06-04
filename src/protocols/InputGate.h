@@ -9,11 +9,11 @@ class InputGate : public Gate<ShrType> {
 public:
     using typename Gate<ShrType>::ClearType;
 
-    InputGate() = default;  // parent of InputGate should be nullptr
+    explicit InputGate(int ownerId = 0): Gate<ShrType>(), ownerId(ownerId) {}
 
-    ClearType getLambda_zClear() const { return lambdaClear; }
+    ClearType getLambdaClear() const { return lambdaClear; }
 
-    void setLambda_zClear(ClearType p_lambdaClear) { lambdaClear = p_lambdaClear; }
+    void setLambdaClear(ClearType p_lambdaClear) { lambdaClear = p_lambdaClear; }
 
 
 private:
@@ -27,8 +27,9 @@ private:
     }
 
 
-protected:
+private:
     ClearType lambdaClear;    //should be known to owner
+    int ownerId;
 };
 
 

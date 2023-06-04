@@ -34,8 +34,8 @@ public:
     }
 
     std::shared_ptr<InputGate<ShrType>>
-    input() {
-        auto gate = std::make_shared<InputGate<ShrType>>();
+    input(int ownerId = 0) {
+        auto gate = std::make_shared<InputGate<ShrType>>(ownerId);
         gates.push_back(gate);
         return gate;
     }
