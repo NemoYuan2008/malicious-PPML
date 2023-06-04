@@ -17,6 +17,10 @@ public:
 
 
 private:
+    void doReadOfflineFromFile(std::ifstream &ifs) override {
+        //TODO: player_id
+    }
+
     void doRunOffline() override {
         // Generate random lambdaShr, where the owner knows lambdaShr.
     }

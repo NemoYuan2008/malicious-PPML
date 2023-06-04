@@ -6,6 +6,8 @@
 #include <memory>
 #include <algorithm>
 #include <functional>
+#include <stdexcept>
+
 #include "offline/FakeOfflineBase.h"
 #include "utils/rand.h"
 
@@ -71,12 +73,18 @@ public:
     using typename FakeGate<ShrType, N>::ClearType;
 
     FakeInputGate(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline, int ownerId = 0)
-            : FakeGate<ShrType, N>(files, offline), ownerId(ownerId) {}
+            : FakeGate<ShrType, N>(files, offline), ownerId(ownerId) {
+        if (ownerId >= N)
+            throw std::out_of_range("ownerId must be less than party numbers N");
+    }
 
 private:
     void doRunOffline() override {
         this->lambdaClear = getRand<ClearType>();
         this->lambdaShares = this->offline.generateShares(this->lambdaClear);
+
+        //Owner should know lambdaClear
+        *this->files[ownerId] << this->lambdaClear;
 
         for (int i = 0; i < N; ++i) {
             *this->files[i] << this->lambdaShares[i] << '\n';
