@@ -59,21 +59,14 @@ BOOST_AUTO_TEST_SUITE(CircuitTest)
         BOOST_CHECK(c[0]->getLambdaShr() == z[0]->getLambdaShr() + b[0]->getLambdaShr());
         BOOST_CHECK(c[1]->getLambdaShr() == z[1]->getLambdaShr() + b[1]->getLambdaShr());
 
-        std::cout << a[0]->getLambdaShr() << '\n'
-                  << a[1]->getLambdaShr() << '\n'
-                  << x[0]->getLambdaShr() << '\n'
-                  << x[1]->getLambdaShr() << '\n'
-                  << b[0]->getLambdaShr() << '\n'
-                  << b[1]->getLambdaShr() << '\n';
-
-
         //Check multiplication gates
-        BOOST_CHECK(
-                checkTriple(a[0]->getLambdaShr() + a[1]->getLambdaShr(), x[0]->getLambdaShr() + x[1]->getLambdaShr(),
-                            b[0]->getLambdaXyShr() + b[1]->getLambdaXyShr()));
-        BOOST_CHECK(
-                checkTriple(a[0]->getLambdaShr() + a[1]->getLambdaShr(), c[0]->getLambdaShr() + c[1]->getLambdaShr(),
-                            d[0]->getLambdaXyShr() + d[1]->getLambdaXyShr()));
+        constexpr auto openShares = FakeOffline<32, 32, 2>::openShares;
+        BOOST_CHECK_EQUAL(openShares({a[0]->getLambdaShr(), a[1]->getLambdaShr()}) *
+                          openShares({x[0]->getLambdaShr(), x[1]->getLambdaShr()}),
+                          openShares({b[0]->getLambdaXyShr(), b[1]->getLambdaXyShr()}));
+        BOOST_CHECK_EQUAL(openShares({a[0]->getLambdaShr(), a[1]->getLambdaShr()}) *
+                          openShares({c[0]->getLambdaShr(), c[1]->getLambdaShr()}),
+                          openShares({d[0]->getLambdaXyShr(), d[1]->getLambdaXyShr()}));
     }
 
 BOOST_AUTO_TEST_SUITE_END()
