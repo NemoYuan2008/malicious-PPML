@@ -9,7 +9,6 @@ using std::ostream;
 using std::istream;
 using std::setfill;
 using std::setw;
-using std::hex;
 using std::dec;
 
 
