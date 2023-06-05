@@ -15,4 +15,4 @@ add_subdirectory(src/share)
 
 add_subdirectory(tests)
 
-add_subdirectory(src/network)
+add_subdirectory(src/networking)

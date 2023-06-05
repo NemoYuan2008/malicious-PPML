@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <cstring>
 #include <boost/thread.hpp>
-#include "network.h"
+#include "Network.h"
 
 using namespace boost::asio;
 using ip::tcp;
