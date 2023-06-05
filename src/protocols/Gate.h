@@ -10,10 +10,10 @@ class Gate {
 public:
     using ClearType = typename ShrType::ClearType;
 
-    Gate() = default;
+    explicit Gate(int id = 0) : myId(id) {}
 
     Gate(const std::shared_ptr<Gate> &input_x, const std::shared_ptr<Gate> &input_y)
-            : input_x(input_x), input_y(input_y) {}
+            : input_x(input_x), input_y(input_y), myId(input_x->getMyId()) {}
 
     virtual ~Gate() = default;
 
@@ -99,11 +99,16 @@ public:
 
     void setEvaluatedOnline() { evaluatedOnline = true; }       //for debugging
 
+    [[nodiscard]] int getMyId() const { return myId; }
+
 protected:
     //Maybe: define clearLambda here for debugging purpose
     ShrType lambdaShr{};      //We don't set it in ctor, it's set in offline phase
     ClearType deltaClear{};   //We don't set it in ctor, it's set in online phase
     std::shared_ptr<Gate<ShrType>> input_x, input_y;
+    int myId;
+
+private:
     bool evaluatedOffline = false;
     bool evaluatedOnline = false;
     bool readOffline = false;

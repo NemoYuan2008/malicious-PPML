@@ -13,7 +13,7 @@
 template<typename ShrType>
 class Circuit {
 public:
-    Circuit() = default;
+    explicit Circuit(int id = 0): myId(id) {};
 
     void readOfflineFromFile(std::ifstream &ifs) {
         for (const auto &gate: endpoints) {
@@ -35,7 +35,7 @@ public:
 
     std::shared_ptr<InputGate<ShrType>>
     input(int ownerId = 0) {
-        auto gate = std::make_shared<InputGate<ShrType>>(ownerId);
+        auto gate = std::make_shared<InputGate<ShrType>>(myId, ownerId);
         gates.push_back(gate);
         return gate;
     }
@@ -61,6 +61,7 @@ public:
 private:
     std::vector<std::shared_ptr<Gate<ShrType>>> gates;
     std::vector<std::shared_ptr<Gate<ShrType>>> endpoints;
+    int myId;
 };
 
 
