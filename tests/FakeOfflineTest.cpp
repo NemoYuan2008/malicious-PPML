@@ -36,7 +36,7 @@ BOOST_FIXTURE_TEST_SUITE(FakeOfflineTest, FakeOfflineFixture)
         BOOST_CHECK_EQUAL(clear, static_cast<uint32_t>(sumShare.getXi()));
         BOOST_CHECK_EQUAL(clear, opened);
         BOOST_CHECK((std::is_same_v<decltype(clear), decltype(opened)>));
-        BOOST_CHECK_EQUAL(sumShare.getMi(), f32_2.getKey() * sumShare.getXi());
+        BOOST_CHECK_EQUAL(sumShare.getMi(), f32_2.getGlobalKey() * sumShare.getXi());
     }
 
     BOOST_FIXTURE_TEST_CASE(GenerateShareTest64, FakeOfflineFixture) {
@@ -48,7 +48,7 @@ BOOST_FIXTURE_TEST_SUITE(FakeOfflineTest, FakeOfflineFixture)
         BOOST_CHECK_EQUAL(clear, static_cast<uint64_t>(sumShare.getXi()));
         BOOST_CHECK_EQUAL(clear, opened);
         BOOST_CHECK((std::is_same_v<decltype(clear), decltype(opened)>));
-        BOOST_CHECK(sumShare.getMi() == f64_2.getKey() * sumShare.getXi());
+        BOOST_CHECK(sumShare.getMi() == f64_2.getGlobalKey() * sumShare.getXi());
     }
 
 BOOST_AUTO_TEST_SUITE_END()

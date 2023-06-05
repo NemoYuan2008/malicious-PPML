@@ -28,9 +28,13 @@ private:
     using KSType = KSType_t<K, S>;
 
 public:
-    FakeOffline() : key(getRand<KSType>()) {}
-
-    explicit FakeOffline(KSType p_key) : key(p_key) {}
+    FakeOffline() {
+        key = 0;
+        for (int i = 0; i < N; ++i) {
+            keyShares[i] = getRand<SType>();
+            key += static_cast<KSType>(keyShares[i]);
+        }
+    }
 
     Shares generateShares(ClearType x) const override;
 
@@ -38,13 +42,12 @@ public:
 
     static std::array<KSType, N> splitN(KSType x);
 
-    KSType getKey() const { return key; }
+    KSType getGlobalKey() const { return key; }
 
-    Shares getSpdz2kTriple(KSType a, KSType b) const;   //We don't need it, triples are generated in FakeOfflineGate
+    SType getPartyKey(int id) const { return keyShares.at(id); }
 
 private:
-    Shares generateShares(KSType x) const;    //TODO: remove this function and rewrite generateShares(ClearType x)?
-
+    std::array<SType, N> keyShares;
     KSType key;
 };
 
@@ -73,24 +76,16 @@ std::array<KSType_t<K, S>, N> FakeOffline<K, S, N>::splitN(FakeOffline::KSType x
 template<int K, int S, int N>
 typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(FakeOffline::ClearType x) const {
     auto mask = getRand<SType>();   //mask higher S bits of x
-    return generateShares(static_cast<KSType>(mask) << K | x);
-}
+    KSType x_masked = static_cast<KSType>(mask) << K | x;
 
+    KSType mac = x_masked * key;
+    auto x_i = splitN(x_masked), mac_i = splitN(mac);
 
-template<int K, int S, int N>
-typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::generateShares(KSType x) const {
-    KSType mac = x * key;
-    auto x_i = splitN(x), mac_i = splitN(mac);
     Shares ret;
     for (int i = 0; i < N; ++i) {
         ret[i] = Spdz2kShare<K, S>(x_i[i], mac_i[i]);
     }
     return ret;
-}
-
-template<int K, int S, int N>
-typename FakeOffline<K, S, N>::Shares FakeOffline<K, S, N>::getSpdz2kTriple(KSType a, KSType b) const {
-    return generateShares(a * b);
 }
 
 #endif //MALICIOUS_PPML_FAKEOFFLINE_H
