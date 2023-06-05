@@ -30,9 +30,9 @@ struct FakeCircuitFixture32 {
             : outFiles{std::ofstream(path / "0.txt"), std::ofstream(path / "1.txt")},
               offline(),
               fakeCircuit(outFiles, offline) {
-        fx = fakeCircuit.input();
-        fy = fakeCircuit.input();
-        fz = fakeCircuit.input();
+        fx = fakeCircuit.input(0);
+        fy = fakeCircuit.input(0);
+        fz = fakeCircuit.input(0);
 
         fa = fakeCircuit.add(fx, fy);
         fb = fakeCircuit.multiply(fa, fx);

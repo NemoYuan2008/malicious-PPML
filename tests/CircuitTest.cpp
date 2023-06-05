@@ -19,16 +19,16 @@ namespace {
 template<typename ShrType>
 struct CircuitFixture {
     array<ifstream, 2> inFiles{ifstream(path / "0.txt"), ifstream(path / "1.txt")};
-    array<Circuit<ShrType>, 2> circuit;
+    array<Circuit<ShrType>, 2> circuit{Circuit<ShrType>(0), Circuit<ShrType>(1)};
     array<shared_ptr<InputGate<ShrType>>, 2> x, y, z;
     array<shared_ptr<AdditionGate<ShrType>>, 2> a, c;
     array<shared_ptr<MultiplicationGate<ShrType>>, 2> b, d;
 
     CircuitFixture() {
         for (int i = 0; i < 2; ++i) {
-            x[i] = circuit[i].input();
-            y[i] = circuit[i].input();
-            z[i] = circuit[i].input();
+            x[i] = circuit[i].input(0);
+            y[i] = circuit[i].input(0);
+            z[i] = circuit[i].input(0);
 
             a[i] = circuit[i].add(x[i], y[i]);
             b[i] = circuit[i].multiply(a[i], x[i]);
