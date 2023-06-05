@@ -84,7 +84,7 @@ private:
         this->lambdaShares = this->offline.generateShares(this->lambdaClear);
 
         //Owner should know lambdaClear
-//        *this->files[ownerId] << this->lambdaClear;
+        *this->files[ownerId] << this->lambdaClear << ' ';
 
         for (int i = 0; i < N; ++i) {
             *this->files[i] << this->lambdaShares[i] << '\n';
