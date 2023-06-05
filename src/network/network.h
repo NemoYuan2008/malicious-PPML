@@ -10,7 +10,7 @@
 class Network {
 
 public:
-    Network(uint32_t id, uint16_t port = 7766, uint16_t secLevel = 128);
+    Network(uint32_t id, uint16_t port = 7766);
 
     uint32_t getID() const;
 

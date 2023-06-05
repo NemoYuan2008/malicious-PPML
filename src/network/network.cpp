@@ -10,7 +10,7 @@ using std::cout;
 using std::endl;
 using std::array;
 
-Network::Network(uint32_t id, uint16_t port, uint16_t secLevel)
+Network::Network(uint32_t id, uint16_t port)
     : id(id), port(port) {
     //   io_service ios;
 

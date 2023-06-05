@@ -24,7 +24,7 @@ int main (int argc, char **argv) {
     // for(int i=1; i< argc; i++){
     //   cout<< atoi(argv[i])<<endl;
     // }
-    Network player(id,port,SECURITYLEVEL);
+    Network player(id,port);
     cout << "initialized"<<endl;
     player.connect();
     uint8_t * msg;
