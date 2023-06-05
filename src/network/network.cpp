@@ -11,7 +11,7 @@ using std::endl;
 using std::array;
 
 Network::Network(uint32_t id, uint16_t port, uint16_t secLevel)
-        : id(id), port(port), secLevel(secLevel) {
+    : id(id), port(port) {
     //   io_service ios;
 
 //    if (id==1)
@@ -78,8 +78,6 @@ bool Network::rcv(uint party_id, uint8_t *buf, uint32_t numBytes) {
         return true;
     }
 }
-
-uint32_t Network::getSeclevel() const { return this->secLevel; }
 
 uint32_t Network::getID() const { return this->id; }
 
