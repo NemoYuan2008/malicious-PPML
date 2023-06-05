@@ -117,6 +117,7 @@ bool Network::rcv(uint party_id, uint8_t *buf, uint32_t numBytes) {
     }
     if (party_id > id) socket_id--;
     streambuf recBuff;
+
     boost::system::error_code err;
     read(*sockets[socket_id], recBuff, transfer_at_least(numBytes), err);
     if (err && err != error::eof) {
@@ -135,14 +136,15 @@ bool Network::rcv(uint party_id, uint64_t *data) {
         return false;
     }
     if (party_id > id) socket_id--;
-    streambuf recBuff;
+    //streambuf recBuff;
+    mutable_buffer recBuff = buffer(data,8); //This is dangerous if a read_err occurred
     boost::system::error_code err;
     read(*sockets[socket_id], recBuff, transfer_at_least(8), err);
     if (err && err != error::eof) {
         std::cerr << "receive failed: " << err.message() << endl;
         return false;
     } else {
-        memcpy(data, buffer_cast<const void *>(recBuff.data()), 8);
+        //memcpy(data, buffer_cast<const void *>(recBuff.data()), 8);
         cout << "received. " << endl;
         return true;
     }
@@ -155,14 +157,15 @@ bool Network::rcv(uint party_id, __uint128_t *data) {
         return false;
     }
     if (party_id > id) socket_id--;
-    streambuf recBuff;
+    //streambuf recBuff;
+    mutable_buffer recBuff = buffer(data,16); //This is dangerous if a read_err occurred
     boost::system::error_code err;
     read(*sockets[socket_id], recBuff, transfer_at_least(16), err);
     if (err && err != error::eof) {
         std::cerr << "receive failed: " << err.message() << endl;
         return false;
     } else {
-        memcpy(data, buffer_cast<const void *>(recBuff.data()), 16);
+        //memcpy(data, buffer_cast<const void *>(recBuff.data()), 16);
         cout << "received." << endl;
         return true;
     }

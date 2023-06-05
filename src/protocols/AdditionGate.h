@@ -11,7 +11,7 @@ public:
     using Gate<ShrType>::Gate;
 
     void runOffline() override {
-//        if (this->isEvaluatedOffline())       TODO? also for Online
+//        if (this->isEvaluatedOffline())       TODO? also for On  line
 //            return;
 
         this->runOfflineRecursive();

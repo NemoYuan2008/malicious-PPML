@@ -83,14 +83,15 @@ bool Network::rcv(uint party_id, T *data) {
         return false;
     }
     if (party_id > id) socket_id--;
-    boost::asio::streambuf recBuff;
+    //boost::asio::streambuf recBuff;
+    boost::asio::mutable_buffer recBuff = buffer(data,sizeof(T)); //This is dangerous if a read_err occurred
     boost::system::error_code err;
     read(*sockets[socket_id], recBuff, boost::asio::transfer_at_least(sizeof(T)), err);
     if (err && err != boost::asio::error::eof) {
         std::cerr << "receive failed: " << err.message() << '\n';
         return false;
     } else {
-        memcpy(data, boost::asio::buffer_cast<const void *>(recBuff.data()), sizeof(T));
+        //memcpy(data, boost::asio::buffer_cast<const void *>(recBuff.data()), sizeof(T));
         std::cout << "received.\n";
         return true;
     }
