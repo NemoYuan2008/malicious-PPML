@@ -8,8 +8,8 @@
 
 
 struct FakeOfflineFixture {
-    FakeOffline<32, 32, 2> f32_2{getRand<uint32_t>()};
-    FakeOffline<64, 64, 2> f64_2{getRand<uint64_t>()};
+    FakeOffline<32, 32, 2> f32_2;
+    FakeOffline<64, 64, 2> f64_2;
 };
 
 BOOST_FIXTURE_TEST_SUITE(FakeOfflineTest, FakeOfflineFixture)

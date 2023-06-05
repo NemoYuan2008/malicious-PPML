@@ -19,6 +19,7 @@ public:
 private:
     void doReadOfflineFromFile(std::ifstream &ifs) override {
         //TODO: player_id
+        ifs >> this->lambdaShr;
     }
 
     void doRunOffline() override {

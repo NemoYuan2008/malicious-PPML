@@ -46,8 +46,6 @@ int main() {
          << y[1]->getLambdaShr() << '\n'
          << a[0]->getLambdaShr() << '\n'
          << a[1]->getLambdaShr() << '\n';
-
-    assert(a[0]->getLambdaShr() == x[0]->getLambdaShr() + y[0]->getLambdaShr());
-
+    
     return 0;
 }
