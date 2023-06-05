@@ -18,7 +18,6 @@ namespace {
 
 template<typename ShrType>
 struct CircuitFixture {
-    array<ifstream, 2> inFiles{ifstream(path / "0.txt"), ifstream(path / "1.txt")};
     array<Circuit<ShrType>, 2> circuit{Circuit<ShrType>(0), Circuit<ShrType>(1)};
     array<shared_ptr<InputGate<ShrType>>, 2> x, y, z;
     array<shared_ptr<AdditionGate<ShrType>>, 2> a, c;
@@ -38,9 +37,11 @@ struct CircuitFixture {
     }
 };
 
-BOOST_AUTO_TEST_SUITE(CircuitTest)
+BOOST_AUTO_TEST_SUITE(CircuitTest, *depends_on("FakeCircuitTest"))
 
-    BOOST_FIXTURE_TEST_CASE(Circuit32, CircuitFixture<Spdz2kShare32>, *depends_on("FakeCircuitTest/FakeCircuit32")) {
+    BOOST_FIXTURE_TEST_CASE(Circuit32, CircuitFixture<Spdz2kShare32>) {
+        array<ifstream, 2> inFiles{ifstream(path / "0_32.txt"), ifstream(path / "1_32.txt")};
+
         for (int i = 0; i < 2; ++i) {
             circuit[i].addEndpoint(d[i]);
             circuit[i].readOfflineFromFile(inFiles[i]);
@@ -54,6 +55,31 @@ BOOST_AUTO_TEST_SUITE(CircuitTest)
 
         //Check multiplication gates
         constexpr auto openShares = FakeOffline<32, 32, 2>::openShares;
+        BOOST_CHECK_EQUAL(openShares({a[0]->getLambdaShr(), a[1]->getLambdaShr()}) *
+                          openShares({x[0]->getLambdaShr(), x[1]->getLambdaShr()}),
+                          openShares({b[0]->getLambdaXyShr(), b[1]->getLambdaXyShr()}));
+        BOOST_CHECK_EQUAL(openShares({a[0]->getLambdaShr(), a[1]->getLambdaShr()}) *
+                          openShares({c[0]->getLambdaShr(), c[1]->getLambdaShr()}),
+                          openShares({d[0]->getLambdaXyShr(), d[1]->getLambdaXyShr()}));
+    }
+
+
+    BOOST_FIXTURE_TEST_CASE(Circuit64, CircuitFixture<Spdz2kShare64>) {
+        array<ifstream, 2> inFiles{ifstream(path / "0_64.txt"), ifstream(path / "1_64.txt")};
+
+        for (int i = 0; i < 2; ++i) {
+            circuit[i].addEndpoint(d[i]);
+            circuit[i].readOfflineFromFile(inFiles[i]);
+        }
+
+        //Check addition gates
+        BOOST_CHECK_EQUAL(a[0]->getLambdaShr(), x[0]->getLambdaShr() + y[0]->getLambdaShr());
+        BOOST_CHECK_EQUAL(a[1]->getLambdaShr(), x[1]->getLambdaShr() + y[1]->getLambdaShr());
+        BOOST_CHECK_EQUAL(c[0]->getLambdaShr(), z[0]->getLambdaShr() + b[0]->getLambdaShr());
+        BOOST_CHECK_EQUAL(c[1]->getLambdaShr(), z[1]->getLambdaShr() + b[1]->getLambdaShr());
+
+        //Check multiplication gates
+        constexpr auto openShares = FakeOffline<64, 64, 2>::openShares;
         BOOST_CHECK_EQUAL(openShares({a[0]->getLambdaShr(), a[1]->getLambdaShr()}) *
                           openShares({x[0]->getLambdaShr(), x[1]->getLambdaShr()}),
                           openShares({b[0]->getLambdaXyShr(), b[1]->getLambdaXyShr()}));
