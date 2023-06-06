@@ -1,3 +1,7 @@
+#ifndef MALICIOUS_PPML_NETWORK_H
+#define MALICIOUS_PPML_NETWORK_H
+
+
 #include <cstddef>
 #include <iostream>
 #include <iomanip>
@@ -97,3 +101,5 @@ bool Network::rcv(uint party_id, T *data) {
     }
 }
 
+
+#endif //MALICIOUS_PPML_NETWORK_H
