@@ -20,7 +20,7 @@ int main() {
     auto path = std::filesystem::temp_directory_path();
     cout << path << '\n';
     std::array<std::ifstream, 2> inFiles{std::ifstream(path / "0.txt"), std::ifstream(path / "1.txt")};
-    std::array<Circuit<Spdz2kShare32>, 2> circuit;
+    std::array<Circuit<Spdz2kShare32>, 2> circuit{Circuit<Spdz2kShare32>(0), Circuit<Spdz2kShare32>(1)};
     std::array<std::shared_ptr<InputGate<Spdz2kShare32>>, 2> x, y, z;
     std::array<std::shared_ptr<AdditionGate<Spdz2kShare32>>, 2> a, c;
     std::array<std::shared_ptr<MultiplicationGate<Spdz2kShare32>>, 2> b, d;
@@ -36,6 +36,7 @@ int main() {
         d[i] = circuit[i].multiply(a[i], c[i]);
     }
 
+    //recursive sequence should be: x, y, a, z, b, d
     for (int i = 0; i < 2; ++i) {
         circuit[i].addEndpoint(d[i]);
         circuit[i].readOfflineFromFile(inFiles[i]);
