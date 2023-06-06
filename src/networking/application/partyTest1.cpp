@@ -4,7 +4,7 @@
 
 using namespace std;
 int main() {
-    Party party(1, 2, 7767);
+    Party party(1, 2);
     __uint128_t x;
     party.getNetwork().rcv(0, &x);
     cout << hex << x;

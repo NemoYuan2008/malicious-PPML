@@ -7,7 +7,7 @@
 
 class Party {
 public:
-    Party(int myId, int partyNum, int port)
+    Party(int myId, int partyNum, int port = 7766)
             : myId(myId), partyNum(partyNum), network(new Network(myId, port)) {
         network->connect();
     }
