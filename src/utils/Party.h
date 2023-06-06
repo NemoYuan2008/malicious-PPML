@@ -8,16 +8,20 @@
 class Party {
 public:
     Party(int myId, int partyNum, int port = 7766)
-            : myId(myId), partyNum(partyNum), network(new Network(myId, port)) {
-        network->connect();
+            : myId(myId), partyNum(partyNum), network(myId, port) {
+        network.connect();
     }
 
-    Network &getNetwork() const { return *network; }
+    Party(const Party &) = delete;
+
+    Party &operator=(const Party &) = delete;
+
+    Network &getNetwork() { return network; }
 
 private:
     int myId;
     int partyNum;
-    std::unique_ptr<Network> network;
+    Network network;
 };
 
 
