@@ -14,10 +14,10 @@ class Party {
 public:
 
     Party(int myId, int partyNum, const std::string &offlineFilePath, bool)
-        :myId(myId),
-         partyNum(partyNum),
-         fileStream(offlineFilePath),
-         network(myId) {        //No network connection, used only for testing
+            : myId(myId),
+              partyNum(partyNum),
+              fileStream(offlineFilePath),
+              network(myId) {        //No network connection, used only for testing
         fileStream >> partyKey;
     }
 
@@ -41,6 +41,8 @@ public:
     std::ifstream &getFileStream() { return fileStream; }
 
     Network &getNetwork() { return network; }
+
+    typename ShrType::PartyKeyType getPartyKey() const { return partyKey; }
 
 private:
     const int myId;

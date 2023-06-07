@@ -37,6 +37,7 @@ public:
     using KSType = KSType_t<K, S>;
     using ClearType = KType;
     using PartyKeyType = SType;
+    using SemiShrType = KSType;
 
     Spdz2kShare() = default;
 
@@ -62,7 +63,7 @@ public:
 
     KSType getMi() const { return mi; }
 
-private:
+public: //TODO: make it private
     KSType xi;
     KSType mi;
 };
