@@ -2,6 +2,7 @@
 #define MALICIOUS_PPML_INPUTGATE_H
 
 
+#include <stdexcept>
 #include "protocols/Gate.h"
 
 template<typename ShrType>
@@ -10,6 +11,13 @@ public:
     using typename Gate<ShrType>::ClearType;
 
     explicit InputGate(Party<ShrType> *party, int ownerId = 0) : Gate<ShrType>(party), ownerId(ownerId) {}
+
+    void setInput(ClearType input) {
+        if (this->myId() != this->ownerId) {
+            throw std::logic_error("Not the owner of input gate, cannot set input");
+        }
+        this->inputValue = input;
+    }
 
     ClearType getLambdaClear() const { return lambdaClear; }
 
@@ -28,12 +36,17 @@ private:
     }
 
     void doRunOnline() override {
-        // Owner computes deltaClear and broadcast it.
-        // Parties save deltaClear
+        if (this->myId() == this->ownerId) {
+            this->deltaClear = this->lambdaClear + this->inputValue;
+            this->party->getNetwork().send(1 - this->myId(), &this->deltaClear);
+        } else {
+            this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear);
+        }
     }
 
 
 private:
+    ClearType inputValue;
     ClearType lambdaClear;    //should be known to owner
     int ownerId;
 };
