@@ -8,17 +8,23 @@
 #include "protocols/AdditionGate.h"
 #include "protocols/InputGate.h"
 #include "protocols/MultiplicationGate.h"
+#include "utils/Party.h"
 
 
 template<typename ShrType>
 class Circuit {
 public:
-    explicit Circuit(int id = 0): myId(id) {};
+    Circuit() = default;    //should only be used for tests
+    explicit Circuit(Party<ShrType> *party) : party(party) {}
 
     void readOfflineFromFile(std::ifstream &ifs) {
         for (const auto &gate: endpoints) {
             gate->readOfflineFromFile(ifs);
         }
+    }
+
+    void readOfflineFromFile() {
+        readOfflineFromFile(party->getFileStream());
     }
 
     void runOffline() {
@@ -35,7 +41,7 @@ public:
 
     std::shared_ptr<InputGate<ShrType>>
     input(int ownerId = 0) {
-        auto gate = std::make_shared<InputGate<ShrType>>(myId, ownerId);
+        auto gate = std::make_shared<InputGate<ShrType>>(party, ownerId);
         gates.push_back(gate);
         return gate;
     }
@@ -61,7 +67,7 @@ public:
 private:
     std::vector<std::shared_ptr<Gate<ShrType>>> gates;
     std::vector<std::shared_ptr<Gate<ShrType>>> endpoints;
-    int myId;
+    Party<ShrType> *party;
 };
 
 

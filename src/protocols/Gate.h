@@ -4,16 +4,19 @@
 
 #include <fstream>
 #include <memory>
+#include "utils/Party.h"
 
 template<typename ShrType>
 class Gate {
 public:
     using ClearType = typename ShrType::ClearType;
 
-    explicit Gate(int id = 0) : myId(id) {}
+    Gate() = default;   //Should only be used for tests
+
+    Gate(Party<ShrType> *party): party(party) {}    //Used for input gates
 
     Gate(const std::shared_ptr<Gate> &input_x, const std::shared_ptr<Gate> &input_y)
-            : input_x(input_x), input_y(input_y), myId(input_x->getMyId()) {}
+            : input_x(input_x), input_y(input_y), party(input_x->getParty()) {}
 
     virtual ~Gate() = default;
 
@@ -99,14 +102,16 @@ public:
 
     void setEvaluatedOnline() { evaluatedOnline = true; }       //for debugging
 
-    [[nodiscard]] int getMyId() const { return myId; }
+    Party<ShrType> *getParty() { return party; }
+
+    [[nodiscard]] int myId() const { return party->getMyId(); }
 
 protected:
     //Maybe: define clearLambda here for debugging purpose
     ShrType lambdaShr{};      //We don't set it in ctor, it's set in offline phase
     ClearType deltaClear{};   //We don't set it in ctor, it's set in online phase
     std::shared_ptr<Gate<ShrType>> input_x, input_y;
-    int myId;
+    Party<ShrType> *party;
 
 private:
     bool evaluatedOffline = false;

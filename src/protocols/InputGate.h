@@ -9,7 +9,7 @@ class InputGate : public Gate<ShrType> {
 public:
     using typename Gate<ShrType>::ClearType;
 
-     explicit InputGate(int id = 0, int ownerId = 0): Gate<ShrType>(id), ownerId(ownerId) {}
+    explicit InputGate(Party<ShrType> *party, int ownerId = 0) : Gate<ShrType>(party), ownerId(ownerId) {}
 
     ClearType getLambdaClear() const { return lambdaClear; }
 
