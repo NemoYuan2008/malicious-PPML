@@ -6,6 +6,7 @@
 #include "share/Spdz2kShare.h"
 #include "protocols/Circuit.h"
 #include "protocols/InputGate.h"
+#include "utils/Party.h"
 
 using std::array;
 using std::shared_ptr;
@@ -18,7 +19,8 @@ namespace {
 
 template<typename ShrType>
 struct CircuitFixture {
-    array<Circuit<ShrType>, 2> circuit{Circuit<ShrType>(0), Circuit<ShrType>(1)};
+    Party<ShrType> p0{0, 2, (path / "0.txt").string(), false}, p1{1, 2, (path / "1.txt").string(), false};
+    array<Circuit<ShrType>, 2> circuit{Circuit<ShrType>(&p0), Circuit<ShrType>(&p1)};
     array<shared_ptr<InputGate<ShrType>>, 2> x, y, z;
     array<shared_ptr<AdditionGate<ShrType>>, 2> a, c;
     array<shared_ptr<MultiplicationGate<ShrType>>, 2> b, d;
