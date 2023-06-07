@@ -88,7 +88,7 @@ bool Network::rcv(uint party_id, T *data) {
     }
     if (party_id > id) socket_id--;
     //boost::asio::streambuf recBuff;
-    boost::asio::mutable_buffer recBuff = buffer(data,sizeof(T)); //This is dangerous if a read_err occurred
+    boost::asio::mutable_buffer recBuff = boost::asio::buffer(data,sizeof(T)); //This is dangerous if a read_err occurred
     boost::system::error_code err;
     read(*sockets[socket_id], recBuff, boost::asio::transfer_at_least(sizeof(T)), err);
     if (err && err != boost::asio::error::eof) {
