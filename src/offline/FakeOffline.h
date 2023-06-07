@@ -28,11 +28,32 @@ public:
     using PartyKeyType = typename Spdz2kShare<K, S>::PartyKeyType;
 
 public:
-    FakeOffline() {
+    FakeOffline() {     // Should only be used for tests
         key = 0;
         for (int i = 0; i < N; ++i) {
             keyShares[i] = getRand<SType>();
             key += static_cast<KSType>(keyShares[i]);
+        }
+    }
+
+    explicit FakeOffline(std::array<std::ostream *, N> &filePtrs) : files(filePtrs) {
+        key = 0;
+        for (int i = 0; i < N; ++i) {
+            keyShares[i] = getRand<SType>();
+            key += static_cast<KSType>(keyShares[i]);
+
+            *files[i] << keyShares[i] << '\n';
+        }
+    }
+
+    explicit FakeOffline(std::array<std::ofstream, N> &fileObjects) {
+        key = 0;
+        for (int i = 0; i < N; ++i) {
+            keyShares[i] = getRand<SType>();
+            key += static_cast<KSType>(keyShares[i]);
+
+            fileObjects[i] << keyShares[i] << '\n';
+            files[i] = &fileObjects[i];
         }
     }
 
@@ -49,6 +70,7 @@ public:
 private:
     std::array<SType, N> keyShares;
     KSType key;
+    std::array<std::ostream *, N> files;
 };
 
 

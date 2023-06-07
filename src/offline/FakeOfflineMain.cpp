@@ -16,7 +16,7 @@ int main() {
             std::ofstream(path / "1.txt")
     };
 
-    FakeOffline<32, 32, 2> offline;
+    FakeOffline<32, 32, 2> offline(files);
     FakeCircuit<Spdz2kShare32, 2> circuit(files, offline);
 
     //a = x + y, b = a * x, c = z + b, d = a * c
