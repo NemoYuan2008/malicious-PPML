@@ -8,7 +8,7 @@ include_directories(src)
 add_executable(malicious_PPML
         main.cpp src/protocols/Gate.h src/utils/rand.h src/protocols/InputGate.h src/protocols/AdditionGate.h src/protocols/MultiplicationGate.h src/protocols/Circuit.h src/utils/Party.h)
 
-target_link_libraries(malicious_PPML uint128)
+target_link_libraries(malicious_PPML uint128 network)
 
 add_subdirectory(src/offline)
 add_subdirectory(src/share)

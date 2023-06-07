@@ -10,6 +10,7 @@
 #include "protocols/InputGate.h"
 #include "protocols/AdditionGate.h"
 #include "protocols/Circuit.h"
+#include "utils/Party.h"
 
 using std::cin;
 using std::cout;
@@ -18,9 +19,11 @@ using std::make_shared;
 
 int main() {
     auto path = std::filesystem::temp_directory_path();
-    cout << path << '\n';
-    std::array<std::ifstream, 2> inFiles{std::ifstream(path / "0.txt"), std::ifstream(path / "1.txt")};
-    std::array<Circuit<Spdz2kShare32>, 2> circuit{Circuit<Spdz2kShare32>(0), Circuit<Spdz2kShare32>(1)};
+
+    Party<Spdz2kShare32> p0(0, 2, (path / "0.txt").string(), false),
+            p1(1, 2, (path / "1.txt").string(), false);
+
+    std::array<Circuit<Spdz2kShare32>, 2> circuit{Circuit<Spdz2kShare32>(&p0), Circuit<Spdz2kShare32>(&p1)};
     std::array<std::shared_ptr<InputGate<Spdz2kShare32>>, 2> x, y, z;
     std::array<std::shared_ptr<AdditionGate<Spdz2kShare32>>, 2> a, c;
     std::array<std::shared_ptr<MultiplicationGate<Spdz2kShare32>>, 2> b, d;
@@ -39,7 +42,7 @@ int main() {
     //recursive sequence should be: x, y, a, z, b, d
     for (int i = 0; i < 2; ++i) {
         circuit[i].addEndpoint(d[i]);
-        circuit[i].readOfflineFromFile(inFiles[i]);
+        circuit[i].readOfflineFromFile();
     }
     cout << x[0]->getLambdaShr() << '\n'
          << x[1]->getLambdaShr() << '\n'
@@ -47,6 +50,6 @@ int main() {
          << y[1]->getLambdaShr() << '\n'
          << a[0]->getLambdaShr() << '\n'
          << a[1]->getLambdaShr() << '\n';
-    
+
     return 0;
 }

@@ -18,7 +18,7 @@ public:
 
 private:
     void doReadOfflineFromFile(std::ifstream &ifs) override {
-        if (this->ownerId == this->myId)
+        if (this->ownerId == this->myId())
             ifs >> this->lambdaClear;
         ifs >> this->lambdaShr;
     }

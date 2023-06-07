@@ -13,7 +13,7 @@ template<typename ShrType>
 class Party {
 public:
 
-    Party(int myId, int partyNum, const std::string &offlineFilePath, std::false_type)
+    Party(int myId, int partyNum, const std::string &offlineFilePath, bool)
         :myId(myId),
          partyNum(partyNum),
          fileStream(offlineFilePath),
@@ -38,14 +38,14 @@ public:
 
     int getPartyNum() const { return partyNum; }
 
-    std::ofstream &getFileStream() { return fileStream; }
+    std::ifstream &getFileStream() { return fileStream; }
 
     Network &getNetwork() { return network; }
 
 private:
     const int myId;
     const int partyNum;
-    std::ofstream fileStream;
+    std::ifstream fileStream;
     Network network;
     typename ShrType::PartyKeyType partyKey;
 };
