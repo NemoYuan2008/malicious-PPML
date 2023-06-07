@@ -19,13 +19,13 @@
 template<int K, int S, int N>
 class FakeOffline : public FakeOfflineBase<Spdz2kShare<K, S>, N> {
 public:
-    using typename FakeOfflineBase<Spdz2kShare<K, S>, N>::ClearType;
-    using typename FakeOfflineBase<Spdz2kShare<K, S>, N>::Shares;
-
-private:
     using KType = KType_t<K>;
     using SType = SType_t<S>;
     using KSType = KSType_t<K, S>;
+
+    using typename FakeOfflineBase<Spdz2kShare<K, S>, N>::ClearType;
+    using typename FakeOfflineBase<Spdz2kShare<K, S>, N>::Shares;
+    using PartyKeyType = typename Spdz2kShare<K, S>::PartyKeyType;
 
 public:
     FakeOffline() {
@@ -44,7 +44,7 @@ public:
 
     KSType getGlobalKey() const { return key; }
 
-    SType getPartyKey(int id) const { return keyShares.at(id); }
+    PartyKeyType getPartyKey(int id) const { return keyShares.at(id); }
 
 private:
     std::array<SType, N> keyShares;

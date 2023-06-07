@@ -7,6 +7,8 @@
 #include <memory>
 #include "networking/Network.h"
 
+
+template<typename ShrType>
 class Party {
 public:
     Party(int myId, int partyNum, const std::string &offlineFilePath, int port = 7766)
@@ -15,6 +17,7 @@ public:
               fileStream(offlineFilePath),
               network(myId, port) {
         network.connect();
+        fileStream >> partyKey;
     }
 
     Party(const Party &) = delete;
@@ -34,6 +37,7 @@ private:
     const int partyNum;
     std::ofstream fileStream;
     Network network;
+    typename ShrType::PartyKeyType partyKey;
 };
 
 

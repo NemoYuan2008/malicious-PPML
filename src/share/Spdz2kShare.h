@@ -36,6 +36,7 @@ public:
     using SType = SType_t<S>;
     using KSType = KSType_t<K, S>;
     using ClearType = KType;
+    using PartyKeyType = SType;
 
     Spdz2kShare() = default;
 

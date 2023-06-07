@@ -13,8 +13,8 @@ target_link_libraries(player0 network)
 add_executable(player1 application/run-player1.cpp)
 target_link_libraries(player1 network)
 
-add_executable(partyTest0 application/partyTest0.cpp ../utils/Party.h ../utils/Party.cpp)
+add_executable(partyTest0 application/partyTest0.cpp ../utils/Party.h)
 target_link_libraries(partyTest0 network)
 
-add_executable(partyTest1 application/partyTest1.cpp ../utils/Party.h ../utils/Party.cpp)
+add_executable(partyTest1 application/partyTest1.cpp ../utils/Party.h)
 target_link_libraries(partyTest1 network uint128)
