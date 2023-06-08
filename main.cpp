@@ -29,9 +29,9 @@ int main() {
     std::array<std::shared_ptr<MultiplicationGate<Spdz2kShare32>>, 2> b, d;
 
     for (int i = 0; i < 2; ++i) {
-        x[i] = circuit[i].input();
-        y[i] = circuit[i].input();
-        z[i] = circuit[i].input();
+        x[i] = circuit[i].input(0);
+        y[i] = circuit[i].input(0);
+        z[i] = circuit[i].input(0);
 
         a[i] = circuit[i].add(x[i], y[i]);
         b[i] = circuit[i].multiply(a[i], x[i]);

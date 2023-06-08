@@ -17,3 +17,10 @@ add_subdirectory(src/share)
 add_subdirectory(tests)
 
 add_subdirectory(src/networking)
+
+
+add_executable(party0 party0.cpp)
+add_executable(party1 party1.cpp)
+target_link_libraries(party0 uint128 network)
+target_link_libraries(party1 uint128 network)
+
