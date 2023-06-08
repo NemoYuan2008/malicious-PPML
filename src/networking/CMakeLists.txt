@@ -3,18 +3,20 @@ project(demo)
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(Boost REQUIRED COMPONENTS thread)
-include_directories(${Boost_INCLUDE_DIR})
-
+find_package(Boost REQUIRED COMPONENTS system thread)
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIR})
+    link_directories(${Boost_LIBRARY_DIRS}$)
+    message(Boost_LIBRARY_DIRS=${Boost_LIBRARY_DIRS})
+    add_definitions(-DBOOST_ALL_DYN_LINK)
+else()
+    message(err: Boost not found)
+endif()
 add_library(network Network.cpp Network.h)
-
+target_link_libraries(network ${Boost_LIBRARIES})
 add_executable(player0 application/run-player0.cpp)
 target_link_libraries(player0 network)
 add_executable(player1 application/run-player1.cpp)
 target_link_libraries(player1 network)
-
-add_executable(partyTest0 ../utils/Party.h)
-target_link_libraries(partyTest0 network)
-
-add_executable(partyTest1 ../utils/Party.h)
-target_link_libraries(partyTest1 network uint128)
+add_executable(player2 application/run-player2.cpp)
+target_link_libraries(player2 network)

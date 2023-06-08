@@ -1,3 +1,6 @@
+//
+// Created by ysx on 6/5/23.
+//
 #include <iostream>
 #include <cstddef>
 #include <boost/asio.hpp>
@@ -18,31 +21,16 @@ int main (int argc, char **argv) {
     string ipS = "127.0.0.1";
     uint16_t portS = 7766;
     uint16_t port = 7200;
-    uint id = 1;
+    uint id = 2;
     auto SECURITYLEVEL = 128;
 
     // for(int i=1; i< argc; i++){
     //   cout<< atoi(argv[i])<<endl;
     // }
     Network player(id,port);
-    std::vector<int> q(4);
-    for (int i = 0; i < 4; ++i) {
-        q[i]=i+1;
-    }
-    for (int i = 0; i < q.size(); ++i) {
-        std::cout<<q[i];
-    }
-    std::cout<<"\n";
     cout << "initialized"<<endl;
     player.connect();
-    player.send(0,q);
-//    uint8_t * msg;
-//    msg = (uint8_t*)malloc(1);
-//    msg[0] = 100;
-//    cout<< "hello world!"<<endl;
-//    player.send(0,msg,1);
-//    cout<<"send: "<<msg[0]<<endl;
-//    free(msg);
+
     //player.close();
     //string filename = "otp_preprocess.db";
 
