@@ -3,7 +3,8 @@ project(malicious_PPML)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(src)
+find_package(Boost REQUIRED COMPONENTS thread)
+include_directories(src ${Boost_INCLUDE_DIR})
 
 add_executable(malicious_PPML
         main.cpp src/protocols/Gate.h src/utils/rand.h src/protocols/InputGate.h src/protocols/AdditionGate.h src/protocols/MultiplicationGate.h src/protocols/Circuit.h src/utils/Party.h)
