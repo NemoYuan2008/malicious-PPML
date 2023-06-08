@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "share/types.h"
-#include "share/uint128.h"
+#include "utils/uint128.h"
 
 template<int K, int S>
 class Spdz2kShare;

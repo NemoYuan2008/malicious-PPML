@@ -12,7 +12,6 @@ add_executable(malicious_PPML
 target_link_libraries(malicious_PPML uint128 network)
 
 add_subdirectory(src/offline)
-add_subdirectory(src/share)
 
 add_subdirectory(tests)
 

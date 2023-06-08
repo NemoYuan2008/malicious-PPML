@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "utils/rand.h"
-#include "share/uint128.h"
+#include "utils/uint128.h"
 #include "offline/FakeOffline.h"
 
 
