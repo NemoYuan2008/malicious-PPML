@@ -38,7 +38,7 @@ private:
     void doRunOnline() override {
         if (this->myId() == this->ownerId) {
             this->deltaClear = this->lambdaClear + this->inputValue;
-            this->party->getNetwork().send(1 - this->myId(), &this->deltaClear);
+            this->party->getNetwork().send(1 - this->myId(), this->deltaClear);
         } else {
             this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear);
         }

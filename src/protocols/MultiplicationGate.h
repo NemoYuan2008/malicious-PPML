@@ -47,7 +47,7 @@ private:
         //TODO: only works for 2PC, extend to n-PC
         decltype(delta_zShr.xi) delta_z_rcv = 0;
 
-        this->party->getNetwork().send(1 - this->myId(), &delta_zShr.xi);
+        this->party->getNetwork().send(1 - this->myId(), delta_zShr.xi);
         this->party->getNetwork().rcv(1 - this->myId(), &delta_z_rcv);
 
         this->deltaClear = static_cast<ClearType>(delta_zShr.xi + delta_z_rcv);
