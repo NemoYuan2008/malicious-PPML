@@ -32,8 +32,18 @@ int main() {
 
     cout << x->getLambdaShr() << '\n'
          << x->getDeltaClear() << '\n'
+         << y->getLambdaShr() << '\n'
+         << y->getDeltaClear() << '\n'
+         << z->getLambdaShr() << '\n'
+         << z->getDeltaClear() << '\n'
          << a->getLambdaShr() << '\n'
-         << a->getDeltaClear() << '\n';
+         << a->getDeltaClear() << '\n'
+         << b->getLambdaShr() << '\n'
+         << b->getDeltaClear() << '\n'
+         << c->getLambdaShr() << '\n'
+         << c->getDeltaClear() << '\n'
+         << d->getLambdaShr() << '\n'
+         << d->getDeltaClear() << '\n';
 
     return 0;
 }

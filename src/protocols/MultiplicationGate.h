@@ -36,7 +36,7 @@ private:
         const auto &lambda_xShr = this->input_x->getLambdaShr();
         const auto &lambda_yShr = this->input_y->getLambdaShr();
 
-        auto delta_zShr = lambda_xShr * delta_yClear + lambda_yShr * delta_xClear + lambda_xyShr + this->lambdaShr;
+        auto delta_zShr = lambda_xyShr + this->lambdaShr - lambda_xShr * delta_yClear - lambda_yShr * delta_xClear;
 
         //Add constant term delta_xClear * delta_yClear
         if (this->myId() == 0) {
