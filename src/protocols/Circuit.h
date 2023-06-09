@@ -40,8 +40,8 @@ public:
     }
 
     std::shared_ptr<InputGate<ShrType>>
-    input(int ownerId = 0) {
-        auto gate = std::make_shared<InputGate<ShrType>>(party, ownerId);
+    input(int ownerId = 0, int row = 1, int column = 1) {
+        auto gate = std::make_shared<InputGate<ShrType>>(party, row, column, ownerId);
         gates.push_back(gate);
         return gate;
     }

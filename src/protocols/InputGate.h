@@ -11,7 +11,8 @@ public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
 
-    explicit InputGate(Party<ShrType> *party, int ownerId = 0) : Gate<ShrType>(party), ownerId(ownerId) {}
+    explicit InputGate(Party<ShrType> *party, int row, int column, int ownerId = 0)
+            : Gate<ShrType>(party, row, column), ownerId(ownerId) {}
 
     void setInput(ClearType input) {
         if (this->myId() != this->ownerId) {

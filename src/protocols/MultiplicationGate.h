@@ -11,7 +11,14 @@ public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
 
-    using Gate<ShrType>::Gate;
+    MultiplicationGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y)
+            : Gate<ShrType>(input_x, input_y) {
+        if (input_x->getDimY() != input_y->getDimX()) {
+            throw std::logic_error("Dimension of the two inputs of multiplication don't match");
+        }
+        this->dimX = this->input_x->getDimX();
+        this->dimY = this->input_y->getDimY();
+    }
 
     const auto &getLambdaXyShr() const { return lambda_xyShr; }
 

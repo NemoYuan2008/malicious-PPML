@@ -15,7 +15,8 @@ public:
 
     Gate() = default;   //Should only be used for tests
 
-    Gate(Party<ShrType> *party) : party(party) {}    //Used for input gates
+    Gate(Party<ShrType> *party, int row, int column)
+            : party(party), dimX(row), dimY(column) {}    //Used for input gates
 
     Gate(const std::shared_ptr<Gate> &input_x, const std::shared_ptr<Gate> &input_y)
             : input_x(input_x), input_y(input_y), party(input_x->getParty()) {}
@@ -114,6 +115,10 @@ public:
     Party<ShrType> *getParty() { return party; }
 
     [[nodiscard]] int myId() const { return party->getMyId(); }
+
+    int getDimX() const { return dimX; }
+
+    int getDimY() const { return dimY; }
 
 protected:
     std::shared_ptr<Gate<ShrType>> input_x, input_y;
