@@ -9,6 +9,7 @@ template<typename ShrType>
 class InputGate : public Gate<ShrType> {
 public:
     using typename Gate<ShrType>::ClearType;
+    using typename Gate<ShrType>::SemiShrType;
 
     explicit InputGate(Party<ShrType> *party, int ownerId = 0) : Gate<ShrType>(party), ownerId(ownerId) {}
 
@@ -26,9 +27,15 @@ public:
 
 private:
     void doReadOfflineFromFile(std::ifstream &ifs) override {
+        lambdaClear.resize(1);
+        this->lambdaShrMac.resize(1);
+        this->lambdaShr.resize(1);
+        this->deltaClear.resize(1);
+
         if (this->ownerId == this->myId())
-            ifs >> this->lambdaClear;
-        ifs >> this->lambdaShr;
+            ifs >> this->lambdaClear[0];
+
+        ifs >> this->lambdaShr[0] >> this->lambdaShrMac[0];
     }
 
     void doRunOffline() override {
@@ -37,17 +44,18 @@ private:
 
     void doRunOnline() override {
         if (this->myId() == this->ownerId) {
-            this->deltaClear = this->lambdaClear + this->inputValue;
-            this->party->getNetwork().send(1 - this->myId(), this->deltaClear);
+            this->deltaClear[0] = this->lambdaClear[0] + this->inputValue;
+            this->party->getNetwork().send(1 - this->myId(), this->deltaClear[0]);
         } else {
-            this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear);
+            this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear[0]);
         }
     }
 
 
 private:
     ClearType inputValue;
-    ClearType lambdaClear;    //should be known to owner
+    std::vector<SemiShrType> lambdaClear;    //should be known to owner
+//    ClearType lambdaClear;    //should be known to owner
     int ownerId;
 };
 

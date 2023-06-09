@@ -30,20 +30,20 @@ int main() {
     circuit.readOfflineFromFile();
     circuit.runOnline();
 
-    cout << x->getLambdaShr() << '\n'
-         << x->getDeltaClear() << '\n'
-         << y->getLambdaShr() << '\n'
-         << y->getDeltaClear() << '\n'
-         << z->getLambdaShr() << '\n'
-         << z->getDeltaClear() << '\n'
-         << a->getLambdaShr() << '\n'
-         << a->getDeltaClear() << '\n'
-         << b->getLambdaShr() << '\n'
-         << b->getDeltaClear() << '\n'
-         << c->getLambdaShr() << '\n'
-         << c->getDeltaClear() << '\n'
-         << d->getLambdaShr() << '\n'
-         << d->getDeltaClear() << '\n';
+    cout << x->getLambdaShr()[0] << '\n'
+         << x->getDeltaClear()[0] << '\n'
+         << y->getLambdaShr()[0] << '\n'
+         << y->getDeltaClear()[0] << '\n'
+         << z->getLambdaShr()[0] << '\n'
+         << z->getDeltaClear()[0] << '\n'
+         << a->getLambdaShr()[0] << '\n'
+         << a->getDeltaClear()[0] << '\n'
+         << b->getLambdaShr()[0] << '\n'
+         << b->getDeltaClear()[0] << '\n'
+         << c->getLambdaShr()[0] << '\n'
+         << c->getDeltaClear()[0] << '\n'
+         << d->getLambdaShr()[0] << '\n'
+         << d->getDeltaClear()[0] << '\n';
 
     return 0;
 }

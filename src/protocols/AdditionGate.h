@@ -13,11 +13,12 @@ public:
 
 private:
     void doRunOffline() override {
-        this->lambdaShr = this->input_x->getLambdaShr() + this->input_y->getLambdaShr();
+        this->lambdaShr[0] = this->input_x->getLambdaShr()[0] + this->input_y->getLambdaShr()[0];
+        this->lambdaShrMac[0] = this->input_x->getLambdaShrMac()[0] + this->input_y->getLambdaShrMac()[0];
     }
 
     void doRunOnline() override {
-        this->deltaClear = this->input_x->getDeltaClear() + this->input_y->getDeltaClear();
+        this->deltaClear[0] = this->input_x->getDeltaClear()[0] + this->input_y->getDeltaClear()[0];
     }
 };
 

@@ -2,6 +2,7 @@
 #define MALICIOUS_PPML_GATE_H
 
 
+#include <vector>
 #include <fstream>
 #include <memory>
 #include "utils/Party.h"
@@ -10,10 +11,11 @@ template<typename ShrType>
 class Gate {
 public:
     using ClearType = typename ShrType::ClearType;
+    using SemiShrType = typename ShrType::SemiShrType;
 
     Gate() = default;   //Should only be used for tests
 
-    Gate(Party<ShrType> *party): party(party) {}    //Used for input gates
+    Gate(Party<ShrType> *party) : party(party) {}    //Used for input gates
 
     Gate(const std::shared_ptr<Gate> &input_x, const std::shared_ptr<Gate> &input_y)
             : input_x(input_x), input_y(input_y), party(input_x->getParty()) {}
@@ -69,7 +71,12 @@ private:
     virtual void doRunOnline() = 0;
 
     virtual void doReadOfflineFromFile(std::ifstream &ifs) {
-        ifs >> this->lambdaShr;
+        SemiShrType shr, mac;
+        ifs >> shr >> mac;
+        lambdaShr.push_back(shr);
+        lambdaShrMac.push_back(mac);
+
+        this->deltaClear.resize(lambdaShr.size());
     }
 
 
@@ -80,13 +87,15 @@ public:
 
     [[nodiscard]] bool isReadOffline() const { return readOffline; }
 
-    const ShrType &getLambdaShr() const { return lambdaShr; }
+    const auto &getLambdaShr() const { return lambdaShr; }
 
-    ClearType getDeltaClear() const { return deltaClear; }
+    const auto &getLambdaShrMac() const { return lambdaShrMac; }
 
-    void setLambdaShr(ShrType p_lambdaShr) { lambdaShr = p_lambdaShr; }
+    const auto &getDeltaClear() const { return deltaClear; }
 
-    void setDeltaClear(ClearType p_deltaClear) { deltaClear = p_deltaClear; }
+//    void setLambdaShr(ShrType p_lambdaShr) { lambdaShr = p_lambdaShr; }
+
+//    void setDeltaClear(ClearType p_deltaClear) { deltaClear = p_deltaClear; }
 
     void setInputX(const std::shared_ptr<Gate<ShrType>> &inputX) { input_x = inputX; }
 
@@ -107,11 +116,12 @@ public:
     [[nodiscard]] int myId() const { return party->getMyId(); }
 
 protected:
-    //Maybe: define clearLambda here for debugging purpose
-    ShrType lambdaShr{};      //We don't set it in ctor, it's set in offline phase
-    ClearType deltaClear{};   //We don't set it in ctor, it's set in online phase
     std::shared_ptr<Gate<ShrType>> input_x, input_y;
     Party<ShrType> *party;
+
+    int dimX = 1, dimY = 1; //TODO: initialize in ctor
+    std::vector<SemiShrType> lambdaShr, lambdaShrMac;
+    std::vector<SemiShrType> deltaClear;    //should be given in ClearType, but using SemiShrType is more convenient
 
 private:
     bool evaluatedOffline = false;
