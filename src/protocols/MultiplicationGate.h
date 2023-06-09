@@ -1,6 +1,8 @@
 #ifndef MALICIOUS_PPML_MULTIPLICATIONGATE_H
 #define MALICIOUS_PPML_MULTIPLICATIONGATE_H
 
+
+#include <vector>
 #include "protocols/Gate.h"
 
 template<typename ShrType>
@@ -11,13 +13,13 @@ public:
 
     using Gate<ShrType>::Gate;
 
-    const ShrType &getLambdaXyShr() const { return lambda_xyShr; }
+    const auto &getLambdaXyShr() const { return lambda_xyShr; }
 
-    void setLambdaXyShr(const ShrType &lambdaXyShr) { lambda_xyShr = lambdaXyShr; }
+//    void setLambdaXyShr(const ShrType &lambdaXyShr) { lambda_xyShr = lambdaXyShr; }
 
 
 protected:
-    SemiShrType lambda_xyShr, lambda_xyShrMac;       //TODO: MAC
+    std::vector<SemiShrType> lambda_xyShr, lambda_xyShrMac;
 
 
 private:
@@ -25,8 +27,10 @@ private:
         this->lambdaShr.resize(1);
         this->lambdaShrMac.resize(1);
         this->deltaClear.resize(1); //should be done in read*, not do*
+        lambda_xyShr.resize(1);
+        lambda_xyShrMac.resize(1);
 
-        ifs >> this->lambdaShr[0] >> this->lambdaShrMac[0] >> this->lambda_xyShr >> this->lambda_xyShrMac;
+        ifs >> this->lambdaShr[0] >> this->lambdaShrMac[0] >> this->lambda_xyShr[0] >> this->lambda_xyShrMac[0];
     }
 
     void doRunOffline() override {
@@ -42,7 +46,7 @@ private:
         auto lambda_xShr = this->input_x->getLambdaShr()[0];
         auto lambda_yShr = this->input_y->getLambdaShr()[0];
 
-        auto delta_zShr = lambda_xyShr + this->lambdaShr[0] - lambda_xShr * delta_yClear - lambda_yShr * delta_xClear;
+        auto delta_zShr = lambda_xyShr[0] + this->lambdaShr[0] - lambda_xShr * delta_yClear - lambda_yShr * delta_xClear;
 
         //Add constant term delta_xClear * delta_yClear
         if (this->myId() == 0) {
