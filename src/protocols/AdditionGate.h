@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <Eigen/Dense>
 #include "protocols/Gate.h"
+#include "utils/linear_algebra.h"
 
 template<typename ShrType>
 class AdditionGate : public Gate<ShrType> {
@@ -25,14 +26,12 @@ public:
 
 private:
     void doRunOffline() override {
-        this->lambdaShr[0] = this->input_x->getLambdaShr()[0] + this->input_y->getLambdaShr()[0];
-        this->lambdaShrMac[0] = this->input_x->getLambdaShrMac()[0] + this->input_y->getLambdaShrMac()[0];
+        this->lambdaShr = matrixAdd(this->input_x->getLambdaShr(), this->input_y->getLambdaShr());
+        this->lambdaShrMac = matrixAdd(this->input_x->getLambdaShrMac(), this->input_y->getLambdaShrMac());
     }
 
     void doRunOnline() override {
-        this->deltaClear[0] = this->input_x->getDeltaClear()[0] + this->input_y->getDeltaClear()[0];
-        using MatrixType = Eigen::Matrix<SemiShrType, Eigen::Dynamic, Eigen::Dynamic>;  //TODO: RowMajor?
-        Eigen::Map<MatrixType> x(this->input_x->getDeltaClear().data(), this->dimX, this->dimY);
+        this->deltaClear = matrixAdd(this->input_x->getDeltaClear(), this->input_y->getDeltaClear());
     }
 };
 
