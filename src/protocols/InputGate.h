@@ -24,10 +24,7 @@ public:
             throw std::invalid_argument("Input vector and gate doesn't match in size");
         }
 
-        this->inputValue.resize(input.size());
-        //Cast from ClearType to SemiShrType
-        std::transform(input.begin(), input.end(), this->inputValue.begin(),
-                       [](ClearType x) { return static_cast<SemiShrType>(x); });
+        this->inputValue = std::vector<SemiShrType>(input.begin(), input.end());
     }
 
 
