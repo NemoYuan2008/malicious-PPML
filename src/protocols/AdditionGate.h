@@ -3,6 +3,7 @@
 
 
 #include <stdexcept>
+#include <Eigen/Dense>
 #include "protocols/Gate.h"
 
 template<typename ShrType>
