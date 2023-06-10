@@ -10,6 +10,7 @@ template<typename ShrType>
 class AdditionGate : public Gate<ShrType> {
 public:
     using typename Gate<ShrType>::ClearType;
+    using typename Gate<ShrType>::SemiShrType;
 
     using Gate<ShrType>::Gate;
 
@@ -30,6 +31,8 @@ private:
 
     void doRunOnline() override {
         this->deltaClear[0] = this->input_x->getDeltaClear()[0] + this->input_y->getDeltaClear()[0];
+        using MatrixType = Eigen::Matrix<SemiShrType, Eigen::Dynamic, Eigen::Dynamic>;  //TODO: RowMajor?
+        Eigen::Map<MatrixType> x(this->input_x->getDeltaClear().data(), this->dimX, this->dimY);
     }
 };
 
