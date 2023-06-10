@@ -1,5 +1,6 @@
 #include <iostream>
 #include <filesystem>
+#include <vector>
 
 #include "share/Spdz2kShare.h"
 #include "protocols/Circuit.h"
@@ -22,9 +23,10 @@ int main() {
     auto c = circuit.add(z, b);
     auto d = circuit.multiply(a, c);
 
-    x->setInput(10);
-    y->setInput(20);
-    z->setInput(30);
+    std::vector<Spdz2kShare32::ClearType> xIn({10}), yIn({20}), zIn({30});
+    x->setInput(xIn);
+    y->setInput(yIn);
+    z->setInput(zIn);
 
     circuit.addEndpoint(d);
     circuit.readOfflineFromFile();

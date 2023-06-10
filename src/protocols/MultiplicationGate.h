@@ -25,10 +25,6 @@ public:
 //    void setLambdaXyShr(const ShrType &lambdaXyShr) { lambda_xyShr = lambdaXyShr; }
 
 
-protected:
-    std::vector<SemiShrType> lambda_xyShr, lambda_xyShrMac;
-
-
 private:
     void doReadOfflineFromFile(std::ifstream &ifs) override {
         this->lambdaShr.resize(1);
@@ -53,7 +49,8 @@ private:
         auto lambda_xShr = this->input_x->getLambdaShr()[0];
         auto lambda_yShr = this->input_y->getLambdaShr()[0];
 
-        auto delta_zShr = lambda_xyShr[0] + this->lambdaShr[0] - lambda_xShr * delta_yClear - lambda_yShr * delta_xClear;
+        auto delta_zShr =
+                lambda_xyShr[0] + this->lambdaShr[0] - lambda_xShr * delta_yClear - lambda_yShr * delta_xClear;
 
         //Add constant term delta_xClear * delta_yClear
         if (this->myId() == 0) {
@@ -69,6 +66,10 @@ private:
 
         this->deltaClear[0] = static_cast<ClearType>(delta_zShr + delta_z_rcv);
     }
+
+
+protected:
+    std::vector<SemiShrType> lambda_xyShr, lambda_xyShrMac;
 };
 
 #endif //MALICIOUS_PPML_MULTIPLICATIONGATE_H

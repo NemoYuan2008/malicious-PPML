@@ -2,6 +2,8 @@
 #define MALICIOUS_PPML_INPUTGATE_H
 
 
+#include <vector>
+#include <algorithm>
 #include <stdexcept>
 #include "protocols/Gate.h"
 
@@ -14,12 +16,20 @@ public:
     explicit InputGate(Party<ShrType> *party, int row, int column, int ownerId = 0)
             : Gate<ShrType>(party, row, column), ownerId(ownerId) {}
 
-    void setInput(ClearType input) {
+    void setInput(const std::vector<ClearType> &input) {
         if (this->myId() != this->ownerId) {
             throw std::logic_error("Not the owner of input gate, cannot set input");
         }
-        this->inputValue = input;
+        if (input.size() != this->dimX * this->dimY) {
+            throw std::invalid_argument("Input vector and gate doesn't match in size");
+        }
+
+        this->inputValue.resize(input.size());
+        //Cast from ClearType to SemiShrType
+        std::transform(input.begin(), input.end(), this->inputValue.begin(),
+                       [](ClearType x) { return static_cast<SemiShrType>(x); });
     }
+
 
     ClearType getLambdaClear() const { return lambdaClear; }
 
@@ -45,7 +55,7 @@ private:
 
     void doRunOnline() override {
         if (this->myId() == this->ownerId) {
-            this->deltaClear[0] = this->lambdaClear[0] + this->inputValue;
+            this->deltaClear[0] = this->lambdaClear[0] + this->inputValue[0];
             this->party->getNetwork().send(1 - this->myId(), this->deltaClear[0]);
         } else {
             this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear[0]);
@@ -54,9 +64,9 @@ private:
 
 
 private:
-    ClearType inputValue;
+    // inputValue and lambdaClear should be ClearType, but stored as SemiShrType for convenience
+    std::vector<SemiShrType> inputValue;
     std::vector<SemiShrType> lambdaClear;    //should be known to owner
-//    ClearType lambdaClear;    //should be known to owner
     int ownerId;
 };
 
