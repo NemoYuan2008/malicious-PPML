@@ -29,6 +29,7 @@ int main() {
     auto c = circuit.add(z, b);
     auto d = circuit.multiply(a, c);
 
+    //recursive sequence should be: x, y, a, z, b, c, d
     circuit.addEndpoint(d);
     circuit.runOffline();
 

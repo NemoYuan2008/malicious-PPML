@@ -112,11 +112,11 @@ private:
         for (int i = 0; i < size; ++i) {
             auto lambdaShrElem = this->offline.generateShares(this->lambdaClear[i]);
 
-            for (int j = 0; j < N; ++j) { //Owner should know lambdaClear
+            for (int j = 0; j < N; ++j) {
                 this->lambdaShr[j].push_back(lambdaShrElem[j].xi);
                 this->lambdaShrMac[j].push_back(lambdaShrElem[j].mi);
 
-                if (j == this->ownerId) {
+                if (j == this->ownerId) {   //Owner should know lambdaClear
                     *this->files[j] << this->lambdaClear[i] << ' ';
                 }
                 *this->files[j] << lambdaShrElem[j].xi << ' ' << lambdaShrElem[j].mi << '\n';
@@ -126,12 +126,6 @@ private:
         for (int j = 0; j < N; ++j) {
             *this->files[j] << '\n';
         }
-
-//        this->lambdaClear = getRand<ClearType>();
-//        this->lambdaShr = this->offline.generateShares(this->lambdaClear);
-
-
-
     }
 
 private:
@@ -157,18 +151,14 @@ public:
 
 private:
     void doRunOffline() override {
-        // Compute lambdaClear and lambdaShr
+        int size = this->dimX * this->dimY;
+
         this->lambdaClear = matrixAdd(this->input_x->getLambdaClear(), this->input_y->getLambdaClear());
-//        this->lambdaClear = this->input_x->getLambdaClear() + this->input_y->getLambdaClear();
         for (int i = 0; i < N; ++i) {
             this->lambdaShr[i] = matrixAdd(this->input_x->getLambdaShr()[i], this->input_y->getLambdaShr()[i]);
             this->lambdaShrMac[i] = matrixAdd(this->input_x->getLambdaShrMac()[i], this->input_y->getLambdaShrMac()[i]);
-//            this->lambdaShr[i] = this->input_x->getLambdaShares()[i] + this->input_y->getLambdaShr()[i];
-        }
 
-        // Write lambdaShr to file
-        for (int i = 0; i < N; ++i) {
-            for (int j = 0; j < this->lambdaShr.size(); ++j) {
+            for (int j = 0; j < size; ++j) {
                 *this->files[i] << this->lambdaShr[i][j] << ' ' << this->lambdaShrMac[i][j] << '\n';
             }
             *this->files[i] << '\n';
@@ -213,10 +203,7 @@ private:
         this->lambdaClear.resize(size);
         std::generate(this->lambdaClear.begin(), this->lambdaClear.end(), getRand<ClearType>);
 
-
-//        this->lambda_xyClear = this->input_x->getLambdaClear() * this->input_y->getLambdaClear();
-//        this->lambdaClear = getRand<ClearType>();
-
+        //Generate shares and write to files
         for (int i = 0; i < size; ++i) {
             auto lambdaShrElem = this->offline.generateShares(this->lambdaClear[i]);
             auto lambda_xyShrElem = this->offline.generateShares(this->lambda_xyClear[i]);
@@ -237,12 +224,6 @@ private:
         for (int j = 0; j < N; ++j) {
             *this->files[j] << '\n';
         }
-//        this->lambda_xyShr = this->offline.generateShares(this->lambda_xyClear);
-//        this->lambdaShr = this->offline.generateShares(this->lambdaClear);
-
-//        for (int i = 0; i < N; ++i) {
-//            *this->files[i] << this->lambdaShr[i] << ' ' << this->lambda_xyShr[i] << '\n';
-//        }
     }
 
 
