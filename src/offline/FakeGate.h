@@ -24,9 +24,9 @@ public:
     //This ctor is used by InputGate ctor
     FakeGate(std::array<std::ostream *, N> &files,
              const FakeOfflineBase<ShrType, N> &offline, int row, int column)
-            : files(files), offline(offline), dimX(row), dimY(column) {}
+            : files(files), offline(offline), dimRow(row), dimCol(column) {}
 
-    //This ctor is used by other gates, no need to initialize dimX and dimY
+    //This ctor is used by other gates, no need to initialize dimRow and dimCol
     FakeGate(const std::shared_ptr<FakeGate> &p_input_x,
              const std::shared_ptr<FakeGate> &p_input_y)
             : input_x(p_input_x), input_y(p_input_y), files(input_x->files), offline(input_x->offline) {}
@@ -64,9 +64,9 @@ public:
 
     const auto &getLambdaShrMac() const { return lambdaShrMac; }
 
-    [[nodiscard]] int getDimX() const { return dimX; }
+    [[nodiscard]] int getDimRow() const { return dimRow; }
 
-    [[nodiscard]] int getDimY() const { return dimY; }
+    [[nodiscard]] int getDimCol() const { return dimCol; }
 
     [[nodiscard]] bool isEvaluatedOffline() const { return evaluatedOffline; }
 
@@ -75,7 +75,7 @@ protected:
     std::array<std::ostream *, N> &files;
     const FakeOfflineBase<ShrType, N> &offline;
 
-    int dimX = 1, dimY = 1;
+    int dimRow = 1, dimCol = 1;
     std::vector<SemiShrType> lambdaClear;   //is ClearType, stored as SemiShrType
     std::array<std::vector<SemiShrType>, N> lambdaShr, lambdaShrMac;
 
@@ -99,7 +99,7 @@ public:
 
 private:
     void doRunOffline() override {
-        int size = this->dimX * this->dimY;
+        int size = this->dimRow * this->dimCol;
         for (int j = 0; j < N; ++j) {
             this->lambdaShr[j].reserve(size);
             this->lambdaShrMac[j].reserve(size);
@@ -142,16 +142,16 @@ public:
     FakeAdditionGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
                      const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
             : FakeGate<ShrType, N>(p_input_x, p_input_y) {
-        if (p_input_x->getDimX() != p_input_y->getDimX() || p_input_x->getDimY() != p_input_y->getDimY()) {
+        if (p_input_x->getDimRow() != p_input_y->getDimRow() || p_input_x->getDimCol() != p_input_y->getDimCol()) {
             throw std::logic_error("Dimension of the two inputs of addition don't match");
         }
-        this->dimX = p_input_x->getDimX();
-        this->dimY = p_input_x->getDimY();
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
     }
 
 private:
     void doRunOffline() override {
-        int size = this->dimX * this->dimY;
+        int size = this->dimRow * this->dimCol;
 
         this->lambdaClear = matrixAdd(this->input_x->getLambdaClear(), this->input_y->getLambdaClear());
         for (int i = 0; i < N; ++i) {
@@ -176,17 +176,17 @@ public:
     FakeMultiplicationGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
                            const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
             : FakeGate<ShrType, N>(p_input_x, p_input_y) {
-        if (p_input_x->getDimY() != p_input_y->getDimX()) {
+        if (p_input_x->getDimCol() != p_input_y->getDimRow()) {
             throw std::logic_error("Dimension of the two inputs of multiplication don't match");
         }
-        this->dimX = this->input_x->getDimX();
-        this->dimY = this->input_y->getDimY();
-        this->dimMid = this->input_x->getDimY();
+        this->dimRow = this->input_x->getDimRow();
+        this->dimMid = this->input_x->getDimCol();
+        this->dimCol = this->input_y->getDimCol();
     }
 
 private:
     void doRunOffline() override {
-        int size = this->dimX * this->dimY;
+        int size = this->dimRow * this->dimCol;
         for (int i = 0; i < N; ++i) {
             this->lambdaShr[i].reserve(size);
             this->lambdaShrMac[i].reserve(size);
@@ -196,7 +196,7 @@ private:
 
         //Compute lambda_xyClear
         this->lambda_xyClear = matrixMultiply(this->input_x->getLambdaClear(), this->input_y->getLambdaClear(),
-                                              this->dimX, this->dimMid, this->dimY);
+                                              this->dimRow, this->dimMid, this->dimCol);
         assert(size == this->lambda_xyClear.size());
 
         //Fill lambdaClear with random numbers
