@@ -32,6 +32,7 @@ int main() {
     circuit.readOfflineFromFile();
     circuit.runOnline();
 
+    //a = (4, 6), b = (20, 30, 24, 36)
     printVector(b->getLambdaShr());
     printVector(b->getDeltaClear());
 
