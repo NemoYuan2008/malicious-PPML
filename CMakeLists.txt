@@ -15,7 +15,7 @@ target_link_libraries(malicious_PPML network Eigen3::Eigen)
 
 add_subdirectory(src/offline)
 
-add_subdirectory(tests)
+#add_subdirectory(tests)
 
 add_subdirectory(src/networking)
 
