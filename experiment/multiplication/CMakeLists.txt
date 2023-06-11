@@ -1,0 +1,7 @@
+add_executable(multiplication_party0 MultiplicationParty0.cpp)
+add_executable(multiplication_party1 MultiplicationParty1.cpp)
+add_executable(multiplication_fakeOffline MultiplicationFakeOffline.cpp)
+
+target_link_libraries(multiplication_party0 network Eigen3::Eigen)
+target_link_libraries(multiplication_party1 network Eigen3::Eigen)
+target_link_libraries(multiplication_fakeOffline Eigen3::Eigen)

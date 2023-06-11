@@ -25,3 +25,4 @@ add_executable(party1 party1.cpp src/utils/linear_algebra.h)
 target_link_libraries(party0 network Eigen3::Eigen)
 target_link_libraries(party1 network Eigen3::Eigen)
 
+add_subdirectory(experiment)
