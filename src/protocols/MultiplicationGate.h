@@ -44,23 +44,23 @@ private:
 
     void doRunOnline() override {
         //TODO: do not do redundant steps
-        auto delta_xClear = this->input_x->getDeltaClear();
-        auto delta_yClear = this->input_y->getDeltaClear();
-        auto lambda_xShr = this->input_x->getLambdaShr();
-        auto lambda_yShr = this->input_y->getLambdaShr();
+        const auto &delta_xClear = this->input_x->getDeltaClear();
+        const auto &delta_yClear = this->input_y->getDeltaClear();
+        const auto &lambda_xShr = this->input_x->getLambdaShr();
+        const auto &lambda_yShr = this->input_y->getLambdaShr();
 
+        //delta_zShr = lambda_xyShr + lambdaShr - lambda_xShr * delta_yClear - delta_xClear * lambda_yShr
+        //             + delta_xClear * delta_yClear
         auto delta_zShr = matrixAdd(this->lambda_xyShr, this->lambdaShr);
-        delta_zShr = matrixSubtract(delta_zShr,
-                                    matrixMultiply(lambda_xShr, delta_yClear,
-                                                   this->dimRow, this->dimMid, this->dimCol));
-        delta_zShr = matrixSubtract(delta_zShr,
-                                    matrixMultiply(delta_xClear, lambda_yShr,
-                                                   this->dimRow, this->dimMid, this->dimCol));
+        matrixSubtractAssign(delta_zShr,
+                             matrixMultiply(lambda_xShr, delta_yClear, this->dimRow, this->dimMid, this->dimCol));
+        matrixSubtractAssign(delta_zShr,
+                             matrixMultiply(delta_xClear, lambda_yShr, this->dimRow, this->dimMid, this->dimCol));
         if (this->myId() == 0) {
-            delta_zShr = matrixAdd(delta_zShr,
-                                   matrixMultiply(delta_xClear, delta_yClear,
-                                                  this->dimRow, this->dimMid, this->dimCol));
+            matrixAddAssign(delta_zShr,
+                            matrixMultiply(delta_xClear, delta_yClear, this->dimRow, this->dimMid, this->dimCol));
         }
+
         //TODO: for MAC, do the same above plus the following:
 //        delta_zShr.mi += this->party->getPartyKey() * delta_xClear * delta_yClear;
 
