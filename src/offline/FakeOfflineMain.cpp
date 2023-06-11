@@ -20,14 +20,13 @@ int main() {
     FakeCircuit<Spdz2kShare32, 2> circuit(files, offline);
 
     //a = x + y, b = a * z, c = z + b, d = a * c
-    auto x = circuit.input(0, 2, 1);
-    auto y = circuit.input(0, 2, 1);
+    auto x = circuit.input(0, 3, 4);
+    auto y = circuit.input(0, 3, 4);
 
     auto a = circuit.add(x, y);
-    auto z = circuit.input(0, 1, 2);
+    auto z = circuit.input(0, 4, 2);
     auto b = circuit.multiply(a, z);
 
-//    circuit.addEndpoint(a);
     circuit.addEndpoint(b);
     circuit.runOffline();
 
