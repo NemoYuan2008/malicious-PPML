@@ -20,7 +20,7 @@ public:
         if (this->myId() != this->ownerId) {
             throw std::logic_error("Not the owner of input gate, cannot set input");
         }
-        if (input.size() != this->dimX * this->dimY) {
+        if (input.size() != this->dimRow * this->dimCol) {
             throw std::invalid_argument("Input vector and gate doesn't match in size");
         }
 

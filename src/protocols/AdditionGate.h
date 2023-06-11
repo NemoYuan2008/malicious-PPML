@@ -17,11 +17,11 @@ public:
 
     AdditionGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y)
             : Gate<ShrType>(input_x, input_y) {
-        if (input_x->getDimX() != input_y->getDimX() || input_x->getDimY() != input_y->getDimY()) {
+        if (input_x->getDimRow() != input_y->getDimRow() || input_x->getDimCol() != input_y->getDimCol()) {
             throw std::logic_error("Dimension of the two inputs of addition don't match");
         }
-        this->dimX = this->input_x->getDimX();
-        this->dimY = this->input_x->getDimY();
+        this->dimRow = this->input_x->getDimRow();
+        this->dimCol = this->input_x->getDimCol();
     }
 
 private:

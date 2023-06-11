@@ -16,7 +16,7 @@ public:
     Gate() = default;   //Should only be used for tests
 
     Gate(Party<ShrType> *party, int row, int column)
-            : party(party), dimX(row), dimY(column) {}    //Used for input gates
+            : party(party), dimRow(row), dimCol(column) {}    //Used for input gates
 
     Gate(const std::shared_ptr<Gate> &input_x, const std::shared_ptr<Gate> &input_y)
             : input_x(input_x), input_y(input_y), party(input_x->getParty()) {}
@@ -72,12 +72,19 @@ private:
     virtual void doRunOnline() = 0;
 
     virtual void doReadOfflineFromFile(std::ifstream &ifs) {
-        SemiShrType shr, mac;
-        ifs >> shr >> mac;
-        lambdaShr.push_back(shr);
-        lambdaShrMac.push_back(mac);
+        int size = dimRow * dimCol;
+        this->lambdaShr.resize(size);
+        this->lambdaShrMac.resize(size);
 
-        this->deltaClear.resize(lambdaShr.size());
+        for (int i = 0; i < size; ++i) {
+            ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i];
+        }
+//        SemiShrType shr, mac;
+//        ifs >> shr >> mac;
+//        lambdaShr.push_back(shr);
+//        lambdaShrMac.push_back(mac);
+
+//        this->deltaClear.resize(lambdaShr.size());
     }
 
 
@@ -116,17 +123,17 @@ public:
 
     [[nodiscard]] int myId() const { return party->getMyId(); }
 
-    int getDimX() const { return dimX; }
+    int getDimRow() const { return dimRow; }
 
-    int getDimY() const { return dimY; }
+    int getDimCol() const { return dimCol; }
 
 protected:
     std::shared_ptr<Gate<ShrType>> input_x, input_y;
     Party<ShrType> *party;
 
-    int dimX = 1, dimY = 1; //TODO: initialize in ctor
+    int dimRow = 1, dimCol = 1; //TODO: initialize in ctor
     std::vector<SemiShrType> lambdaShr, lambdaShrMac;
-    std::vector<SemiShrType> deltaClear;    //should be given in ClearType, but using SemiShrType is more convenient
+    std::vector<SemiShrType> deltaClear;    //is ClearType, but stored as SemiShrType for convenience
 
 private:
     bool evaluatedOffline = false;

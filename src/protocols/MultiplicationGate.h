@@ -13,11 +13,11 @@ public:
 
     MultiplicationGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y)
             : Gate<ShrType>(input_x, input_y) {
-        if (input_x->getDimY() != input_y->getDimX()) {
+        if (input_x->getDimCol() != input_y->getDimRow()) {
             throw std::logic_error("Dimension of the two inputs of multiplication don't match");
         }
-        this->dimX = this->input_x->getDimX();
-        this->dimY = this->input_y->getDimY();
+        this->dimRow = this->input_x->getDimRow();
+        this->dimCol = this->input_y->getDimCol();
     }
 
     const auto &getLambdaXyShr() const { return lambda_xyShr; }
@@ -27,13 +27,15 @@ public:
 
 private:
     void doReadOfflineFromFile(std::ifstream &ifs) override {
-        this->lambdaShr.resize(1);
-        this->lambdaShrMac.resize(1);
-        this->deltaClear.resize(1); //should be done in read*, not do*
-        lambda_xyShr.resize(1);
-        lambda_xyShrMac.resize(1);
+        int size = this->dimRow * this->dimCol;
+        this->lambdaShr.resize(size);
+        this->lambdaShrMac.resize(size);
+        this->lambda_xyShr.resize(size);
+        this->lambda_xyShrMac.resize(size);
 
-        ifs >> this->lambdaShr[0] >> this->lambdaShrMac[0] >> this->lambda_xyShr[0] >> this->lambda_xyShrMac[0];
+        for (int i = 0; i < size; ++i) {
+            ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i] >> this->lambda_xyShr[i] >> this->lambda_xyShrMac[i];
+        }
     }
 
     void doRunOffline() override {
@@ -64,6 +66,7 @@ private:
         this->party->getNetwork().send(1 - this->myId(), delta_zShr);
         this->party->getNetwork().rcv(1 - this->myId(), &delta_z_rcv);
 
+        this->deltaClear.resize(1);
         this->deltaClear[0] = static_cast<ClearType>(delta_zShr + delta_z_rcv);
     }
 
