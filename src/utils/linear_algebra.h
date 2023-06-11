@@ -28,6 +28,25 @@ std::vector<T> matrixAdd(const std::vector<T> &x, const std::vector<T> &y) {
 
 
 template<typename T>
+void matrixSubtract(const T *x, const T *y, T *output, std::size_t dim) {
+    using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+    Eigen::Map<MatrixType> matOutput(output, dim, 1);
+    Eigen::Map<const MatrixType> matX(x, dim, 1);
+    Eigen::Map<const MatrixType> matY(y, dim, 1);
+    matOutput = matX - matY;
+}
+
+
+template<typename T>
+inline
+std::vector<T> matrixSubtract(const std::vector<T> &x, const std::vector<T> &y) {
+    std::vector<T> output(x.size());
+    matrixSubtract(x.data(), y.data(), output.data(), output.size());
+    return output;
+}
+
+
+template<typename T>
 void matrixMultiply(const T *A, const T *B, T *output, std::size_t dim_l, std::size_t dim_m, std::size_t dim_n) {
     using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>;
     Eigen::Map<MatrixType> matrix_output(output, dim_l, dim_n);
