@@ -5,7 +5,16 @@
 #include <iostream>
 #include <memory>
 #include <array>
+#include <vector>
 #include <string>
+
+
+template<typename Tp>
+void printVector(const std::vector<Tp> &v) {
+    for (const auto &x: v) {
+        std::cout << x << ' ';
+    }
+}
 
 
 //Maybe no use
@@ -19,8 +28,6 @@ openOutputFiles(const std::array<std::string, N> &fileNames) {
     }
     return ret;
 }
-
-
 
 
 #endif //MALICIOUS_PPML_FILEIO_H
