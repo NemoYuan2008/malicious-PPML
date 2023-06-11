@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include "protocols/Gate.h"
+#include "utils/linear_algebra.h"
 
 template<typename ShrType>
 class InputGate : public Gate<ShrType> {
@@ -35,15 +36,19 @@ public:
 
 private:
     void doReadOfflineFromFile(std::ifstream &ifs) override {
-        lambdaClear.resize(1);
-        this->lambdaShrMac.resize(1);
-        this->lambdaShr.resize(1);
-        this->deltaClear.resize(1);
+        int size = this->dimRow * this->dimCol;
+        this->lambdaShrMac.resize(size);
+        this->lambdaShr.resize(size);
 
         if (this->ownerId == this->myId())
-            ifs >> this->lambdaClear[0];
+            lambdaClear.resize(size);
 
-        ifs >> this->lambdaShr[0] >> this->lambdaShrMac[0];
+        for (int i = 0; i < size; ++i) {
+            if (this->ownerId == this->myId())
+                ifs >> this->lambdaClear[i];
+
+            ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i];
+        }
     }
 
     void doRunOffline() override {
@@ -52,10 +57,11 @@ private:
 
     void doRunOnline() override {
         if (this->myId() == this->ownerId) {
-            this->deltaClear[0] = this->lambdaClear[0] + this->inputValue[0];
-            this->party->getNetwork().send(1 - this->myId(), this->deltaClear[0]);
+            this->deltaClear = matrixAdd(this->lambdaClear, this->inputValue);
+            this->party->getNetwork().send(1 - this->myId(), this->deltaClear);
         } else {
-            this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear[0]);
+            this->deltaClear.resize(this->dimRow * this->dimCol);
+            this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear, this->deltaClear.size());
         }
     }
 
