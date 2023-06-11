@@ -1,5 +1,5 @@
-#ifndef MALICIOUS_PPML_FILEIO_H
-#define MALICIOUS_PPML_FILEIO_H
+#ifndef MALICIOUS_PPML_IOHELPER_H
+#define MALICIOUS_PPML_IOHELPER_H
 
 
 #include <iostream>
@@ -14,6 +14,7 @@ void printVector(const std::vector<Tp> &v) {
     for (const auto &x: v) {
         std::cout << x << ' ';
     }
+    std::cout << '\n';
 }
 
 
@@ -30,4 +31,4 @@ openOutputFiles(const std::array<std::string, N> &fileNames) {
 }
 
 
-#endif //MALICIOUS_PPML_FILEIO_H
+#endif //MALICIOUS_PPML_IOHELPER_H
