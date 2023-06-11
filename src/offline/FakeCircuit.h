@@ -31,8 +31,8 @@ public:
     }
 
     std::shared_ptr<FakeInputGate<ShrType, N>>
-    input(int ownerId = 0) {
-        auto gate = std::make_shared<FakeInputGate<ShrType, N>>(files, offline, ownerId);
+    input(int ownerId = 0, int row = 1, int column = 1) {
+        auto gate = std::make_shared<FakeInputGate<ShrType, N>>(files, offline, row, column, ownerId);
         gates.push_back(gate);
         return gate;
     }

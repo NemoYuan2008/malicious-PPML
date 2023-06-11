@@ -1,2 +1,3 @@
-add_executable(FakeOffline FakeOfflineMain.cpp FakeOffline.h FakeGate.h FakeOfflineBase.h FakeCircuit.h ../utils/Party.h)
+add_executable(FakeOffline FakeOfflineMain.cpp FakeOffline.h FakeGate.h FakeOfflineBase.h FakeCircuit.h ../utils/Party.h ../utils/linear_algebra.h)
 target_include_directories(FakeOffline PUBLIC ../)
+target_link_libraries(FakeOffline Eigen3::Eigen)

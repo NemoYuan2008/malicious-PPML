@@ -81,13 +81,13 @@ BOOST_AUTO_TEST_SUITE(FakeCircuitTest)
         BOOST_CHECK_EQUAL(fc->getLambdaClear(), fz->getLambdaClear() + fb->getLambdaClear());
         BOOST_CHECK_EQUAL(fd->getLambdaXyClear(), fa->getLambdaClear() * fc->getLambdaClear());
 
-        //Check lambdaShares
-        BOOST_CHECK_EQUAL(offline.openShares(fa->getLambdaShares()), fa->getLambdaClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fb->getLambdaShares()), fb->getLambdaClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fc->getLambdaShares()), fc->getLambdaClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fd->getLambdaShares()), fd->getLambdaClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fb->getLambdaXyShares()), fb->getLambdaXyClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fd->getLambdaXyShares()), fd->getLambdaXyClear());
+        //Check lambdaShr
+        BOOST_CHECK_EQUAL(offline.openShares(fa->getLambdaShr()), fa->getLambdaClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fb->getLambdaShr()), fb->getLambdaClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fc->getLambdaShr()), fc->getLambdaClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fd->getLambdaShr()), fd->getLambdaClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fb->getLambdaXyShr()), fb->getLambdaXyClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fd->getLambdaXyShr()), fd->getLambdaXyClear());
     }
 
     BOOST_FIXTURE_TEST_CASE(FakeCircuit64, FakeCircuitFixture64) {
@@ -103,13 +103,13 @@ BOOST_AUTO_TEST_SUITE(FakeCircuitTest)
         BOOST_CHECK_EQUAL(fc->getLambdaClear(), fz->getLambdaClear() + fb->getLambdaClear());
         BOOST_CHECK_EQUAL(fd->getLambdaXyClear(), fa->getLambdaClear() * fc->getLambdaClear());
 
-        //Check lambdaShares
-        BOOST_CHECK_EQUAL(offline.openShares(fa->getLambdaShares()), fa->getLambdaClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fb->getLambdaShares()), fb->getLambdaClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fc->getLambdaShares()), fc->getLambdaClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fd->getLambdaShares()), fd->getLambdaClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fb->getLambdaXyShares()), fb->getLambdaXyClear());
-        BOOST_CHECK_EQUAL(offline.openShares(fd->getLambdaXyShares()), fd->getLambdaXyClear());
+        //Check lambdaShr
+        BOOST_CHECK_EQUAL(offline.openShares(fa->getLambdaShr()), fa->getLambdaClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fb->getLambdaShr()), fb->getLambdaClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fc->getLambdaShr()), fc->getLambdaClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fd->getLambdaShr()), fd->getLambdaClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fb->getLambdaXyShr()), fb->getLambdaXyClear());
+        BOOST_CHECK_EQUAL(offline.openShares(fd->getLambdaXyShr()), fd->getLambdaXyClear());
     }
 
 BOOST_AUTO_TEST_SUITE_END()
