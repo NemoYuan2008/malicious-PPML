@@ -19,18 +19,16 @@ int main() {
     FakeOffline<32, 32, 2> offline(files);
     FakeCircuit<Spdz2kShare32, 2> circuit(files, offline);
 
-    //a = x + y, b = a * x, c = z + b, d = a * c
-    auto x = circuit.input();
-    auto y = circuit.input();
-    auto z = circuit.input();
+    //a = x + y, b = a * z, c = z + b, d = a * c
+    auto x = circuit.input(0, 2, 1);
+    auto y = circuit.input(0, 2, 1);
 
     auto a = circuit.add(x, y);
-    auto b = circuit.multiply(a, x);
-    auto c = circuit.add(z, b);
-    auto d = circuit.multiply(a, c);
+    auto z = circuit.input(0, 1, 2);
+    auto b = circuit.multiply(a, z);
 
-    //recursive sequence should be: x, y, a, z, b, c, d
-    circuit.addEndpoint(d);
+//    circuit.addEndpoint(a);
+    circuit.addEndpoint(b);
     circuit.runOffline();
 
     return 0;
