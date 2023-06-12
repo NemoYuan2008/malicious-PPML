@@ -1,34 +1,31 @@
 #include <iostream>
 #include <filesystem>
-#include <vector>
 
 #include "share/Spdz2kShare.h"
 #include "protocols/Circuit.h"
 #include "utils/Party.h"
-#include "utils/ioHelper.h"
+#include "utils/benchmark.h"
 
-using std::cout;
+#include "multiplicationConfig.h"
+
 
 int main() {
     auto path = std::filesystem::temp_directory_path();
 
-    Party<Spdz2kShare32> party(1, 2, (path / "1.txt").string());
-    Circuit<Spdz2kShare32> circuit(&party);
+    Party<Spdz2kShare64> party(1, 2, (path / "1.txt").string());
+    Circuit<Spdz2kShare64> circuit(&party);
 
-    // a = x + y, b = a * z
-    auto x = circuit.input(0, 3, 4);
-    auto y = circuit.input(0, 3, 4);
+    for (int i = 0; i < times; ++i) {
+        auto x = circuit.input(0, rows, cols);
+        auto y = circuit.input(0, cols, rows);
+        auto a = circuit.multiply(x, y);
+        auto o = circuit.output(a);
+        circuit.addEndpoint(o);
+    }
 
-    auto a = circuit.add(x, y);
-    auto z = circuit.input(0, 4, 2);
-    auto b = circuit.multiply(a, z);
-
-    circuit.addEndpoint(b);
     circuit.readOfflineFromFile();
-    circuit.runOnline();
 
-    printVector(b->getLambdaShr());
-    printVector(b->getDeltaClear());
+    std::cout << benchmark([&]() { circuit.runOnline(); }) << "ms\n";
 
     return 0;
 }

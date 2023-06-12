@@ -4,8 +4,10 @@
 
 #include "share/Spdz2kShare.h"
 #include "offline/FakeOffline.h"
-#include "offline/FakeGate.h"
 #include "offline/FakeCircuit.h"
+
+#include "multiplicationConfig.h"
+
 
 int main() {
     auto path = std::filesystem::temp_directory_path();
@@ -16,18 +18,17 @@ int main() {
             std::ofstream(path / "1.txt")
     };
 
-    FakeOffline<32, 32, 2> offline(files);
-    FakeCircuit<Spdz2kShare32, 2> circuit(files, offline);
+    FakeOffline<64, 64, 2> offline(files);
+    FakeCircuit<Spdz2kShare64, 2> circuit(files, offline);
 
-    //a = x + y, b = a * z, c = z + b, d = a * c
-    auto x = circuit.input(0, 3, 4);
-    auto y = circuit.input(0, 3, 4);
+    for (int i = 0; i < times; ++i) {
+        auto x = circuit.input(0, rows, cols);
+        auto y = circuit.input(0, cols, rows);
+        auto a = circuit.multiply(x, y);
+        auto o = circuit.output(a);
+        circuit.addEndpoint(o);
+    }
 
-    auto a = circuit.add(x, y);
-    auto z = circuit.input(0, 4, 2);
-    auto b = circuit.multiply(a, z);
-
-    circuit.addEndpoint(b);
     circuit.runOffline();
 
     return 0;

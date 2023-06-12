@@ -4,52 +4,38 @@
 
 #include "share/Spdz2kShare.h"
 #include "protocols/Circuit.h"
+#include "utils/rand.h"
 #include "utils/Party.h"
-#include "utils/ioHelper.h"
+#include "utils/benchmark.h"
 
-using std::cout;
+#include "multiplicationConfig.h"
+
 
 int main() {
     auto path = std::filesystem::temp_directory_path();
 
-    Party<Spdz2kShare32> party(0, 2, (path / "0.txt").string());
-    Circuit<Spdz2kShare32> circuit(&party);
+    Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
+    Circuit<Spdz2kShare64> circuit(&party);
 
-    // a = x + y, b = a * z
-    auto x = circuit.input(0, 3, 4);
-    auto y = circuit.input(0, 3, 4);
+    for (int i = 0; i < times; ++i) {
+        auto x = circuit.input(0, rows, cols);
+        auto y = circuit.input(0, cols, rows);
+        auto a = circuit.multiply(x, y);
+        auto o = circuit.output(a);
+        circuit.addEndpoint(o);
 
-    auto a = circuit.add(x, y);
-    auto z = circuit.input(0, 4, 2);
-    auto b = circuit.multiply(a, z);
+        std::vector<Spdz2kShare64::ClearType> xIn(rows * cols), yIn(rows * cols);
+        for (int j = 0; j < rows * cols; j++) {
+            xIn[j] = getRand<Spdz2kShare64::ClearType>();
+            yIn[j] = getRand<Spdz2kShare64::ClearType>();
+        }
+        x->setInput(xIn);
+        y->setInput(yIn);
+    }
 
-
-    std::vector<Spdz2kShare32::ClearType>
-            xIn{4, 2, 6, 3, 1, 6, 8, 5, 3, 4, 5, 7},
-            yIn{3, 5, 3, 2, 6, 8, 0, 4, 6, 8, 3, 5},
-            zIn{2, 3, 5, 7, 2, 5, 7, 9};
-
-    //     x                     y                z
-    //[4, 3, 8, 4],         [3, 2, 0, 8],       [2, 2]
-    //[2, 1, 5, 5],         [5, 6, 4, 3],       [3, 5]
-    //[6, 6, 3, 7],         [3, 8, 6, 5],       [5, 7],
-    //                                          [7, 9],
-
-    x->setInput(xIn);
-    y->setInput(yIn);
-    z->setInput(zIn);
-
-    circuit.addEndpoint(b);
     circuit.readOfflineFromFile();
-    circuit.runOnline();
 
-    //    b
-    //[153, 203],
-    //[136, 184],
-    //[189, 259]
-
-    printVector(b->getLambdaShr());
-    printVector(b->getDeltaClear());
+    std::cout << benchmark([&]() { circuit.runOnline(); }) << "ms\n";
 
     return 0;
 }
