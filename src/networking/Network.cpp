@@ -52,7 +52,7 @@ bool Network::send(uint party_id, const uint8_t *buf, uint32_t numBytes) {
     }
     if (party_id >= id) socket_id--;
     boost::system::error_code err;
-    cout << "start sending\n";
+//    cout << "start sending\n";
     write(*sockets[socket_id], buffer(buf, numBytes), err);
     //sockets[socket_id]->write_some(buffer(buf, numBytes), err);
     if (!err) {
@@ -146,7 +146,7 @@ bool Network::rcv(uint party_id, uint64_t *data) {
         return false;
     } else {
         //memcpy(data, buffer_cast<const void *>(recBuff.data()), 8);
-        cout << "received. " << endl;
+//        cout << "received. " << endl;
         return true;
     }
 }
@@ -167,7 +167,7 @@ bool Network::rcv(uint party_id, __uint128_t *data) {
         return false;
     } else {
         //memcpy(data, buffer_cast<const void *>(recBuff.data()), 16);
-        cout << "received." << endl;
+//        cout << "received." << endl;
         return true;
     }
 }

@@ -161,7 +161,7 @@ bool Network::rcv(uint party_id, T *data) {
         return false;
     } else {
         //memcpy(data, boost::asio::buffer_cast<const void *>(recBuff.data()), sizeof(T));
-        std::cout << "received.\n";
+//        std::cout << "received.\n";
         return true;
     }
 }
@@ -190,7 +190,7 @@ bool Network::rcv(uint party_id, std::vector<T> *data, uint32_t numElements) {
         return false;
     } else {
         //memcpy(data->data(), boost::asio::buffer_cast<const void *>(recBuff.data()), numBytes);
-        std::cout << "received.\n";
+//        std::cout << "received.\n";
         //free(buf);
         return true;
     }
