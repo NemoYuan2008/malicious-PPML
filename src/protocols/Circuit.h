@@ -8,6 +8,7 @@
 #include "protocols/AdditionGate.h"
 #include "protocols/InputGate.h"
 #include "protocols/MultiplicationGate.h"
+#include "protocols/OutputGate.h"
 #include "utils/Party.h"
 
 
@@ -56,6 +57,13 @@ public:
     std::shared_ptr<MultiplicationGate<ShrType>>
     multiply(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
         auto gate = std::make_shared<MultiplicationGate<ShrType>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<OutputGate<ShrType>>
+    output(const std::shared_ptr<Gate<ShrType>> &input_x) {
+        auto gate = std::make_shared<OutputGate<ShrType>>(input_x);
         gates.push_back(gate);
         return gate;
     }

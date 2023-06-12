@@ -26,8 +26,9 @@ int main() {
     auto a = circuit.add(x, y);
     auto z = circuit.input(0, 4, 2);
     auto b = circuit.multiply(a, z);
+    auto o = circuit.output(b);
 
-    circuit.addEndpoint(b);
+    circuit.addEndpoint(o);
     circuit.runOffline();
 
     return 0;

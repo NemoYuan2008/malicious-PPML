@@ -240,4 +240,21 @@ protected:
     int dimMid{};
 };
 
+
+template<typename ShrType, int N>
+class FakeOutputGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    FakeOutputGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
+            : FakeGate<ShrType, N>(p_input_x, nullptr) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
+    }
+
+private:
+    void doRunOffline() override {}    //Do nothing
+};
+
 #endif //MALICIOUS_PPML_FAKEGATE_H

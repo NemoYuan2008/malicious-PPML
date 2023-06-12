@@ -53,6 +53,14 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeOutputGate<ShrType, N>>
+    output(const std::shared_ptr<FakeGate<ShrType, N>> &input_x) {
+        auto gate = std::make_shared<FakeOutputGate<ShrType, N>>(input_x);
+        gates.push_back(gate);
+        return gate;
+    }
+
+
     void addEndpoint(const std::shared_ptr<FakeGate<ShrType, N>> &gate) {
         endpoints.push_back(gate);
     }

@@ -22,6 +22,7 @@ int main() {
     auto a = circuit.add(x, y);
     auto z = circuit.input(0, 4, 2);
     auto b = circuit.multiply(a, z);
+    auto o = circuit.output(b);
 
 
     std::vector<Spdz2kShare32::ClearType>
@@ -39,7 +40,7 @@ int main() {
     y->setInput(yIn);
     z->setInput(zIn);
 
-    circuit.addEndpoint(b);
+    circuit.addEndpoint(o);
     circuit.readOfflineFromFile();
     circuit.runOnline();
 
@@ -50,6 +51,7 @@ int main() {
 
     printVector(b->getLambdaShr());
     printVector(b->getDeltaClear());
+    printVector(o->getClear());
 
     return 0;
 }
