@@ -247,7 +247,7 @@ public:
     using typename FakeGate<ShrType, N>::ClearType;
     using typename FakeGate<ShrType, N>::SemiShrType;
 
-    FakeOutputGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
+    explicit FakeOutputGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
             : FakeGate<ShrType, N>(p_input_x, nullptr) {
         this->dimRow = p_input_x->getDimRow();
         this->dimCol = p_input_x->getDimCol();
@@ -255,6 +255,96 @@ public:
 
 private:
     void doRunOffline() override {}    //Do nothing
+};
+
+
+template<typename ShrType, int N>
+class FakeMultiplyTruncGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    static const SemiShrType truncValue = 1 << 8;
+
+    FakeMultiplyTruncGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
+                          const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
+            : FakeGate<ShrType, N>(p_input_x, p_input_y) {
+        if (p_input_x->getDimCol() != p_input_y->getDimRow()) {
+            throw std::logic_error("Dimension of the two inputs of multiplication don't match");
+        }
+        this->dimRow = this->input_x->getDimRow();
+        this->dimMid = this->input_x->getDimCol();
+        this->dimCol = this->input_y->getDimCol();
+    }
+
+private:
+    void doRunOffline() override {
+        int size = this->dimRow * this->dimCol;
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i].reserve(size);
+            this->lambdaShrMac[i].reserve(size);
+            this->lambda_xyShr[i].reserve(size);
+            this->lambda_xyShrMac[i].reserve(size);
+        }
+
+        //Compute lambda_xyClear
+        this->lambda_xyClear = matrixMultiply(this->input_x->getLambdaClear(), this->input_y->getLambdaClear(),
+                                              this->dimRow, this->dimMid, this->dimCol);
+        assert(size == this->lambda_xyClear.size());
+
+        //Fill lambdaPreTruncClear with random numbers
+        this->lambdaPreTruncClear.resize(size);
+        std::generate(this->lambdaPreTruncClear.begin(), this->lambdaPreTruncClear.end(), getRand<ClearType>);
+
+        //Compute lambdaClear by truncation
+        this->lambdaClear.resize(size);
+        std::transform(this->lambdaPreTruncClear.begin(), this->lambdaPreTruncClear.end(),
+                       this->lambdaClear.begin(), [](auto x) { return x / truncValue; });
+
+        //Generate shares and write to files
+        for (int i = 0; i < size; ++i) {
+            auto lambdaShrElem = this->offline.generateShares(this->lambdaClear[i]);
+            auto lambda_xyShrElem = this->offline.generateShares(this->lambda_xyClear[i]);
+            auto lambdaPreTruncShrElem = this->offline.generateShares(this->lambdaPreTruncClear[i]);
+
+            for (int j = 0; j < N; ++j) {
+                this->lambdaShr[j].push_back(lambdaShrElem[j].xi);
+                this->lambdaShrMac[j].push_back(lambdaShrElem[j].mi);
+                this->lambda_xyShr[j].push_back(lambda_xyShrElem[j].xi);
+                this->lambda_xyShrMac[j].push_back(lambda_xyShrElem[j].mi);
+                this->lambdaPreTruncShr[j].push_back(lambdaPreTruncShrElem[j].xi);
+                this->lambdaPreTruncShrMac[j].push_back(lambdaPreTruncShrElem[j].mi);
+
+                *this->files[j] << lambdaShrElem[j].xi << ' '
+                                << lambdaShrElem[j].mi << ' '
+                                << lambda_xyShrElem[j].xi << ' '
+                                << lambda_xyShrElem[j].mi << ' '
+                                << lambdaPreTruncShrElem[j].xi << ' '
+                                << lambdaPreTruncShrElem[j].mi << '\n';
+            }
+        }
+
+        for (int j = 0; j < N; ++j) {
+            *this->files[j] << '\n';
+        }
+    }
+
+
+public:
+    const auto &getLambdaXyClear() const { return lambda_xyClear; }
+
+    const auto &getLambdaXyShr() const { return lambda_xyShr; }
+
+    const auto &getLambdaXyShrMac() const { return lambda_xyShrMac; }
+
+protected:
+    std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
+    std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
+
+    std::vector<SemiShrType> lambdaPreTruncClear;
+    std::array<std::vector<SemiShrType>, N> lambdaPreTruncShr, lambdaPreTruncShrMac;
+
+    int dimMid{};
 };
 
 #endif //MALICIOUS_PPML_FAKEGATE_H
