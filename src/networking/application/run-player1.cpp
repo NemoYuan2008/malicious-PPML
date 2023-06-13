@@ -25,17 +25,19 @@ int main (int argc, char **argv) {
     //   cout<< atoi(argv[i])<<endl;
     // }
     Network player(id,port);
-    std::vector<int> q(4);
-    for (int i = 0; i < 4; ++i) {
-        q[i]=i+1;
-    }
+    int length = 100000000;
+    std::vector<uint64_t> q(length);
     for (int i = 0; i < q.size(); ++i) {
-        std::cout<<q[i];
+        q[i]=i;
     }
+//    for (int i = 0; i < 4; ++i) {
+//        std::cout<<q[i];
+//    }
     std::cout<<"\n";
     cout << "initialized"<<endl;
     player.connect();
     player.send(0,q);
+    //player.rcv(0,&q,length);
 //    uint8_t * msg;
 //    msg = (uint8_t*)malloc(1);
 //    msg[0] = 100;

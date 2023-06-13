@@ -24,20 +24,22 @@ int main (int argc, char **argv) {
   // for(int i=1; i< argc; i++){
   //   cout<< atoi(argv[i])<<endl;
   // }
-  std::vector<int> q(4);
+  int length = 100000000;
+  std::vector<uint64_t> q(length);
   for (int i = 0; i < q.size(); ++i) {
       q[i]=0;
   }
-  for (int i = 0; i < q.size(); ++i) {
-        std::cout<<q[i];
-  }
+//  for (int i = 0; i < q.size(); ++i) {
+//        std::cout<<q[i];
+//  }
   std::cout<<"\n";
   Network player(id,port);
   cout << "initialized"<<endl;
   player.connect();
-  player.rcv(1,&q,4);
-  for (int i = 0; i < q.size(); ++i) {
-      std::cout<<q[i];
+  //player.send(1,q);
+  player.rcv(1,&q,length);
+  for (int i = 0; i < 4; ++i) {
+      std::cout<<q[length-i-1]<<"\n";
   }
 
 //  uint8_t * msg;
