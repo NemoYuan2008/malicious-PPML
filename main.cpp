@@ -1,23 +1,18 @@
 #include <iostream>
-#include <memory>
-#include <filesystem>
-#include <array>
-
-#include "share/Spdz2kShare.h"
-#include "offline/FakeOffline.h"
-#include "utils/rand.h"
-#include "protocols/Gate.h"
-#include "protocols/InputGate.h"
-#include "protocols/AdditionGate.h"
-#include "protocols/Circuit.h"
-#include "utils/Party.h"
+#include "utils/fixedPoint.h"
 
 using std::cin;
 using std::cout;
 using std::hex;
-using std::make_shared;
 
 int main() {
+    cout << hex;
+    double x = -132.35, y = 230.165;
+
+    auto xFix = double2fix<uint64_t>(x);
+    auto yFix = double2fix<uint64_t>(y);
+    auto zFix = static_cast<int64_t>(xFix * yFix) >> 8;
+    cout << x * y << ' ' << fix2double(zFix);
 
     return 0;
 }
