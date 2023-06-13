@@ -1,0 +1,7 @@
+add_executable(multiply_trunc_party0 MultiplyTruncParty0.cpp MultiplyTruncConfig.h)
+add_executable(multiply_trunc_party1 MultiplyTruncParty1.cpp MultiplyTruncConfig.h)
+add_executable(multiply_trunc_fakeOffline MultiplyTruncFakeOffline.cpp MultiplyTruncConfig.h)
+
+target_link_libraries(multiply_trunc_party0 network Eigen3::Eigen)
+target_link_libraries(multiply_trunc_party1 network Eigen3::Eigen)
+target_link_libraries(multiply_trunc_fakeOffline Eigen3::Eigen)

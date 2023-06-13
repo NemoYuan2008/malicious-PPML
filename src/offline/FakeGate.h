@@ -9,6 +9,7 @@
 #include <functional>
 #include <stdexcept>
 #include <cassert>
+#include <type_traits>
 
 #include "offline/FakeOfflineBase.h"
 #include "utils/rand.h"
@@ -264,7 +265,7 @@ public:
     using typename FakeGate<ShrType, N>::ClearType;
     using typename FakeGate<ShrType, N>::SemiShrType;
 
-    static const SemiShrType truncValue = 1 << 8;
+    static const SemiShrType truncBits = 8;
 
     FakeMultiplyTruncGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
                           const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
@@ -299,7 +300,8 @@ private:
         //Compute lambdaClear by truncation
         this->lambdaClear.resize(size);
         std::transform(this->lambdaPreTruncClear.begin(), this->lambdaPreTruncClear.end(),
-                       this->lambdaClear.begin(), [](auto x) { return x / truncValue; });
+                       this->lambdaClear.begin(),
+                       [](SemiShrType x) { return static_cast<std::make_signed_t<ClearType>>(x) >> truncBits; });
 
         //Generate shares and write to files
         for (int i = 0; i < size; ++i) {

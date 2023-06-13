@@ -1,1 +1,2 @@
 add_subdirectory(multiplication)
+add_subdirectory(multiply-trunc)

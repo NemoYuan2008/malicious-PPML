@@ -60,6 +60,14 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeMultiplyTruncGate<ShrType, N>>
+    multiplyTrunc(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
+                  const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {
+        auto gate = std::make_shared<FakeMultiplyTruncGate<ShrType, N>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
 
     void addEndpoint(const std::shared_ptr<FakeGate<ShrType, N>> &gate) {
         endpoints.push_back(gate);
