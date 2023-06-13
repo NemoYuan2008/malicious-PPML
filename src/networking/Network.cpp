@@ -12,8 +12,10 @@ using std::array;
 
 Network::Network(uint32_t id, uint16_t port)
         : id(id), port(port) {
-    sockets.resize(nparties-1);
-    //   io_service ios;
+//    sockets.resize(nparties-1);
+    sendsockets.resize(nparties-1);
+    rcvsockets.resize(nparties-1);
+    //   io_context ios;
 
 //    if (id==1)
 //    {
@@ -36,8 +38,18 @@ Network::Network(uint32_t id, uint16_t port)
 }
 
 void Network::close() {
-    for (size_t i = 0; i < sockets.size(); ++i) {
-        tcp::socket *socket = sockets.at(i);
+//    for (size_t i = 0; i < sockets.size(); ++i) {
+//        tcp::socket *socket = sockets.at(i);
+//        socket->shutdown(socket_base::shutdown_both);
+//        //socket->close();
+//    }
+    for (size_t i = 0; i < sendsockets.size(); ++i) {
+        tcp::socket *socket = sendsockets.at(i);
+        socket->shutdown(socket_base::shutdown_both);
+        //socket->close();
+    }
+    for (size_t i = 0; i < rcvsockets.size(); ++i) {
+        tcp::socket *socket = rcvsockets.at(i);
         socket->shutdown(socket_base::shutdown_both);
         //socket->close();
     }
@@ -46,14 +58,14 @@ void Network::close() {
 bool Network::send(uint party_id, const uint8_t *buf, uint32_t numBytes) {
 
     uint socket_id = party_id;
-    if (party_id > sockets.size()) {
+    if (party_id > sendsockets.size()) {
         std::cerr << "send failed! server with server id " << party_id << " is not added" << endl;
         return false;
     }
     if (party_id >= id) socket_id--;
     boost::system::error_code err;
     cout << "start sending\n";
-    write(*sockets[socket_id], buffer(buf, numBytes), err);
+    write(*sendsockets[socket_id], buffer(buf, numBytes), err);
     //sockets[socket_id]->write_some(buffer(buf, numBytes), err);
     if (!err) {
         return true;
@@ -65,7 +77,7 @@ bool Network::send(uint party_id, const uint8_t *buf, uint32_t numBytes) {
 
 bool Network::send(uint party_id, uint64_t *data) {
     uint socket_id = party_id;
-    if (party_id > sockets.size() || party_id == id) {
+    if (party_id > sendsockets.size() || party_id == id) {
         std::cerr << "send failed! server id " << party_id << " is not legal.\n";
         return false;
     }
@@ -75,7 +87,7 @@ bool Network::send(uint party_id, uint64_t *data) {
     uint8_t *buf;
     buf = (uint8_t *) malloc(8);
     memcpy(buf, data, 8);
-    write(*sockets[socket_id], buffer(buf, 8), err);
+    write(*sendsockets[socket_id], buffer(buf, 8), err);
     //sockets[socket_id]->write_some(buffer(buf, numBytes), err);
     free(buf);
     if (!err) {
@@ -88,7 +100,7 @@ bool Network::send(uint party_id, uint64_t *data) {
 
 bool Network::send(uint party_id, __uint128_t *data) {
     uint socket_id = party_id;
-    if (party_id > sockets.size() || party_id == id) {
+    if (party_id > sendsockets.size() || party_id == id) {
         std::cerr << "send failed! server id " << party_id << " is illegal.\n";
         return false;
     }
@@ -98,7 +110,7 @@ bool Network::send(uint party_id, __uint128_t *data) {
     uint8_t *buf = (uint8_t *) malloc(16);
     uint8_t *temp;
     memcpy(buf, data, 16);
-    write(*sockets[socket_id], buffer(buf, 16), err);
+    write(*sendsockets[socket_id], buffer(buf, 16), err);
     free(buf);
     //sockets[socket_id]->write_some(buffer(buf, numBytes), err);
     if (!err) {
@@ -112,7 +124,7 @@ bool Network::send(uint party_id, __uint128_t *data) {
 
 bool Network::rcv(uint party_id, uint8_t *buf, uint32_t numBytes) {
     uint socket_id = party_id;
-    if (party_id > sockets.size() || party_id == id) {
+    if (party_id > rcvsockets.size() || party_id == id) {
         std::cerr << "send failed! server id " << party_id << " is not legal" << endl;
         return false;
     }
@@ -120,7 +132,7 @@ bool Network::rcv(uint party_id, uint8_t *buf, uint32_t numBytes) {
     streambuf recBuff;
 
     boost::system::error_code err;
-    read(*sockets[socket_id], recBuff, transfer_at_least(numBytes), err);
+    read(*rcvsockets[socket_id], recBuff, transfer_at_least(numBytes), err);
     if (err && err != error::eof) {
         std::cerr << "receive failed: " << err.message() << endl;
         return false;
@@ -132,7 +144,7 @@ bool Network::rcv(uint party_id, uint8_t *buf, uint32_t numBytes) {
 
 bool Network::rcv(uint party_id, uint64_t *data) {
     uint socket_id = party_id;
-    if (party_id > sockets.size() || party_id == id) {
+    if (party_id > rcvsockets.size() || party_id == id) {
         std::cerr << "send failed! server id " << party_id << " is not legal" << endl;
         return false;
     }
@@ -140,7 +152,7 @@ bool Network::rcv(uint party_id, uint64_t *data) {
     //streambuf recBuff;
     mutable_buffer recBuff = buffer(data,8); //This is dangerous if a read_err occurred
     boost::system::error_code err;
-    read(*sockets[socket_id], recBuff, transfer_at_least(8), err);
+    read(*rcvsockets[socket_id], recBuff, transfer_at_least(8), err);
     if (err && err != error::eof) {
         std::cerr << "receive failed: " << err.message() << endl;
         return false;
@@ -153,7 +165,7 @@ bool Network::rcv(uint party_id, uint64_t *data) {
 
 bool Network::rcv(uint party_id, __uint128_t *data) {
     uint socket_id = party_id;
-    if (party_id > sockets.size() || party_id == id) {
+    if (party_id > rcvsockets.size() || party_id == id) {
         std::cerr << "send failed! server id " << party_id << " is not legal" << endl;
         return false;
     }
@@ -161,7 +173,7 @@ bool Network::rcv(uint party_id, __uint128_t *data) {
     //streambuf recBuff;
     mutable_buffer recBuff = buffer(data,16); //This is dangerous if a read_err occurred
     boost::system::error_code err;
-    read(*sockets[socket_id], recBuff, transfer_at_least(16), err);
+    read(*rcvsockets[socket_id], recBuff, transfer_at_least(16), err);
     if (err && err != error::eof) {
         std::cerr << "receive failed: " << err.message() << endl;
         return false;
@@ -180,7 +192,7 @@ const char *Network::getAddr() { return this->addr; }
 void Network::connect() {
     //2 party only
 
-//    io_service ios;
+//    io_context ios;
 //    if (id == 1) {
 //        tcp::socket *socket = new tcp::socket(ios);
 //        cout << "endpoint: " << port << endl;
@@ -198,32 +210,44 @@ void Network::connect() {
 
     //multi-party using threads
 
-
+//    int partyoffset = 10;
+//    int socketsoffset = 5;
+    // sendsockets all through connect, rcvsockets all through accept
     for (int i = 0; i < id; ++i) {
-        io_service ios;
+        io_context ios;
         tcp::socket *socket = new tcp::socket(ios);
-        std::cout<< "connect to player "<< i <<", port: " << port + i*10 + id <<"\n";
-        socket->connect(tcp::endpoint(ip::address::from_string(addr), port + i * 10 + id));
-        sockets[i] = socket;
-        std::cout<<"player "<<i<<" connected.\n";
+        std::cout<< "sendsocket connect to player "<< i <<", port: " << port + i*partyoffset + id <<"\n";
+        socket->connect(tcp::endpoint(ip::address::from_string(addr), port + i * partyoffset + id));
+        sendsockets[i] = socket;
+        std::cout<<"sendsocket with player "<<i<<" connected.\n";
+    }
+    for (int i = 0; i < id; ++i) {
+        io_context ios;
+        tcp::socket *socket = new tcp::socket(ios);
+        std::cout<< "rcvsocket connect to player "<< i <<", port: " << port + i*partyoffset + id <<"\n";
+        socket->connect(tcp::endpoint(ip::address::from_string(addr), port + i * partyoffset + id + socketsoffset));
+        rcvsockets[i] = socket;
+        std::cout<<"rcvsocket with player "<<i<<" connected.\n";
     }
 
     std::vector<boost::thread> initThreads;
     for (uint32_t i = id+1; i < nparties; i++) {
-       initThreads.push_back(boost::thread (connect2player, i, this));
+        initThreads.push_back(boost::thread (connect2player, i,this,0));
+        initThreads.push_back(boost::thread (connect2player, i, this,1));
+
     }
-    for(uint32_t i = 0; i < nparties-id-1; ++i) {
+    for(uint32_t i = 0; i < initThreads.size(); ++i) {
         initThreads[i].join();
     }
     initThreads.clear();
     std::cout<<"connected\n";
 }
 
-void connect2player(uint8_t partyid, Network* player) {
-    player->ConnectTo(partyid);
+void connect2player(uint8_t partyid, Network* player, uint type) {
+    player->ConnectTo(partyid,type);
 }
 
-void Network::ConnectTo(uint32_t partyid) { //TODO: should read a local address table: partyid - addr - port
+void Network::ConnectTo(uint32_t partyid, uint type) { //TODO: should read a local address table: partyid - addr - port
     if (partyid == id || partyid > nparties-1){
         printmutex.lock();
         cout << "partyid is illegal.\n";
@@ -232,23 +256,29 @@ void Network::ConnectTo(uint32_t partyid) { //TODO: should read a local address 
     }
     auto socketid = partyid;
     if (partyid > id) socketid--;
-    io_service ios;
+//    int partyoffset = 10;
+//    int socketsoffset = 5;
+    io_context ios;
     tcp::socket *socket = new tcp::socket(ios);
-    if (partyid < id) {
-        socket->connect(tcp::endpoint(ip::address::from_string(addr), port + partyid * 10 + id));
-        mutex.lock();
-        sockets[socketid] = socket;
-        mutex.unlock();
+    if (type == 1) { // make the acceptor of sendsocket
+        printmutex.lock();
+        std::cout<< "waiting for player "<< partyid<<", port: "<<port+id*10 + partyid<<"\n";
+        printmutex.unlock();
+        ip::tcp::acceptor acceptor(ios,tcp::endpoint(ip::address::from_string(addr), port+id*partyoffset + partyid+socketsoffset));
+        acceptor.accept(*socket);
+        sendmutex.lock();
+        sendsockets[socketid] = socket;
+        sendmutex.unlock();
     }
     else{
         printmutex.lock();
         std::cout<< "waiting for player "<< partyid<<", port: "<<port+id*10 + partyid<<"\n";
         printmutex.unlock();
-        ip::tcp::acceptor acceptor(ios,tcp::endpoint(ip::address::from_string(addr), port+id*10 + partyid));
+        ip::tcp::acceptor acceptor(ios,tcp::endpoint(ip::address::from_string(addr), port+id*partyoffset + partyid));
         acceptor.accept(*socket);
-        mutex.lock();
-        sockets[socketid] = socket;
-        mutex.unlock();
+        rcvmutex.lock();
+        rcvsockets[socketid] = socket;
+        rcvmutex.unlock();
         //std::cout << socket->remote_endpoint().address() << std::endl;
     }
 #ifdef STATE
