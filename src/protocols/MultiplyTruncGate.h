@@ -4,6 +4,7 @@
 #include <vector>
 #include <execution>
 #include <algorithm>
+#include <thread>
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
 
@@ -81,8 +82,15 @@ private:
         //TODO: only works for 2PC, extend to n-PC
         std::vector<SemiShrType> delta_z_rcv(delta_zShr.size());
 
-        this->party->getNetwork().send(1 - this->myId(), delta_zShr);
-        this->party->getNetwork().rcv(1 - this->myId(), &delta_z_rcv, delta_z_rcv.size());
+        std::thread t1([this, &delta_zShr]() {
+            this->party->getNetwork().send(1 - this->myId(), delta_zShr);
+        });
+        std::thread t2([this, &delta_z_rcv]() {
+            this->party->getNetwork().rcv(1 - this->myId(), &delta_z_rcv, delta_z_rcv.size());
+        });
+        t1.join();
+        t2.join();
+
         this->deltaClear = matrixAdd(delta_zShr, delta_z_rcv);
 
 #ifndef NDEBUG

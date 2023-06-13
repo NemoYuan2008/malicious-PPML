@@ -25,7 +25,7 @@ int main() {
     circuit.readOfflineFromFile();
 
     std::vector<Spdz2kShare64::ClearType> xIn(1), yIn(1);
-    std::cout << "Please input x, y: ";
+    std::cout << "Please input x, y (in hexadecimal): ";
     std::cin >> xIn[0] >> yIn[0];
 
     x->setInput(xIn);

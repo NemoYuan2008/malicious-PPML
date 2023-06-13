@@ -5,6 +5,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
+#include <thread>
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
 
@@ -14,7 +15,7 @@ public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
 
-    OutputGate(const std::shared_ptr<Gate<ShrType>> &inputX)
+    explicit OutputGate(const std::shared_ptr<Gate<ShrType>> &inputX)
             : Gate<ShrType>(inputX, nullptr) {  //only one input wire
         this->dimRow = this->input_x->getDimRow();
         this->dimCol = this->input_x->getDimCol();
@@ -30,8 +31,16 @@ private:
     void doRunOnline() override {
         int size = this->dimRow * this->dimCol;
         lambdaClear.resize(size);
-        this->getParty()->getNetwork().send(1 - this->myId(), this->input_x->getLambdaShr());
-        this->getParty()->getNetwork().rcv(1 - this->myId(), &lambdaClear, size);
+
+        std::thread t1([this]() {
+            this->getParty()->getNetwork().send(1 - this->myId(), this->input_x->getLambdaShr());
+        });
+        std::thread t2([this, size]() {
+            this->getParty()->getNetwork().rcv(1 - this->myId(), &this->lambdaClear, size);
+        });
+        t1.join();
+        t2.join();
+
         matrixAddAssign(lambdaClear, this->input_x->getLambdaShr());
         clear = matrixSubtract(this->input_x->getDeltaClear(), lambdaClear);
     }

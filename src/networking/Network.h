@@ -143,7 +143,7 @@ bool Network::send(uint party_id, const std::vector<T> &data) {
     if (!err) {
 //            dest += bufferSize;
 //            numBytes -= bufferSize;
-        std::cout<<numBytes<<" Bytes \n";
+//        std::cout<<numBytes<<" Bytes \n";
     } else {
         std::cout << "send failed: " << err.message() << '\n';
         return false;
@@ -201,7 +201,7 @@ bool Network::rcv(uint party_id, T *data) {
         return false;
     } else {
         //memcpy(data, boost::asio::buffer_cast<const void *>(recBuff.data()), sizeof(T));
-        std::cout << "received.\n";
+//        std::cout << "received.\n";
         return true;
     }
 }
@@ -230,7 +230,7 @@ bool Network::rcv(uint party_id, std::vector<T> *data, uint32_t numElements) {
         std::cerr << "receive failed: " << err.message() << '\n';
         return false;
     } else {
-        std::cout<<numBytes<<" Bytes \n";
+//        std::cout<<numBytes<<" Bytes \n";
     }
 //    while (numBytes > 0){
 //        rcvsockets[socket_id]->read_some(boost::asio::buffer(&sendbytes,2));
