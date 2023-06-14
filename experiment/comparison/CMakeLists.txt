@@ -1,0 +1,7 @@
+add_executable(comparison_party0 ComparisonParty0.cpp ComparisonConfig.h)
+add_executable(comparison_party1 ComparisonParty1.cpp ComparisonConfig.h)
+add_executable(comparison_fakeOffline ComparisonFakeOffline.cpp ComparisonConfig.h)
+
+target_link_libraries(comparison_party0 network Eigen3::Eigen)
+target_link_libraries(comparison_party1 network Eigen3::Eigen)
+target_link_libraries(comparison_fakeOffline Eigen3::Eigen)
