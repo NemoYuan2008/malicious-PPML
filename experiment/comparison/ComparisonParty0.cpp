@@ -23,7 +23,7 @@ int main() {
 
     circuit.readOfflineFromFile();
 
-    std::vector<Spdz2kShare32::ClearType> xIn{4};
+    std::vector<Spdz2kShare32::ClearType> xIn{0};
     x->setInput(xIn);
 
     circuit.runOnline();

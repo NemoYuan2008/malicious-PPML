@@ -53,7 +53,15 @@ private:
 
         //TODO: compare delta_x[0] and lambda_xBinShr[0]
         //Maybe:
-        BitLT(delta_x, this->lambda_xBinShr);
+        auto ret = BitLT(delta_x, this->lambda_xBinShr);
+#ifndef NDEBUG
+        std::cout << "delta_x: ";
+        printVector(delta_x);
+        std::cout<< "Lambda_xBinShr: ";
+        printVector(this->lambda_xBinShr);
+        std::cout << "\n Ret value of BitLT:";
+        printVector(ret);
+#endif
     }
 
     std::vector<bool> BitLT(std::vector<ClearType> &pInt, // output s = (pInt < sInt)
@@ -62,11 +70,11 @@ private:
         std::vector<std::bitset<sizeof(ClearType) * 8>> a_(pInt.size());
         for (int i = 0; i < sInt.size(); ++i) {
             b_[i] = ~sInt[i]; //b_[i][j] = 1 - b[i][j]
-//            a_[i] = pInt[i];
+            a_[i] = pInt[i];
         }
-        auto s = CarryOutCin(pInt,b_,1);
+        auto s = CarryOutCin(a_,b_,1);
         for (int i = 0; i < s.size(); ++i) {
-            s[i] = 1 - s[i]; //s[i] = 1 -s[i]
+            s[i] = 1 ^ s[i]; //s[i] = 1 -s[i]
         }
         return s;
     }
@@ -74,8 +82,8 @@ private:
     std::vector<bool> CarryOutCin(std::vector<std::bitset<sizeof(ClearType) * 8>> &aIn,
                     std::vector<std::bitset<sizeof(ClearType) * 8>> &bIn, bool cIn){ //a<-delta_x, b<-lambda_xBinShr
 
-        std::vector<std::bitset<sizeof(ClearType)>> p(bIn.size());
-        std::vector<std::bitset<sizeof(ClearType)>> g(bIn.size());
+        std::vector<std::bitset<sizeof(ClearType) * 8>> p(bIn.size());
+        std::vector<std::bitset<sizeof(ClearType) * 8>> g(bIn.size());
         //compute p[i] = a[i]^b[i], g[i] = a[i]*b[i]
         int numBits = sizeof(ClearType)*8;
         for (int i = 0; i < bIn.size(); ++i) {
