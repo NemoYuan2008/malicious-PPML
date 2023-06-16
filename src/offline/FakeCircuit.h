@@ -75,6 +75,15 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeConv2DGate<ShrType, N>>
+    conv2D(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
+           const std::shared_ptr<FakeGate<ShrType, N>> &input_y,
+           const Conv2DOp &op) {
+        auto gate = std::make_shared<FakeConv2DGate<ShrType, N>>(input_x, input_y, op);
+        gates.push_back(gate);
+        return gate;
+    }
+
 
     void addEndpoint(const std::shared_ptr<FakeGate<ShrType, N>> &gate) {
         endpoints.push_back(gate);

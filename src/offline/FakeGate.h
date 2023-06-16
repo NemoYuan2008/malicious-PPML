@@ -15,6 +15,7 @@
 #include "offline/FakeOfflineBase.h"
 #include "utils/rand.h"
 #include "utils/linear_algebra.h"
+#include "utils/tensor.h"
 
 
 template<typename ShrType, int N>
@@ -404,5 +405,73 @@ private:
     std::array<std::vector<ClearType>, N> lambda_xBinShr;
 };
 
+
+template<typename ShrType, int N>
+class FakeConv2DGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    FakeConv2DGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
+                   const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y,
+                   const Conv2DOp &op)
+            : FakeGate<ShrType, N>(p_input_x, p_input_y), convOp(op) {}
+
+private:
+    void doRunOffline() override {
+        int size = convOp.compute_output_size();
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i].reserve(size);
+            this->lambdaShrMac[i].reserve(size);
+            this->lambda_xyShr[i].reserve(size);
+            this->lambda_xyShrMac[i].reserve(size);
+        }
+
+        //Compute lambda_xyClear
+        this->lambda_xyClear = convolution(this->input_x->getLambdaClear(),
+                                           this->input_y->getLambdaClear(),
+                                           this->convOp);
+        assert(size == this->lambda_xyClear.size());
+
+        //Fill lambdaClear with random numbers
+        this->lambdaClear.resize(size);
+        std::generate(this->lambdaClear.begin(), this->lambdaClear.end(), getRand<ClearType>);
+
+        //Generate shares and write to files
+        for (int i = 0; i < size; ++i) {
+            auto lambdaShrElem = this->offline.generateShares(this->lambdaClear[i]);
+            auto lambda_xyShrElem = this->offline.generateShares(this->lambda_xyClear[i]);
+
+            for (int j = 0; j < N; ++j) {
+                this->lambdaShr[j].push_back(lambdaShrElem[j].xi);
+                this->lambdaShrMac[j].push_back(lambdaShrElem[j].mi);
+                this->lambda_xyShr[j].push_back(lambda_xyShrElem[j].xi);
+                this->lambda_xyShrMac[j].push_back(lambda_xyShrElem[j].mi);
+
+                *this->files[j] << lambdaShrElem[j].xi << ' '
+                                << lambdaShrElem[j].mi << ' '
+                                << lambda_xyShrElem[j].xi << ' '
+                                << lambda_xyShrElem[j].mi << '\n';
+            }
+        }
+
+        for (int j = 0; j < N; ++j) {
+            *this->files[j] << '\n';
+        }
+    }
+
+
+public:
+    const auto &getLambdaXyClear() const { return lambda_xyClear; }
+
+    const auto &getLambdaXyShr() const { return lambda_xyShr; }
+
+    const auto &getLambdaXyShrMac() const { return lambda_xyShrMac; }
+
+protected:
+    Conv2DOp convOp;
+    std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
+    std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
+};
 
 #endif //MALICIOUS_PPML_FAKEGATE_H

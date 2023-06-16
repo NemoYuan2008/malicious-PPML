@@ -8,7 +8,7 @@
 
 #include "tensor.h"
 
-// WARNING: ColMajor!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// WARNING: ColMajor for matrices, RowMajor for tensors!!!!!!!
 
 
 //output = x + y
@@ -116,8 +116,7 @@ std::vector<T> matrixMultiply(const std::vector<T> &A, const std::vector<T> &B,
 
 
 template<typename T>
-void convolution(const Conv2DOp &conv_op, const T *input_buffer, const T *kernel_buffer,
-                 T *output_buffer) {
+void convolution(const T *input_buffer, const T *kernel_buffer, T *output_buffer, const Conv2DOp &conv_op) {
     using TensorType3 = Eigen::Tensor<T, 3, Eigen::RowMajor>;
     using CTensorType3 = Eigen::Tensor<const T, 3, Eigen::RowMajor>;
     using CTensorType4 = Eigen::Tensor<const T, 4, Eigen::RowMajor>;
@@ -165,16 +164,15 @@ void convolution(const Conv2DOp &conv_op, const T *input_buffer, const T *kernel
 }
 
 template<typename T>
-std::vector<T> convolution(const Conv2DOp &conv_op, const std::vector<T> &input_buffer,
-                           const std::vector<T> &kernel_buffer) {
+std::vector<T> convolution(const std::vector<T> &input_buffer,
+                           const std::vector<T> &kernel_buffer, const Conv2DOp &conv_op) {
     assert(conv_op.verify());
     assert(input_buffer.size() == conv_op.compute_input_size());
     assert(kernel_buffer.size() == conv_op.compute_kernel_size());
     std::vector<T> output_buffer(conv_op.compute_output_size());
-    convolution(conv_op, input_buffer.data(), kernel_buffer.data(), output_buffer.data());
+    convolution(input_buffer.data(), kernel_buffer.data(), output_buffer.data(), conv_op);
     return output_buffer;
 }
-
 
 
 #endif //MALICIOUS_PPML_LINEAR_ALGEBRA_H
