@@ -68,6 +68,13 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeGtzGate<ShrType, N>>
+    gtz(const std::shared_ptr<FakeGate<ShrType, N>> &input_x) {
+        auto gate = std::make_shared<FakeGtzGate<ShrType, N>>(input_x);
+        gates.push_back(gate);
+        return gate;
+    }
+
 
     void addEndpoint(const std::shared_ptr<FakeGate<ShrType, N>> &gate) {
         endpoints.push_back(gate);

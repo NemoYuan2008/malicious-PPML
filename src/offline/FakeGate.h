@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <bitset>
 #include <functional>
 #include <stdexcept>
 #include <cassert>
@@ -348,5 +349,60 @@ protected:
 
     int dimMid{};
 };
+
+
+template<typename ShrType, int N>
+class FakeGtzGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeGtzGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
+            : FakeGate<ShrType, N>(p_input_x, nullptr) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
+    }
+
+private:
+    static std::array<ClearType, N> generateBooleanShares(ClearType x) {
+        std::array<ClearType, N> ret;
+        for (int i = 0; i < N - 1; ++i) {
+            ret[i] = getRand<ClearType>();
+            x ^= ret[i];
+        }
+        ret.back() = x;
+        return ret;
+    }
+
+    void doRunOffline() override {
+        int size = this->dimRow * this->dimCol;
+
+        //Fill lambdaClear with random numbers
+        this->lambdaClear.resize(size);
+        std::generate(this->lambdaClear.begin(), this->lambdaClear.end(), getRand<ClearType>);
+
+        //Generate shares and write to files
+        for (int i = 0; i < size; ++i) {
+            auto lambdaShrElem = this->offline.generateShares(this->lambdaClear[i]);
+            auto lambda_xBinShrElem = generateBooleanShares(this->input_x->getLambdaClear()[i]);
+
+            for (int j = 0; j < N; ++j) {
+                this->lambdaShr[j].push_back(lambdaShrElem[j].xi);
+                this->lambdaShrMac[j].push_back(lambdaShrElem[j].mi);
+                this->lambda_xBinShr[j].push_back(lambda_xBinShrElem[j]);
+
+                *this->files[j] << lambdaShrElem[j].xi << ' '
+                                << lambdaShrElem[j].mi << ' '
+                                << lambda_xBinShrElem[j] << '\n';
+            }
+        }
+        for (int j = 0; j < N; ++j) {
+            *this->files[j] << '\n';
+        }
+    }
+
+    std::array<std::vector<ClearType>, N> lambda_xBinShr;
+};
+
 
 #endif //MALICIOUS_PPML_FAKEGATE_H

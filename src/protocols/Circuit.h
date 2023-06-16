@@ -9,6 +9,7 @@
 #include "protocols/InputGate.h"
 #include "protocols/MultiplicationGate.h"
 #include "protocols/MultiplyTruncGate.h"
+#include "protocols/GtzGate.h"
 #include "protocols/OutputGate.h"
 #include "utils/Party.h"
 
@@ -65,6 +66,13 @@ public:
     std::shared_ptr<MultiplyTruncGate<ShrType>>
     multiplyTrunc(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
         auto gate = std::make_shared<MultiplyTruncGate<ShrType>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<GtzGate<ShrType>>
+    gtz(const std::shared_ptr<Gate<ShrType>> &input_x) {
+        auto gate = std::make_shared<GtzGate<ShrType>>(input_x);
         gates.push_back(gate);
         return gate;
     }
