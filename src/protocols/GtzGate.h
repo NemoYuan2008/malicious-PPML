@@ -69,12 +69,13 @@ private:
         std::vector<std::bitset<sizeof(ClearType) * 8>> b_(sInt.size());
         std::vector<std::bitset<sizeof(ClearType) * 8>> a_(pInt.size());
         for (int i = 0; i < sInt.size(); ++i) {
-            b_[i] = ~sInt[i]; //b_[i][j] = 1 - b[i][j]
+            if (this->myId()==0) b_[i] = ~sInt[i]; //b_[i][j] = 1 - b[i][j]
+            else b_[i] = sInt[i];
             a_[i] = pInt[i];
         }
         auto s = CarryOutCin(a_,b_,1);
         for (int i = 0; i < s.size(); ++i) {
-            s[i] = 1 ^ s[i]; //s[i] = 1 -s[i]
+            if(this->myId()==0) s[i] = 1 ^ s[i]; //s[i] = 1 -s[i]
         }
         return s;
     }
@@ -88,22 +89,23 @@ private:
         int numBits = sizeof(ClearType)*8;
         for (int i = 0; i < bIn.size(); ++i) {
             for (int j=0; j<numBits; j++){
-                p[i][j] = aIn[i][j]^bIn[i][j]; //p = a+b -2ab
+                if(this->myId()==0) p[i][j] = aIn[i][j]^bIn[i][j];
+                else p[i][j] = bIn[i][j]; //p = a+b -2ab
                 g[i][j] = aIn[i][j]&bIn[i][j]; //g = a*b
             }
         }
         for (int i = 0; i < bIn.size(); ++i) {
-            g[i][0] = g[i][0] + cIn*p[i][0]; // g1 = g1 + c*p1
+            g[i][0] = g[i][0] ^ (cIn&p[i][0]); // g1 = g1 + c*p1
         }
         return CarryOutAux(p,g,numBits);
     }
 
-    std::vector<bool> CarryOutAux(std::vector<std::bitset<sizeof(ClearType) * 8>> &p,
-                             std::vector<std::bitset<sizeof(ClearType) * 8>> &g, int k){  //k bits, (p2,g2)*(p1,g1) = (p2p1,g2+p2g1)
+    std::vector<bool> CarryOutAux(std::vector<std::bitset<sizeof(ClearType) * 8>> p,
+                             std::vector<std::bitset<sizeof(ClearType) * 8>> g, int k){  //k bits, (p2,g2)*(p1,g1) = (p2p1,g2+p2g1)
         if (k>1){
             int u_len = k/2; // round down bit length, if k%2=1, push back the last one bit at the end
-            std::vector<std::bitset<sizeof(ClearType) * 8>> u_p(p.size());
-            std::vector<std::bitset<sizeof(ClearType) * 8>> u_g(p.size());
+            std::vector<std::bitset<sizeof(ClearType) * 8>> u_p(p.size(),0);
+            std::vector<std::bitset<sizeof(ClearType) * 8>> u_g(p.size(),0);
             // compute u[k/2..1] = (d[2k] * d[2k-1],...)---- compute p2*p1 and g2*p1 need 2 triples
             // (k/2)*2 triples per invocation
             int numTriples = g.size()*u_len*2; //parallel g.size() comparisons
@@ -130,8 +132,8 @@ private:
                     vec_loc = index_triple*2/8;
                     bit_loc = (index_triple*2)%8;
                     index_triple++;
-                    sendmsg[vec_loc][bit_loc] = p[i][2*j] ^ a; //[p1] -[a]
-                    sendmsg[vec_loc][bit_loc+1] = g[i][2*j+1] ^ b; //[g2] -[b]
+                    sendmsg[vec_loc][bit_loc] = g[i][2*j] ^ a; //[g1] -[a]
+                    sendmsg[vec_loc][bit_loc+1] = p[i][2*j+1] ^ b; //[p2] -[b]
                 }
             }
             //send & rcv
@@ -144,8 +146,12 @@ private:
             });
             t1.join();
             t2.join();
+//#ifndef NDEBUG
+//            std::cout<<"sendmsg: ";printVector(sendmsg);
+//            std::cout<<"rcvmsg: "; printVector(rcvmsg);
+//#endif
             //compute
-            bool alpha, beta, z;
+            bool alpha, beta, z, x_, y_;
             index_triple = 0;
             for (int i = 0; i < g.size(); ++i) { // parallel comparison
                 for (int j =0; j< u_len; ++j) {  // compute u_p, u_g
@@ -154,17 +160,22 @@ private:
                     index_triple++;
                     alpha = sendmsg[vec_loc][bit_loc] ^ rcvmsg[vec_loc][bit_loc]; // alpha = p1 -a
                     beta = sendmsg[vec_loc][bit_loc+1] ^ rcvmsg[vec_loc][bit_loc+1]; // beta = p2 - b
-                    z = c ^ (alpha & b) ^ (beta & a) ^ (alpha & beta); // z = p1p2
+                    x_ = p[i][2*j], y_=p[i][2*j+1]; //x_ -- p1, y_ -- p2
+                    z = c ^ (alpha & y_) ^ (beta & x_); // z = p1p2
+                    if (this->myId()==0) z ^= (alpha&beta);
                     u_p[i][j] = z;
                     vec_loc = index_triple*2/8;
                     bit_loc = (index_triple*2)%8;
                     index_triple++;
-                    alpha = sendmsg[vec_loc][bit_loc] + rcvmsg[vec_loc][bit_loc];  // open p1 -a
-                    beta = sendmsg[vec_loc][bit_loc+1] + rcvmsg[vec_loc][bit_loc+1]; // open  g2 -b
-                    z = c ^ (alpha & b) ^ (beta & a) ^ (alpha & beta); // z = g2p1
-                    u_g[i][j] = g[i][2*j+1] ^ z; // u_g = g2 + g2p1
+                    alpha = sendmsg[vec_loc][bit_loc] ^ rcvmsg[vec_loc][bit_loc];  // open g1 -a
+                    beta = sendmsg[vec_loc][bit_loc+1] ^ rcvmsg[vec_loc][bit_loc+1]; // open  p2 -b
+                    x_ = g[i][2*j], y_=p[i][2*j+1]; // x_ -- g1 y_ -- p2
+                    z = c ^ (alpha & y_) ^ (beta & x_); // z = p2g1
+                    if (this->myId()==0) z ^= (alpha&beta);
+                    u_g[i][j] = g[i][2*j+1] ^ z; // u_g = g2 + p2g1
                 }
             }
+            if (index_triple < numTriples) std::cout<<"triples amount error\n";
             if (k%2 == 1){
                 u_len += 1;
                 for (int i = 0; i < p.size(); ++i) {
@@ -172,14 +183,15 @@ private:
                     u_g[i][u_len] = g[i][k-1];
                 }
             }
-            return CarryOutAux(u_p,u_g,u_len); // u_len : bit length
+            auto ret = CarryOutAux(u_p,u_g,u_len); // u_len : bit length
+            return ret;
         }
         else{
-            std::vector<bool> rst(g.size());
-            for (int i = 0; i < rst.size(); ++i) {
-                rst[i] = g[i][0];
+            std::vector<bool> ret(g.size());
+            for (int i = 0; i < ret.size(); ++i) {
+                ret[i] = g[i][0];
             }
-            return rst; // Actcually only care g[..][0]
+            return ret; // Actcually only care g[..][0]
         }
     }
 protected:
