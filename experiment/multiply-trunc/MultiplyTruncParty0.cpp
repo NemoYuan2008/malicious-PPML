@@ -6,6 +6,7 @@
 #include "protocols/Circuit.h"
 #include "utils/Party.h"
 #include "utils/ioHelper.h"
+#include "utils/fixedPoint.h"
 #include "MultiplyTruncConfig.h"
 
 
@@ -21,18 +22,19 @@ int main() {
     auto y = circuit.input(0, 1, 1);
     auto a = circuit.multiplyTrunc(x, y);
     auto o = circuit.output(a);
+
     circuit.addEndpoint(o);
     circuit.readOfflineFromFile();
 
-    std::vector<Spdz2kShare64::ClearType> xIn(1), yIn(1);
-    std::cout << "Please input x, y (in hexadecimal): ";
-    std::cin >> xIn[0] >> yIn[0];
+    std::vector<Spdz2kShare64::ClearType> xIn({double2fix<Spdz2kShare64::ClearType>(-10)});
+    std::vector<Spdz2kShare64::ClearType> yIn({double2fix<Spdz2kShare64::ClearType>(12.325535)});
 
     x->setInput(xIn);
     y->setInput(yIn);
 
     circuit.runOnline();
     printVector(o->getClear());
+    std::cout << fix2double(o->getClear()[0]);
 
     return 0;
 }

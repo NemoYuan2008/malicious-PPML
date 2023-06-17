@@ -16,6 +16,7 @@
 #include "utils/rand.h"
 #include "utils/linear_algebra.h"
 #include "utils/tensor.h"
+#include "utils/fixedPoint.h"
 
 
 template<typename ShrType, int N>
@@ -267,7 +268,7 @@ public:
     using typename FakeGate<ShrType, N>::ClearType;
     using typename FakeGate<ShrType, N>::SemiShrType;
 
-    static const SemiShrType truncBits = 8;
+    static const SemiShrType fractionBits = FixedPoint::fractionBits;
 
     FakeMultiplyTruncGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
                           const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
@@ -303,7 +304,7 @@ private:
         this->lambdaClear.resize(size);
         std::transform(this->lambdaPreTruncClear.begin(), this->lambdaPreTruncClear.end(),
                        this->lambdaClear.begin(),
-                       [](SemiShrType x) { return static_cast<std::make_signed_t<ClearType>>(x) >> truncBits; });
+                       [](SemiShrType x) { return static_cast<std::make_signed_t<ClearType>>(x) >> fractionBits; });
 
         //Generate shares and write to files
         for (int i = 0; i < size; ++i) {

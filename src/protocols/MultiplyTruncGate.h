@@ -7,6 +7,7 @@
 #include <thread>
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
+#include "utils/fixedPoint.h"
 
 #ifndef NDEBUG
 
@@ -21,7 +22,7 @@ public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
 
-    static const SemiShrType truncBits = 8;
+    static const SemiShrType fractionBits = FixedPoint::fractionBits;
 
     MultiplyTruncGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y)
             : Gate<ShrType>(input_x, input_y) {
@@ -103,7 +104,7 @@ private:
 #endif
         //upper bits of x is of no use, should be eliminated before shifting right
         std::for_each(std::execution::par_unseq, this->deltaClear.begin(), this->deltaClear.end(),
-                      [](SemiShrType &x) { x = static_cast<std::make_signed_t<ClearType>>(x) >> truncBits; });
+                      [](SemiShrType &x) { x = static_cast<std::make_signed_t<ClearType>>(x) >> fractionBits; });
 
 #ifndef NDEBUG
         std::cout << "After Truncation, deltaClear:\n";

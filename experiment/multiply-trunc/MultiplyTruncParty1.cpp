@@ -19,6 +19,7 @@ int main() {
     auto y = circuit.input(0, 1, 1);
     auto a = circuit.multiplyTrunc(x, y);
     auto o = circuit.output(a);
+
     circuit.addEndpoint(o);
     circuit.readOfflineFromFile();
 
