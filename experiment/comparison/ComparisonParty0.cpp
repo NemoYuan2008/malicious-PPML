@@ -28,6 +28,7 @@ int main() {
     x->setInput(xIn);
 
     circuit.runOnline();
+    printVector(o->getClear());
 
     return 0;
 }

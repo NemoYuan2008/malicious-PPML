@@ -4,9 +4,12 @@
 
 #include <vector>
 #include <thread>
+#include <bitset>
+#include <algorithm>
+#include <execution>
+#include <functional>
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
-#include <bitset>
 
 #ifndef NDEBUG
 
@@ -50,10 +53,8 @@ private:
     void doRunOnline() override {
         const auto &delta_x_semiShr = this->input_x->getDeltaClear();
         std::vector<ClearType> delta_x(delta_x_semiShr.begin(), delta_x_semiShr.end());
-
-        //TODO: compare delta_x[0] and lambda_xBinShr[0]
-        //Maybe:
         auto ret = BitLT(delta_x, this->lambda_xBinShr);
+
 #ifndef NDEBUG
         std::cout << "delta_x: ";
         printVector(delta_x);
@@ -62,6 +63,37 @@ private:
         std::cout << "\n Ret value of BitLT:";
         printVector(ret);
 #endif
+
+        //TODO: this is fake
+
+        int msgBytes = (ret.size() + 7) / 8; // round up
+        std::vector<std::bitset<sizeof(uint8_t)*8>> sendmsg(msgBytes,0);
+        std::vector<std::bitset<sizeof(uint8_t)*8>> rcvmsg(msgBytes,0);
+
+        int vec_loc, bit_loc;
+        for (int j =0; j< ret.size(); ++j) {
+            vec_loc = j/8;
+            bit_loc = j%8;
+            sendmsg[vec_loc][bit_loc] = ret[j]; //[p1] -[a]
+        }
+
+        std::thread t1([this, &sendmsg]() { this->getParty()->getNetwork().send(1 - this->myId(), sendmsg); });
+        std::thread t2([this, &rcvmsg]() { this->getParty()->getNetwork().rcv(1 - this->myId(), &rcvmsg, rcvmsg.size()); });
+        t1.join();
+        t2.join();
+
+        std::vector<bool> rcv(ret.size());
+        for (int j =0; j< rcv.size(); ++j) {
+            vec_loc = j/8;
+            bit_loc = j%8;
+            rcv[j]=rcvmsg[vec_loc][bit_loc]; //[p1] -[a]
+        }
+
+
+        std::vector<SemiShrType> zShr(ret.size());
+        std::transform(ret.begin(), ret.end(), rcv.begin(), zShr.begin(), std::bit_xor<>());
+
+        this->deltaClear = matrixAdd(this->lambdaShr, zShr);
     }
 
     std::vector<bool> BitLT(std::vector<ClearType> &pInt, // output s = (pInt < sInt)
