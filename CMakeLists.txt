@@ -9,7 +9,7 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(src ${Boost_INCLUDE_DIR})
 
 add_executable(malicious_PPML
-        main.cpp src/protocols/Gate.h src/utils/rand.h src/protocols/InputGate.h src/protocols/AdditionGate.h src/protocols/MultiplicationGate.h src/protocols/Circuit.h src/utils/Party.h src/utils/linear_algebra.h src/protocols/OutputGate.h src/protocols/MultiplyTruncGate.h src/utils/fixedPoint.h src/protocols/GtzGate.h src/utils/tensor.h src/protocols/Conv2DGate.h)
+        main.cpp src/protocols/Gate.h src/utils/rand.h src/protocols/InputGate.h src/protocols/AdditionGate.h src/protocols/MultiplicationGate.h src/protocols/Circuit.h src/utils/Party.h src/utils/linear_algebra.h src/protocols/OutputGate.h src/protocols/MultiplyTruncGate.h src/utils/fixedPoint.h src/protocols/LtzGate.h src/utils/tensor.h src/protocols/Conv2DGate.h)
 
 #target_link_libraries(malicious_PPML network Eigen3::Eigen)
 

@@ -24,6 +24,7 @@ int main() {
     circuit.readOfflineFromFile();
 
     circuit.runOnline();
+    printVector(o->getClear());
 
     return 0;
 }

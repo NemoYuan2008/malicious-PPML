@@ -10,7 +10,7 @@
 #include "protocols/MultiplicationGate.h"
 #include "protocols/MultiplyTruncGate.h"
 #include "protocols/Conv2DGate.h"
-#include "protocols/GtzGate.h"
+#include "protocols/LtzGate.h"
 #include "protocols/OutputGate.h"
 #include "utils/Party.h"
 
@@ -71,9 +71,9 @@ public:
         return gate;
     }
 
-    std::shared_ptr<GtzGate<ShrType>>
+    std::shared_ptr<LtzGate<ShrType>>
     gtz(const std::shared_ptr<Gate<ShrType>> &input_x) {
-        auto gate = std::make_shared<GtzGate<ShrType>>(input_x);
+        auto gate = std::make_shared<LtzGate<ShrType>>(input_x);
         gates.push_back(gate);
         return gate;
     }
