@@ -55,7 +55,7 @@ private:
         std::vector<ClearType> delta_x(delta_x_semiShr.begin(), delta_x_semiShr.end());
         auto ret = BitLT(delta_x, this->lambda_xBinShr);
         if (this->myId() == 0) {
-            std::transform(ret.begin(), ret.end(), ret.begin(), std::logical_not<>());
+            std::transform(std::execution::par_unseq, ret.begin(), ret.end(), ret.begin(), std::logical_not<>());
         }
 
 #ifndef NDEBUG
@@ -97,7 +97,8 @@ private:
         std::vector<SemiShrType> zShr(ret.size(), 0);
 
         if (this->myId() == 0) {
-            std::transform(ret.begin(), ret.end(), rcv.begin(), zShr.begin(), std::bit_xor<>());
+            std::transform(std::execution::par_unseq,
+                           ret.begin(), ret.end(), rcv.begin(), zShr.begin(), std::bit_xor<>());
         }
 
         this->deltaClear = matrixAdd(this->lambdaShr, zShr);
