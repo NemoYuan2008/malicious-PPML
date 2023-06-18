@@ -75,6 +75,14 @@ public:
         return gate;
     }
 
+    //Offline phase of ltz is the same as gtz
+    std::shared_ptr<FakeGtzGate<ShrType, N>>
+    ltz(const std::shared_ptr<FakeGate<ShrType, N>> &input_x) {
+        auto gate = std::make_shared<FakeGtzGate<ShrType, N>>(input_x);
+        gates.push_back(gate);
+        return gate;
+    }
+
     std::shared_ptr<FakeConv2DGate<ShrType, N>>
     conv2D(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
            const std::shared_ptr<FakeGate<ShrType, N>> &input_y,
