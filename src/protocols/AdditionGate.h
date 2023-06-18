@@ -3,7 +3,6 @@
 
 
 #include <stdexcept>
-#include <Eigen/Dense>
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
 
