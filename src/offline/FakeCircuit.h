@@ -92,6 +92,14 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeElemMultiplicationGate<ShrType, N>>
+    elementMultiply(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
+                    const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {
+        auto gate = std::make_shared<FakeElemMultiplicationGate<ShrType, N>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
 
     void addEndpoint(const std::shared_ptr<FakeGate<ShrType, N>> &gate) {
         endpoints.push_back(gate);

@@ -6,6 +6,7 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <execution>
 #include <bitset>
 #include <functional>
 #include <stdexcept>
@@ -471,6 +472,85 @@ public:
 
 protected:
     Conv2DOp convOp;
+    std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
+    std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
+};
+
+
+
+
+
+
+
+template<typename ShrType, int N>
+class FakeElemMultiplicationGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    FakeElemMultiplicationGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
+                           const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
+            : FakeGate<ShrType, N>(p_input_x, p_input_y) {
+        if (p_input_x->getDimRow() != p_input_y->getDimRow() || p_input_x->getDimCol() != p_input_y->getDimCol()) {
+            throw std::logic_error("Dimension of the two inputs of multiplication don't match");
+        }
+        this->dimRow = this->input_x->getDimRow();
+        this->dimCol = this->input_x->getDimCol();
+    }
+
+private:
+    void doRunOffline() override {
+        int size = this->dimRow * this->dimCol;
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i].reserve(size);
+            this->lambdaShrMac[i].reserve(size);
+            this->lambda_xyShr[i].reserve(size);
+            this->lambda_xyShrMac[i].reserve(size);
+        }
+
+        //Compute lambda_xyClear
+        this->lambda_xyClear.resize(size);
+        std::transform(std::execution::par_unseq,
+                       this->input_x->getLambdaClear().begin(), this->input_x->getLambdaClear().end(),
+                       this->input_y->getLambdaClear().begin(),
+                       this->lambda_xyClear.begin(), std::multiplies<>());
+
+        //Fill lambdaClear with random numbers
+        this->lambdaClear.resize(size);
+        std::generate(this->lambdaClear.begin(), this->lambdaClear.end(), getRand<ClearType>);
+
+        //Generate shares and write to files
+        for (int i = 0; i < size; ++i) {
+            auto lambdaShrElem = this->offline.generateShares(this->lambdaClear[i]);
+            auto lambda_xyShrElem = this->offline.generateShares(this->lambda_xyClear[i]);
+
+            for (int j = 0; j < N; ++j) {
+                this->lambdaShr[j].push_back(lambdaShrElem[j].xi);
+                this->lambdaShrMac[j].push_back(lambdaShrElem[j].mi);
+                this->lambda_xyShr[j].push_back(lambda_xyShrElem[j].xi);
+                this->lambda_xyShrMac[j].push_back(lambda_xyShrElem[j].mi);
+
+                *this->files[j] << lambdaShrElem[j].xi << ' '
+                                << lambdaShrElem[j].mi << ' '
+                                << lambda_xyShrElem[j].xi << ' '
+                                << lambda_xyShrElem[j].mi << '\n';
+            }
+        }
+
+        for (int j = 0; j < N; ++j) {
+            *this->files[j] << '\n';
+        }
+    }
+
+
+public:
+    const auto &getLambdaXyClear() const { return lambda_xyClear; }
+
+    const auto &getLambdaXyShr() const { return lambda_xyShr; }
+
+    const auto &getLambdaXyShrMac() const { return lambda_xyShrMac; }
+
+protected:
     std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
     std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
 };

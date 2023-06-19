@@ -1,5 +1,5 @@
-#ifndef MALICIOUS_PPML_MULTIPLICATIONGATE_H
-#define MALICIOUS_PPML_MULTIPLICATIONGATE_H
+#ifndef MALICIOUS_PPML_ELEMMULTIPLICATIONGATE_H
+#define MALICIOUS_PPML_ELEMMULTIPLICATIONGATE_H
 
 
 #include <vector>
@@ -11,19 +11,18 @@
 
 
 template<typename ShrType>
-class MultiplicationGate : public Gate<ShrType> {
+class ElemMultiplicationGate : public Gate<ShrType> {
 public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
 
-    MultiplicationGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y)
+    ElemMultiplicationGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y)
             : Gate<ShrType>(input_x, input_y) {
-        if (input_x->getDimCol() != input_y->getDimRow()) {
-            throw std::logic_error("Dimension of the two inputs of multiplication don't match");
+        if (input_x->getDimRow() != input_y->getDimRow() || input_x->getDimCol() != input_y->getDimCol()) {
+            throw std::logic_error("Dimensions of the two inputs of element-wise multiplication don't match");
         }
-        this->dimRow = this->input_x->getDimRow();
-        this->dimMid = this->input_x->getDimCol();
-        this->dimCol = this->input_y->getDimCol();
+        this->dimRow = input_x->getDimRow();
+        this->dimCol = input_x->getDimCol();
     }
 
     const auto &getLambdaXyShr() const { return lambda_xyShr; }
@@ -54,6 +53,7 @@ private:
 
         //Compute delta_zShr = lambda_xyShr + lambdaShr - lambda_xShr * delta_yClear - delta_xClear * lambda_yShr
         //                     + delta_xClear * delta_yClear
+        std::vector<SemiShrType> temp(delta_xClear.size());
 
         //delta_zShr = lambda_xyShr + lambdaShr
         auto delta_zShr = this->lambda_xyShr;
@@ -62,18 +62,24 @@ private:
                        std::plus<>());
 
         //delta_zShr -= lambda_xShr * delta_yClear
-        auto temp = matrixMultiply(lambda_xShr, delta_yClear, this->dimRow, this->dimMid, this->dimCol);
+        std::transform(std::execution::par_unseq,
+                       lambda_xShr.begin(), lambda_xShr.end(), delta_yClear.begin(), temp.begin(),
+                       std::multiplies<>());
         std::transform(std::execution::par_unseq,
                        delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::minus<>());
 
         //delta_zShr -= delta_xClear * lambda_yShr
-        temp = matrixMultiply(delta_xClear, lambda_yShr, this->dimRow, this->dimMid, this->dimCol);
+        std::transform(std::execution::par_unseq,
+                       delta_xClear.begin(), delta_xClear.end(), lambda_yShr.begin(), temp.begin(),
+                       std::multiplies<>());
         std::transform(std::execution::par_unseq,
                        delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::minus<>());
 
         if (this->myId() == 0) {
             //delta_zShr += delta_xClear * delta_yClear
-            temp = matrixMultiply(delta_xClear, delta_yClear, this->dimRow, this->dimMid, this->dimCol);
+            std::transform(std::execution::par_unseq,
+                           delta_xClear.begin(), delta_xClear.end(), delta_yClear.begin(), temp.begin(),
+                           std::multiplies<>());
             std::transform(std::execution::par_unseq,
                            delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::plus<>());
         }
@@ -115,7 +121,7 @@ private:
 
 protected:
     std::vector<SemiShrType> lambda_xyShr, lambda_xyShrMac;
-    int dimMid{};
 };
 
-#endif //MALICIOUS_PPML_MULTIPLICATIONGATE_H
+
+#endif //MALICIOUS_PPML_ELEMMULTIPLICATIONGATE_H

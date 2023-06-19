@@ -12,6 +12,7 @@
 #include "protocols/Conv2DGate.h"
 #include "protocols/LtzGate.h"
 #include "protocols/GtzGate.h"
+#include "protocols/ElemMultiplicationGate.h"
 #include "protocols/OutputGate.h"
 #include "utils/Party.h"
 
@@ -90,6 +91,13 @@ public:
     conv2D(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
            const Conv2DOp &op) {
         auto gate = std::make_shared<Conv2DGate<ShrType>>(input_x, input_y, op);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<ElemMultiplicationGate<ShrType>>
+    elementMultiply(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
+        auto gate = std::make_shared<ElemMultiplicationGate<ShrType>>(input_x, input_y);
         gates.push_back(gate);
         return gate;
     }
