@@ -113,6 +113,156 @@ private:
         matrixAddAssign(this->deltaClear, deltaRcv);
     }
 
+    bool LT(int32_t x_loc, int32_t y_loc){ // (x<y)
+        auto delta = this->getDeltaClear();
+        auto lambda = this->lambda_xBinShr;
+        auto delta_xy = delta[x_loc] - delta[y_loc];
+        auto lambda_xy = lambda[x_loc]^lambda[y_loc];
+
+    }
+
+    template<typename T>
+    bool BitLT_Ind(T aInt,T bInt){ // aInt < bInt
+        T a_, b_;
+        if (this->myId()==0) b_ = ~bInt;
+        else b_ = bInt;
+        a_ = aInt;
+        auto ret = CarryOutCin_Ind(a_,b_,1);
+        if (this->myId()==0) ret = 1^ret;
+        return ret;
+    }
+
+    template<typename T>
+    bool CarryOutCin_Ind(T a_, T b_, bool cIn){
+        std::bitset<sizeof(T)*8> aIn, bIn;
+        aIn = a_; bIn = b_;
+        std::bitset<sizeof(T) * 8> p;
+        std::bitset<sizeof(T) * 8> g;
+        int numBits = sizeof(T)*8;
+
+        int msgBytes = (numBits*2+7)/8; // round up
+        std::vector<std::bitset<sizeof(uint8_t)*8>> sendmsg(msgBytes,0);
+        std::vector<std::bitset<sizeof(uint8_t)*8>> rcvmsg(msgBytes,0);
+        int32_t vec_loc, bit_loc;
+        for (int j =0; j< numBits; ++j) {
+            vec_loc = numBits*2/8;
+            bit_loc = (numBits*2)%8;
+            sendmsg[vec_loc][bit_loc] = aIn[j] ^ a; //[x] -[a]
+            sendmsg[vec_loc][bit_loc+1] = bIn[j] ^ b; //[y] -[b]
+        }
+
+        std::thread t1([this, &sendmsg]() {
+            this->party->getNetwork().send(1 - this->myId(), sendmsg);
+        });
+        std::thread t2([this, &rcvmsg]() {
+            this->party->getNetwork().rcv(1 - this->myId(), &rcvmsg, rcvmsg.size());
+        });
+        t1.join();
+        t2.join();
+
+        bool alpha, beta, x_, y_, z;
+        for (int j=0; j<numBits; j++){
+            vec_loc = numBits*2/8;
+            bit_loc = (numBits*2)%8;
+            alpha = sendmsg[vec_loc][bit_loc] ^ rcvmsg[vec_loc][bit_loc]; // alpha = x -a
+            beta = sendmsg[vec_loc][bit_loc+1] ^ rcvmsg[vec_loc][bit_loc+1]; // beta = y - b
+            x_ = aIn[j], y_=bIn[j]; //x_ -- [x], y_ -- [y]
+            z = c ^ (alpha & y_) ^ (beta & x_); // z = xy
+            if (this->myId()==0) z ^= (alpha&beta);
+            g[j] = z;
+            p[j] = aIn[j] ^ bIn[j]; //g = a*b
+        }
+        g[0] = g[0] ^ (cIn&p[0]); // g1 = g1 + c*p1
+        return CarryOutAux(p,g,numBits);
+    }
+
+    template<typename T>
+    bool CarryOutAux(std::bitset<sizeof(T) * 8> p,
+                     std::bitset<sizeof(T) * 8> g, int k){  //k bits, (p2,g2)*(p1,g1) = (p2p1,g2+p2g1)
+        if (k>1){
+            int u_len = k/2; // round down bit length, if k%2=1, push back the last one bit at the end
+            std::bitset<sizeof(T) * 8> u_p, u_g;
+            // compute u[k/2..1] = (d[2k] * d[2k-1],...)---- compute p2*p1 and g2*p1 need 2 triples
+            // (k/2)*2 triples per invocation
+            int numTriples = u_len*2; //parallel g.size() comparisons
+            //prepare beaver's triples
+            //[alpha] = [x] - [a]
+            //[beta] = [y] - [b]
+            // open alpha, beta
+            // compute [z] = [c] + alpha*[b] + beta*[a] + alpha*beta
+
+            // each triple sholud send alpha, beta -- 2 bits
+            int msgBytes = (numTriples*2+7)/8; // round up
+            std::vector<std::bitset<sizeof(uint8_t)*8>> sendmsg(msgBytes,0);
+            std::vector<std::bitset<sizeof(uint8_t)*8>> rcvmsg(msgBytes,0);
+            int vec_loc, bit_loc;
+            int index_triple = 0;
+            // load the msg
+            for (int j =0; j< u_len; ++j) {
+                vec_loc = index_triple*2/8;
+                bit_loc = (index_triple*2)%8;
+                index_triple++;
+                sendmsg[vec_loc][bit_loc] = p[2*j] ^ a; //[p1] -[a]
+                sendmsg[vec_loc][bit_loc+1] = p[2*j+1] ^ b; //[p2] -[b]
+                vec_loc = index_triple*2/8;
+                bit_loc = (index_triple*2)%8;
+                index_triple++;
+                sendmsg[vec_loc][bit_loc] = g[2*j] ^ a; //[g1] -[a]
+                sendmsg[vec_loc][bit_loc+1] = p[2*j+1] ^ b; //[p2] -[b]
+            }
+            //send & rcv
+            //send numTriples, sendmsg; receive numTriples rcvmsg
+            std::thread t1([this, &sendmsg]() {
+                this->party->getNetwork().send(1 - this->myId(), sendmsg);
+            });
+            std::thread t2([this, &rcvmsg]() {
+                this->party->getNetwork().rcv(1 - this->myId(), &rcvmsg, rcvmsg.size());
+            });
+            t1.join();
+            t2.join();
+//#ifndef NDEBUG
+//            std::cout<<"sendmsg: ";printVector(sendmsg);
+//            std::cout<<"rcvmsg: "; printVector(rcvmsg);
+//#endif
+            //compute
+            bool alpha, beta, z, x_, y_;
+            index_triple = 0;
+            for (int j =0; j< u_len; ++j) {  // compute u_p, u_g
+                vec_loc = index_triple*2/8;
+                bit_loc = (index_triple*2)%8;
+                index_triple++;
+                alpha = sendmsg[vec_loc][bit_loc] ^ rcvmsg[vec_loc][bit_loc]; // alpha = p1 -a
+                beta = sendmsg[vec_loc][bit_loc+1] ^ rcvmsg[vec_loc][bit_loc+1]; // beta = p2 - b
+                x_ = p[2*j], y_=p[2*j+1]; //x_ -- p1, y_ -- p2
+                z = c ^ (alpha & y_) ^ (beta & x_); // z = p1p2
+                if (this->myId()==0) z ^= (alpha&beta);
+                u_p[j] = z;
+                vec_loc = index_triple*2/8;
+                bit_loc = (index_triple*2)%8;
+                index_triple++;
+                alpha = sendmsg[vec_loc][bit_loc] ^ rcvmsg[vec_loc][bit_loc];  // open g1 -a
+                beta = sendmsg[vec_loc][bit_loc+1] ^ rcvmsg[vec_loc][bit_loc+1]; // open  p2 -b
+                x_ = g[2*j], y_=p[2*j+1]; // x_ -- g1 y_ -- p2
+                z = c ^ (alpha & y_) ^ (beta & x_); // z = p2g1
+                if (this->myId()==0) z ^= (alpha&beta);
+                u_g[j] = g[2*j+1] ^ z; // u_g = g2 + p2g1
+            }
+            if (index_triple < numTriples) std::cout<<"triples amount error\n";
+            if (k%2 == 1){
+                u_len += 1;
+                for (int i = 0; i < p.size(); ++i) {
+                    u_p[i][u_len] = p[i][k-1];
+                    u_g[i][u_len] = g[i][k-1];
+                }
+            }
+            auto ret = CarryOutAux(u_p,u_g,u_len); // u_len : bit length
+            return ret;
+        }
+        else{
+            return g[0]; // Actcually only care g[..][0]
+        }
+    }
+
     std::vector<bool> BitLT(std::vector<ClearType> &pInt, // output s = (pInt < sInt)
                             std::vector<ClearType> &sInt) {
         std::vector<std::bitset<sizeof(ClearType) * 8>> b_(sInt.size());
