@@ -8,6 +8,12 @@
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
 
+#ifndef NDEBUG
+
+#include "utils/ioHelper.h"
+
+#endif
+
 template<typename ShrType>
 class InputGate : public Gate<ShrType> {
 public:
@@ -58,6 +64,10 @@ private:
     void doRunOnline() override {
 #ifndef NDEBUG
         std::cout << "\nInputGate Online\n";
+        std::cout << "lambdaShr:";
+        printVector(this->lambdaShr);
+        std::cout << "deltaClear:";
+        printVector(this->deltaClear);
 #endif
         if (this->myId() == this->ownerId) {
             this->deltaClear = matrixAdd(this->lambdaClear, this->inputValue);

@@ -29,6 +29,9 @@ private:
     void doRunOffline() override {}
 
     void doRunOnline() override {
+#ifndef NDEBUG
+        std::cout << "\nOutput Online\n";
+#endif
         int size = this->dimRow * this->dimCol;
         lambdaClear.resize(size);
 

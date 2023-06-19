@@ -41,6 +41,7 @@ private:
         }
 
 #ifndef NDEBUG
+        std::cout << "\nGtzGate Offline\n";
         std::cout << "lambda from input: ";
         printVector(this->input_x->getLambdaShr());
         std::cout << "lambdaShr: ";
@@ -48,12 +49,21 @@ private:
 #endif
     }
 
+
     void doRunOffline() override {}
+
 
     void doRunOnline() override {
 #ifndef NDEBUG
         std::cout << "\nGtzGate Online\n";
+        std::cout << "lambdaShr:";
+        printVector(this->lambdaShr);
+        std::cout << "deltaClear:";
+        printVector(this->deltaClear);
+        std::cout << "lambda_xBinShr:";
+        printVector(this->lambda_xBinShr);
 #endif
+
         const auto &delta_x_semiShr = this->input_x->getDeltaClear();
         std::vector<ClearType> delta_x(delta_x_semiShr.begin(), delta_x_semiShr.end());
         auto ret = BitLT(delta_x, this->lambda_xBinShr);
@@ -66,7 +76,7 @@ private:
         printVector(delta_x);
         std::cout << "Lambda_xBinShr: ";
         printVector(this->lambda_xBinShr);
-        std::cout << "\n Ret value of BitLT:";
+        std::cout << "Ret value of BitLT:";
         printVector(ret);
 #endif
 
