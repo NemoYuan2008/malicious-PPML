@@ -67,15 +67,34 @@ private:
 
         //delta_zShr = lambda_xyShr + lambdaShr - lambda_xShr * delta_yClear - delta_xClear * lambda_yShr
         //             + delta_xClear * delta_yClear
-        auto delta_zShr = matrixAdd(this->lambda_xyShr, this->lambdaPreTruncShr);
-        matrixSubtractAssign(delta_zShr,
-                             matrixMultiply(lambda_xShr, delta_yClear, this->dimRow, this->dimMid, this->dimCol));
-        matrixSubtractAssign(delta_zShr,
-                             matrixMultiply(delta_xClear, lambda_yShr, this->dimRow, this->dimMid, this->dimCol));
+        auto delta_zShr = this->lambda_xyShr;
+        std::transform(std::execution::par_unseq,
+                       delta_zShr.begin(), delta_zShr.end(), this->lambdaPreTruncShr.begin(), delta_zShr.begin(),
+                       std::plus<>());
+
+        auto temp = matrixMultiply(lambda_xShr, delta_yClear, this->dimRow, this->dimMid, this->dimCol);
+        std::transform(std::execution::par_unseq,
+                       delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::minus<>());
+
+        temp = matrixMultiply(delta_xClear, lambda_yShr, this->dimRow, this->dimMid, this->dimCol);
+        std::transform(std::execution::par_unseq,
+                       delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::minus<>());
+
         if (this->myId() == 0) {
-            matrixAddAssign(delta_zShr,
-                            matrixMultiply(delta_xClear, delta_yClear, this->dimRow, this->dimMid, this->dimCol));
+            temp = matrixMultiply(delta_xClear, delta_yClear, this->dimRow, this->dimMid, this->dimCol);
+            std::transform(std::execution::par_unseq,
+                           delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::plus<>());
         }
+
+//        auto delta_zShr = matrixAdd(this->lambda_xyShr, this->lambdaPreTruncShr);
+//        matrixSubtractAssign(delta_zShr,
+//                             matrixMultiply(lambda_xShr, delta_yClear, this->dimRow, this->dimMid, this->dimCol));
+//        matrixSubtractAssign(delta_zShr,
+//                             matrixMultiply(delta_xClear, lambda_yShr, this->dimRow, this->dimMid, this->dimCol));
+//        if (this->myId() == 0) {
+//            matrixAddAssign(delta_zShr,
+//                            matrixMultiply(delta_xClear, delta_yClear, this->dimRow, this->dimMid, this->dimCol));
+//        }
 
         //TODO: for MAC, do the same above plus the following:
 //        delta_zShr.mi += this->party->getPartyKey() * delta_xClear * delta_yClear;

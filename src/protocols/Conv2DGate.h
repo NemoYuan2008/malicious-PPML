@@ -43,7 +43,6 @@ private:
     }
 
     void doRunOnline() override {
-        //TODO: do not do redundant steps
         const auto &delta_xClear = this->input_x->getDeltaClear();
         const auto &delta_yClear = this->input_y->getDeltaClear();
         const auto &lambda_xShr = this->input_x->getLambdaShr();
@@ -52,21 +51,43 @@ private:
         auto outputSize = convOp.compute_output_size();
 
 
-        //delta_zShr = lambda_xyShr + lambdaShr - lambda_xShr * delta_yClear - delta_xClear * lambda_yShr
-        //             + delta_xClear * delta_yClear
-        auto delta_zShr = matrixAdd(this->lambda_xyShr, this->lambdaShr);
-        matrixSubtractAssign(delta_zShr,
-                             convolution(lambda_xShr, delta_yClear, this->convOp));
-        matrixSubtractAssign(delta_zShr,
-                             convolution(delta_xClear, lambda_yShr, this->convOp));
+        //Compute delta_zShr = lambda_xyShr + lambdaShr - lambda_xShr * delta_yClear - delta_xClear * lambda_yShr
+        //                     + delta_xClear * delta_yClear
+
+        //delta_zShr = lambda_xyShr + lambdaShr
+        auto delta_zShr = this->lambda_xyShr;
+        std::transform(std::execution::par_unseq,
+                       delta_zShr.begin(), delta_zShr.end(), this->lambdaShr.begin(), delta_zShr.begin(),
+                       std::plus<>());
+
+        //delta_zShr = lambda_xyShr + lambdaShr
+        auto temp = convolution(lambda_xShr, delta_yClear, this->convOp);
+        std::transform(std::execution::par_unseq,
+                       delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::minus<>());
+
+        //delta_zShr -= lambda_xShr * delta_yClear
+        temp = convolution(delta_xClear, lambda_yShr, this->convOp);
+        std::transform(std::execution::par_unseq,
+                       delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::minus<>());
+
+        //delta_zShr -= delta_xClear * lambda_yShr
         if (this->myId() == 0) {
-            matrixAddAssign(delta_zShr,
-                            convolution(delta_xClear, delta_yClear, this->convOp));
+            temp = convolution(delta_xClear, delta_yClear, this->convOp);
+            std::transform(std::execution::par_unseq,
+                           delta_zShr.begin(), delta_zShr.end(), temp.begin(), delta_zShr.begin(), std::plus<>());
         }
 
-        //TODO: for MAC, do the same above plus the following:
-//        delta_zShr.mi += this->party->getPartyKey() * delta_xClear * delta_yClear;
+//        auto delta_zShr = matrixAdd(this->lambda_xyShr, this->lambdaShr);
+//        matrixSubtractAssign(delta_zShr,
+//                             convolution(lambda_xShr, delta_yClear, this->convOp));
+//        matrixSubtractAssign(delta_zShr,
+//                             convolution(delta_xClear, lambda_yShr, this->convOp));
+//        if (this->myId() == 0) {
+//            matrixAddAssign(delta_zShr,
+//                            convolution(delta_xClear, delta_yClear, this->convOp));
+//        }
 
+        //TODO: for MAC, do the same above plus the following:
         //TODO: only works for 2PC, extend to n-PC
         std::vector<SemiShrType> delta_z_rcv(delta_zShr.size());
 

@@ -10,9 +10,6 @@
 
 
 int main() {
-    std::cin >> std::hex;
-    std::cout << std::hex;
-
     auto path = std::filesystem::temp_directory_path();
     Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
     Circuit<Spdz2kShare64> circuit(&party);
