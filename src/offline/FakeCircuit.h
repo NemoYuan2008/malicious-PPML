@@ -112,6 +112,8 @@ public:
         endpoints.push_back(gate);
     }
 
+    const std::vector<std::shared_ptr<FakeGate<ShrType, N>>> &getEndpoints() const { return endpoints; }
+
 private:
     std::array<std::ostream *, N> files;
     const FakeOfflineBase<ShrType, N> &offline;

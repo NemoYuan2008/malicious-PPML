@@ -121,6 +121,8 @@ public:
         endpoints.push_back(gate);
     }
 
+    const auto &getEndpoints() const { return endpoints; }
+
 private:
     std::vector<std::shared_ptr<Gate<ShrType>>> gates;
     std::vector<std::shared_ptr<Gate<ShrType>>> endpoints;

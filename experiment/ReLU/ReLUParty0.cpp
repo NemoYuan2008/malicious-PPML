@@ -25,7 +25,7 @@ int main() {
 
     std::vector<Spdz2kShare32::ClearType> xIn(rows * cols);
     for (int j = 0; j < rows * cols; j++) {
-        xIn[j] = j;
+        xIn[j] = 10;
     }
     x->setInput(xIn);
 //    }

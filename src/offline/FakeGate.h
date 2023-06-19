@@ -573,6 +573,9 @@ public:
 private:
     void doRunOffline() override {
         this->circuit.runOffline();
+        this->lambdaClear = this->circuit.getEndpoints()[0]->getLambdaClear();
+        this->lambdaShr = this->circuit.getEndpoints()[0]->getLambdaShr();
+        this->lambdaShrMac = this->circuit.getEndpoints()[0]->getLambdaShrMac();
     }
 
     FakeCircuit<ShrType, N> circuit;

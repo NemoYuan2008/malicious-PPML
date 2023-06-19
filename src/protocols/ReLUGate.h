@@ -36,12 +36,14 @@ public:
 private:
     void doReadOfflineFromFile(std::ifstream &ifs) override {
         this->circuit.readOfflineFromFile();
+        this->lambdaShr = this->circuit.getEndpoints()[0]->getLambdaShr();
     }
 
     void doRunOffline() override { }
 
     void doRunOnline() override {
         this->circuit.runOnline();
+        this->deltaClear = this->circuit.getEndpoints()[0]->getDeltaClear();
     }
 
     Circuit<ShrType> circuit;
