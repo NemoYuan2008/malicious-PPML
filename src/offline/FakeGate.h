@@ -36,12 +36,6 @@ public:
              const std::shared_ptr<FakeGate> &p_input_y)
             : input_x(p_input_x), input_y(p_input_y), files(input_x->files), offline(input_x->offline) {}
 
-//    FakeGate(const std::shared_ptr<FakeGate> &input_x,
-//             const std::shared_ptr<FakeGate> &input_y,
-//             std::array<std::ostream *, N> &files,
-//             const FakeOfflineBase<ShrType, N> &offline)
-//            : input_x(input_x), input_y(input_y), files(files), offline(offline) {}
-
     virtual ~FakeGate() = default;
 
 
@@ -553,6 +547,35 @@ public:
 protected:
     std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
     std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
+};
+
+
+
+template<typename ShrType, int N>
+class FakeCircuit;
+
+template<typename ShrType, int N>
+class FakeReLUGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeReLUGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), circuit(this->files, this->offline) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
+
+        auto b = this->circuit.gtz(this->input_x);
+        auto z = this->circuit.elementMultiply(this->input_x, b);
+        circuit.addEndpoint(z);
+    }
+
+private:
+    void doRunOffline() override {
+        this->circuit.runOffline();
+    }
+
+    FakeCircuit<ShrType, N> circuit;
 };
 
 #endif //MALICIOUS_PPML_FAKEGATE_H

@@ -13,6 +13,7 @@
 #include "protocols/LtzGate.h"
 #include "protocols/GtzGate.h"
 #include "protocols/ElemMultiplicationGate.h"
+#include "protocols/ReLUGate.h"
 #include "protocols/OutputGate.h"
 #include "utils/Party.h"
 
@@ -98,6 +99,13 @@ public:
     std::shared_ptr<ElemMultiplicationGate<ShrType>>
     elementMultiply(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
         auto gate = std::make_shared<ElemMultiplicationGate<ShrType>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<ReLUGate<ShrType>>
+    relu(const std::shared_ptr<Gate<ShrType>> &input_x) {
+        auto gate = std::make_shared<ReLUGate<ShrType>>(input_x);
         gates.push_back(gate);
         return gate;
     }

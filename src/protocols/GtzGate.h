@@ -51,6 +51,9 @@ private:
     void doRunOffline() override {}
 
     void doRunOnline() override {
+#ifndef NDEBUG
+        std::cout << "\nGtzGate Online\n";
+#endif
         const auto &delta_x_semiShr = this->input_x->getDeltaClear();
         std::vector<ClearType> delta_x(delta_x_semiShr.begin(), delta_x_semiShr.end());
         auto ret = BitLT(delta_x, this->lambda_xBinShr);
@@ -79,7 +82,9 @@ private:
             bit_loc = j % 8;
             sendmsg[vec_loc][bit_loc] = ret[j]; //[p1] -[a]
         }
-
+#ifndef NDEBUG
+        std::cout << "GtzGate open ret value, size: "<<sendmsg.size()<<"\n";
+#endif
         std::thread t1([this, &sendmsg]() { this->getParty()->getNetwork().send(1 - this->myId(), sendmsg); });
         std::thread t2(
                 [this, &rcvmsg]() { this->getParty()->getNetwork().rcv(1 - this->myId(), &rcvmsg, rcvmsg.size()); });
@@ -103,6 +108,10 @@ private:
 
         this->deltaClear = matrixAdd(this->lambdaShr, zShr);
         std::vector<SemiShrType> deltaRcv(zShr.size());
+
+#ifndef NDEBUG
+        std::cout << "GtzGate open deltaClear, size: "<<this->deltaClear.size()<<"\n";
+#endif
         std::thread t3([this]() { this->getParty()->getNetwork().send(1 - this->myId(), this->deltaClear); });
         std::thread t4([this, &deltaRcv]() {
             this->getParty()->getNetwork().rcv(1 - this->myId(), &deltaRcv, deltaRcv.size());
@@ -189,6 +198,9 @@ private:
             }
             //send & rcv
             //send numTriples, sendmsg; receive numTriples rcvmsg
+#ifndef NDEBUG
+            std::cout << "GtzGate send p,g triples, size: "<<sendmsg.size()<<"\n";
+#endif
             std::thread t1([this, &sendmsg]() {
                 this->party->getNetwork().send(1 - this->myId(), sendmsg);
             });

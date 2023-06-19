@@ -9,6 +9,12 @@
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
 
+#ifndef NDEBUG
+
+#include "utils/ioHelper.h"
+
+#endif
+
 
 template<typename ShrType>
 class ElemMultiplicationGate : public Gate<ShrType> {
@@ -46,6 +52,15 @@ private:
     }
 
     void doRunOnline() override {
+#ifndef NDEBUG
+        std::cout << "\nElemMultiply Online\n";
+        std::cout << "LambdaShr:";
+        printVector(this->lambdaShr);
+        std::cout << "lambda_xyShr: ";
+        printVector(this->lambda_xyShr);
+        std::cout << std::endl;
+#endif
+
         const auto &delta_xClear = this->input_x->getDeltaClear();
         const auto &delta_yClear = this->input_y->getDeltaClear();
         const auto &lambda_xShr = this->input_x->getLambdaShr();
@@ -99,6 +114,11 @@ private:
 
         //TODO: only works for 2PC, extend to n-PC
 //        std::vector<SemiShrType> delta_z_rcv(delta_zShr.size());
+#ifndef NDEBUG
+        std::cout << "delta_zShr:";
+        printVector(delta_zShr);
+        std::cout << "ElemMultiply send delta_zShr, size: " << delta_zShr.size() << "\n";
+#endif
 
         std::thread t1([this, &delta_zShr]() {
             this->party->getNetwork().send(1 - this->myId(), delta_zShr);

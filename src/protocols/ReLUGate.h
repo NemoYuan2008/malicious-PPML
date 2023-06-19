@@ -19,7 +19,7 @@ public:
 
     using Gate<ShrType>::Gate;
 
-    ReLUGate(const std::shared_ptr<Gate<ShrType>> &input_x)
+    explicit ReLUGate(const std::shared_ptr<Gate<ShrType>> &input_x)
             : Gate<ShrType>(input_x, nullptr), circuit(input_x->getParty()) {
 //        if (input_x->getDimRow() != input_y->getDimRow() || input_x->getDimCol() != input_y->getDimCol()) {
 //            throw std::logic_error("Dimension of the two inputs of addition don't match");
@@ -28,21 +28,21 @@ public:
         this->dimRow = this->input_x->getDimRow();
         this->dimCol = this->input_x->getDimCol();
 
-        auto b = this->circuit.gtz(input_x);
-        auto z = this->circuit.multiply(input_x, b);
+        auto b = this->circuit.gtz(this->input_x);
+        auto z = this->circuit.elementMultiply(this->input_x, b);
+        circuit.addEndpoint(z);
     }
 
 private:
-    void doRunOffline() override {
-        this->lambdaShr = matrixAdd(this->input_x->getLambdaShr(), this->input_y->getLambdaShr());
-        this->lambdaShrMac = matrixAdd(this->input_x->getLambdaShrMac(), this->input_y->getLambdaShrMac());
+    void doReadOfflineFromFile(std::ifstream &ifs) override {
+        this->circuit.readOfflineFromFile();
     }
+
+    void doRunOffline() override { }
 
     void doRunOnline() override {
-        this->deltaClear = matrixAdd(this->input_x->getDeltaClear(), this->input_y->getDeltaClear());
+        this->circuit.runOnline();
     }
-
-
 
     Circuit<ShrType> circuit;
 };

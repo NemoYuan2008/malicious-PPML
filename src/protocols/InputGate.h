@@ -56,6 +56,9 @@ private:
     }
 
     void doRunOnline() override {
+#ifndef NDEBUG
+        std::cout << "\nInputGate Online\n";
+#endif
         if (this->myId() == this->ownerId) {
             this->deltaClear = matrixAdd(this->lambdaClear, this->inputValue);
             this->party->getNetwork().send(1 - this->myId(), this->deltaClear);
