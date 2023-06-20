@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include "protocols/Gate.h"
+#include "protocols/ArgmaxGate.h"
 #include "protocols/DummyInputGate.h"
 #include "protocols/AdditionGate.h"
 #include "protocols/SubtractGate.h"
@@ -122,6 +123,13 @@ public:
     std::shared_ptr<ReLUGate<ShrType>>
     relu(const std::shared_ptr<Gate<ShrType>> &input_x) {
         auto gate = std::make_shared<ReLUGate<ShrType>>(input_x);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<ArgmaxGate<ShrType>>
+    argmax(const std::shared_ptr<Gate<ShrType>> &input_x) {
+        auto gate = std::make_shared<ArgmaxGate<ShrType>>(input_x);
         gates.push_back(gate);
         return gate;
     }
