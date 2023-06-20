@@ -62,9 +62,9 @@ private:
 public:
     const auto &getLambdaClear() const { return lambdaClear; }
 
-//    const auto &getLambdaShr() const { return lambdaShr; }
+    const auto &getLambdaShr() const { return lambdaShr; }
 
-//    const auto &getLambdaShrMac() const { return lambdaShrMac; }
+    const auto &getLambdaShrMac() const { return lambdaShrMac; }
 
     [[nodiscard]] int getDimRow() const { return dimRow; }
 
@@ -153,18 +153,18 @@ public:
 
 private:
     void doRunOffline() override {
-//        int size = this->dimRow * this->dimCol;
-//
+        int size = this->dimRow * this->dimCol;
+
         this->lambdaClear = matrixAdd(this->input_x->getLambdaClear(), this->input_y->getLambdaClear());
-//        for (int i = 0; i < N; ++i) {
-//            this->lambdaShr[i] = matrixAdd(this->input_x->getLambdaShr()[i], this->input_y->getLambdaShr()[i]);
-//            this->lambdaShrMac[i] = matrixAdd(this->input_x->getLambdaShrMac()[i], this->input_y->getLambdaShrMac()[i]);
-//
-//            for (int j = 0; j < size; ++j) {
-//                *this->files[i] << this->lambdaShr[i][j] << ' ' << this->lambdaShrMac[i][j] << '\n';
-//            }
-//            *this->files[i] << '\n';
-//        }
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i] = matrixAdd(this->input_x->getLambdaShr()[i], this->input_y->getLambdaShr()[i]);
+            this->lambdaShrMac[i] = matrixAdd(this->input_x->getLambdaShrMac()[i], this->input_y->getLambdaShrMac()[i]);
+
+            for (int j = 0; j < size; ++j) {
+                *this->files[i] << this->lambdaShr[i][j] << ' ' << this->lambdaShrMac[i][j] << '\n';
+            }
+            *this->files[i] << '\n';
+        }
     }
 };
 
@@ -187,19 +187,19 @@ public:
 
 private:
     void doRunOffline() override {
-//        int size = this->dimRow * this->dimCol;
+        int size = this->dimRow * this->dimCol;
 
         this->lambdaClear = matrixSubtract(this->input_x->getLambdaClear(), this->input_y->getLambdaClear());
-//        for (int i = 0; i < N; ++i) {
-//            this->lambdaShr[i] = matrixSubtract(this->input_x->getLambdaShr()[i], this->input_y->getLambdaShr()[i]);
-//            this->lambdaShrMac[i] = matrixSubtract(this->input_x->getLambdaShrMac()[i],
-//                                                   this->input_y->getLambdaShrMac()[i]);
-//
-//            for (int j = 0; j < size; ++j) {
-//                *this->files[i] << this->lambdaShr[i][j] << ' ' << this->lambdaShrMac[i][j] << '\n';
-//            }
-//            *this->files[i] << '\n';
-//        }
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i] = matrixSubtract(this->input_x->getLambdaShr()[i], this->input_y->getLambdaShr()[i]);
+            this->lambdaShrMac[i] = matrixSubtract(this->input_x->getLambdaShrMac()[i],
+                                                   this->input_y->getLambdaShrMac()[i]);
+
+            for (int j = 0; j < size; ++j) {
+                *this->files[i] << this->lambdaShr[i][j] << ' ' << this->lambdaShrMac[i][j] << '\n';
+            }
+            *this->files[i] << '\n';
+        }
     }
 };
 
@@ -223,6 +223,26 @@ private:
         std::transform(std::execution::par_unseq,
                        this->input_x->getLambdaClear().begin(), this->input_x->getLambdaClear().end(),
                        this->lambdaClear.begin(), [this](SemiShrType x) { return c * x; });
+
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i].resize(size);
+            this->lambdaShrMac[i].resize(size);
+
+            std::transform(this->input_x->getLambdaShr()[i].begin(), this->input_x->getLambdaShr()[i].end(),
+                           this->lambdaShr[i].begin(), [this](SemiShrType x) { return c * x; });
+
+            std::transform(this->input_x->getLambdaShrMac()[i].begin(), this->input_x->getLambdaShrMac()[i].end(),
+                           this->lambdaShrMac[i].begin(), [this](SemiShrType x) { return c * x; });
+
+//            this->lambdaShr[i] = matrixSubtract(this->input_x->getLambdaShr()[i], this->input_y->getLambdaShr()[i]);
+//            this->lambdaShrMac[i] = matrixSubtract(this->input_x->getLambdaShrMac()[i],
+//                                                   this->input_y->getLambdaShrMac()[i]);
+
+            for (int j = 0; j < size; ++j) {
+                *this->files[i] << this->lambdaShr[i][j] << ' ' << this->lambdaShrMac[i][j] << '\n';
+            }
+            *this->files[i] << '\n';
+        }
     }
 
     SemiShrType c;

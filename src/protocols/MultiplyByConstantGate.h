@@ -23,9 +23,9 @@ public:
     }
 
 private:
-    void doReadOfflineFromFile(std::ifstream &ifs) override {
-        doRunOffline(); //No need to read from file, do local computation
-    }
+//    void doReadOfflineFromFile(std::ifstream &ifs) override {
+//        doRunOffline(); //No need to read from file, do local computation
+//    }
 
     void doRunOffline() override {
         this->lambdaShr.resize(this->dimCol * this->dimRow);

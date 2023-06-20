@@ -19,8 +19,9 @@ int main() {
     auto x = circuit.input(0, 3, 4);
     auto y = circuit.input(0, 3, 4);
     auto a = circuit.subtract(x, y);
+    auto e = circuit.multiplyByConstant(a, 23);
     auto z = circuit.input(0, 4, 2);
-    auto b = circuit.multiply(a, z);
+    auto b = circuit.multiply(e, z);
     auto c = circuit.relu(b);
     auto w = circuit.input(1, 2, 4);
     auto d = circuit.multiply(c, w);

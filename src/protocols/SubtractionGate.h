@@ -26,9 +26,9 @@ public:
     }
 
 private:
-    void doReadOfflineFromFile(std::ifstream &ifs) override {
-        doRunOffline();
-    }
+//    void doReadOfflineFromFile(std::ifstream &ifs) override {
+//        doRunOffline();
+//    }
 
     void doRunOffline() override {
         this->lambdaShr = matrixSubtract(this->input_x->getLambdaShr(), this->input_y->getLambdaShr());

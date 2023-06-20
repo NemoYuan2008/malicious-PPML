@@ -71,7 +71,21 @@ private:
 
     virtual void doRunOnline() = 0;
 
-    virtual void doReadOfflineFromFile(std::ifstream &ifs) = 0;
+    virtual void doReadOfflineFromFile(std::ifstream &ifs) {
+        int size = dimRow * dimCol;
+        this->lambdaShr.resize(size);
+        this->lambdaShrMac.resize(size);
+
+        for (int i = 0; i < size; ++i) {
+            ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i];
+        }
+//        SemiShrType shr, mac;
+//        ifs >> shr >> mac;
+//        lambdaShr.push_back(shr);
+//        lambdaShrMac.push_back(mac);
+
+//        this->deltaClear.resize(lambdaShr.size());
+    }
 
 
 public:
