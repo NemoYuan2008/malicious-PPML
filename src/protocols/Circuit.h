@@ -18,6 +18,7 @@
 #include "protocols/GtzGate.h"
 #include "protocols/ElemMultiplicationGate.h"
 #include "protocols/ReLUGate.h"
+#include "protocols/ArgmaxGate.h"
 #include "protocols/SliceGate.h"
 #include "protocols/OutputGate.h"
 #include "utils/Party.h"
@@ -148,6 +149,13 @@ public:
     std::shared_ptr<ReLUGate<ShrType>>
     relu(const std::shared_ptr<Gate<ShrType>> &input_x) {
         auto gate = std::make_shared<ReLUGate<ShrType>>(input_x);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<ArgmaxGate<ShrType>>
+    argmax(const std::shared_ptr<Gate<ShrType>> &input_x) {
+        auto gate = std::make_shared<ArgmaxGate<ShrType>>(input_x);
         gates.push_back(gate);
         return gate;
     }

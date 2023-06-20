@@ -145,6 +145,12 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeSliceGate<ShrType,N>>
+    slice(const std::shared_ptr<FakeGate<ShrType,N>> &input_x, std::size_t index) {
+        auto gate = std::make_shared<FakeSliceGate<ShrType,N>>(input_x, index);
+        gates.push_back(gate);
+        return gate;
+    }
 
     void addEndpoint(const std::shared_ptr<FakeGate<ShrType, N>> &gate) {
         endpoints.push_back(gate);

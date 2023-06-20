@@ -27,13 +27,8 @@ public:
         //TODO: ??
         this->dimRow = this->input_x->getDimRow();
         this->dimCol = this->input_x->getDimCol();
-        auto Delta = input_x->getDeltaClear();
-        auto Lambda = input_x->getLambdaShr();
-        uint32_t count = Delta.size() - 1;
+        uint32_t count = this->dimCol - 1;
         std::vector<SemiShrType> indexShr(count + 1, 0);
-        for (int i = 0; i < indexShr.size(); ++i) {
-            if (this->myId() == 0) indexShr[i] = i;
-        }
         auto initmax = this->circuit.slice(input_x, 0);
         std::shared_ptr<Gate<ShrType>> max, maxInd;
         for (int i = 0; i < count; ++i) {
@@ -60,9 +55,14 @@ public:
     }
 
 private:
-    void doRunOffline() override {
+    void doReadOfflineFromFile(std::ifstream &ifs) override {
         this->circuit.readOfflineFromFile();
         this->lambdaShr = this->circuit.getEndpoints()[0]->getLambdaShr();
+    }
+
+
+    void doRunOffline() override {
+
     }
 
     void doRunOnline() override {
