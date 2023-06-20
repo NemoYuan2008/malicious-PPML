@@ -133,6 +133,20 @@ private:
 
 
 template<typename ShrType, int N>
+class FakeDummyInputGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    FakeDummyInputGate(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline,
+                       int row, int column) : FakeGate<ShrType, N>(files, offline, row, column) {}
+
+private:
+    void doRunOffline() override {}
+};
+
+
+template<typename ShrType, int N>
 class FakeAdditionGate : public FakeGate<ShrType, N> {
 public:
     using typename FakeGate<ShrType, N>::ClearType;
@@ -166,7 +180,6 @@ private:
 };
 
 
-
 template<typename ShrType, int N>
 class FakeSubtractionGate : public FakeGate<ShrType, N> {
 public:
@@ -174,7 +187,7 @@ public:
     using typename FakeGate<ShrType, N>::SemiShrType;
 
     FakeSubtractionGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
-                     const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
+                        const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
             : FakeGate<ShrType, N>(p_input_x, p_input_y) {
         if (p_input_x->getDimRow() != p_input_y->getDimRow() || p_input_x->getDimCol() != p_input_y->getDimCol()) {
             throw std::logic_error("Dimension of the two inputs of substraction don't match");
@@ -190,7 +203,8 @@ private:
         this->lambdaClear = matrixSubtract(this->input_x->getLambdaClear(), this->input_y->getLambdaClear());
         for (int i = 0; i < N; ++i) {
             this->lambdaShr[i] = matrixSubtract(this->input_x->getLambdaShr()[i], this->input_y->getLambdaShr()[i]);
-            this->lambdaShrMac[i] = matrixSubtract(this->input_x->getLambdaShrMac()[i], this->input_y->getLambdaShrMac()[i]);
+            this->lambdaShrMac[i] = matrixSubtract(this->input_x->getLambdaShrMac()[i],
+                                                   this->input_y->getLambdaShrMac()[i]);
 
             for (int j = 0; j < size; ++j) {
                 *this->files[i] << this->lambdaShr[i][j] << ' ' << this->lambdaShrMac[i][j] << '\n';
@@ -505,11 +519,6 @@ protected:
 };
 
 
-
-
-
-
-
 template<typename ShrType, int N>
 class FakeElemMultiplicationGate : public FakeGate<ShrType, N> {
 public:
@@ -517,7 +526,7 @@ public:
     using typename FakeGate<ShrType, N>::SemiShrType;
 
     FakeElemMultiplicationGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
-                           const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
+                               const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y)
             : FakeGate<ShrType, N>(p_input_x, p_input_y) {
         if (p_input_x->getDimRow() != p_input_y->getDimRow() || p_input_x->getDimCol() != p_input_y->getDimCol()) {
             throw std::logic_error("Dimension of the two inputs of multiplication don't match");
@@ -582,7 +591,6 @@ protected:
     std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
     std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
 };
-
 
 
 template<typename ShrType, int N>
