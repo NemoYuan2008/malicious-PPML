@@ -15,10 +15,10 @@
 template<typename T>
 inline
 void matrixAdd(const T *x, const T *y, T *output, std::size_t dim) {
-    using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::RowMajor>;
-    Eigen::Map<MatrixType> matOutput(output, dim, 1);
-    Eigen::Map<const MatrixType> matX(x, dim, 1);
-    Eigen::Map<const MatrixType> matY(y, dim, 1);
+    using MatrixType = Eigen::Matrix<T, 1, Eigen::Dynamic, Eigen::RowMajor>;
+    Eigen::Map<MatrixType> matOutput(output, 1, dim);
+    Eigen::Map<const MatrixType> matX(x, 1, dim);
+    Eigen::Map<const MatrixType> matY(y, 1, dim);
     matOutput = matX + matY;
 }
 
@@ -37,9 +37,9 @@ std::vector<T> matrixAdd(const std::vector<T> &x, const std::vector<T> &y) {
 template<typename T>
 inline
 void matrixAddAssign(T *x, const T *y, std::size_t dim) {
-    using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::RowMajor>;
-    Eigen::Map<MatrixType> matX(x, dim, 1);
-    Eigen::Map<const MatrixType> matY(y, dim, 1);
+    using MatrixType = Eigen::Matrix<T, 1, Eigen::Dynamic, Eigen::RowMajor>;
+    Eigen::Map<MatrixType> matX(x, 1, dim);
+    Eigen::Map<const MatrixType> matY(y, 1, dim);
     matX += matY;
 }
 
@@ -56,10 +56,10 @@ void matrixAddAssign(std::vector<T> &x, const std::vector<T> &y) {
 template<typename T>
 inline
 void matrixSubtract(const T *x, const T *y, T *output, std::size_t dim) {
-    using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::RowMajor>;
-    Eigen::Map<MatrixType> matOutput(output, dim, 1);
-    Eigen::Map<const MatrixType> matX(x, dim, 1);
-    Eigen::Map<const MatrixType> matY(y, dim, 1);
+    using MatrixType = Eigen::Matrix<T, 1, Eigen::Dynamic, Eigen::RowMajor>;
+    Eigen::Map<MatrixType> matOutput(output, 1, dim);
+    Eigen::Map<const MatrixType> matX(x, 1, dim);
+    Eigen::Map<const MatrixType> matY(y, 1, dim);
     matOutput = matX - matY;
 }
 
@@ -78,9 +78,9 @@ std::vector<T> matrixSubtract(const std::vector<T> &x, const std::vector<T> &y) 
 template<typename T>
 inline
 void matrixSubtractAssign(T *x, const T *y, std::size_t dim) {
-    using MatrixType = Eigen::Matrix<T, Eigen::Dynamic, 1, Eigen::RowMajor>;
-    Eigen::Map<MatrixType> matX(x, dim, 1);
-    Eigen::Map<const MatrixType> matY(y, dim, 1);
+    using MatrixType = Eigen::Matrix<T, 1, Eigen::Dynamic, Eigen::RowMajor>;
+    Eigen::Map<MatrixType> matX(x, 1, dim);
+    Eigen::Map<const MatrixType> matY(y, 1, dim);
     matX -= matY;
 }
 
