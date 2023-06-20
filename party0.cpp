@@ -18,39 +18,36 @@ int main() {
     // a = x + y, b = a * z
     auto x = circuit.input(0, 3, 4);
     auto y = circuit.input(0, 3, 4);
-
-    auto a = circuit.add(x, y);
+    auto a = circuit.subtract(x, y);
     auto z = circuit.input(0, 4, 2);
     auto b = circuit.multiply(a, z);
-    auto o = circuit.output(b);
+    auto c = circuit.relu(b);
+    auto w = circuit.input(1, 2, 4);
+    auto d = circuit.multiply(c, w);
+    auto o = circuit.output(d);
+    circuit.addEndpoint(o);
+    circuit.readOfflineFromFile();
 
+    //     x                     y                z
+    //[4, 2, 6, 3],         [3, 5, 3, 2],       [2, 3],
+    //[1, 6, 8, 5],         [6, 8, 0, 4],       [5, 7],
+    //[3, 4, 5, 7],         [6, 8, 3, 5],       [2, 5],
+    //                                          [7, 9],
 
     std::vector<Spdz2kShare32::ClearType>
             xIn{4, 2, 6, 3, 1, 6, 8, 5, 3, 4, 5, 7},
             yIn{3, 5, 3, 2, 6, 8, 0, 4, 6, 8, 3, 5},
             zIn{2, 3, 5, 7, 2, 5, 7, 9};
-
-    //     x                     y                z
-    //[4, 3, 8, 4],         [3, 2, 0, 8],       [2, 2]
-    //[2, 1, 5, 5],         [5, 6, 4, 3],       [3, 5]
-    //[6, 6, 3, 7],         [3, 8, 6, 5],       [5, 7],
-    //                                          [7, 9],
-
     x->setInput(xIn);
     y->setInput(yIn);
     z->setInput(zIn);
 
-    circuit.addEndpoint(o);
-    circuit.readOfflineFromFile();
     circuit.runOnline();
 
-    //    b
-    //[153, 203],
-    //[136, 184],
-    //[189, 259]
 
-    printVector(b->getLambdaShr());
-    printVector(b->getDeltaClear());
+    // [ 54  30  42  48]
+    // [198 109 143 166]
+    // [  0   0   0   0]
     printVector(o->getClear());
 
     return 0;
