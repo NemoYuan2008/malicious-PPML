@@ -34,31 +34,26 @@ public:
         for (int i = 0; i < indexShr.size(); ++i) {
             if (this->myId() == 0) indexShr[i] = i;
         }
-        //set dummy input gate
         auto initmax = this->circuit.slice(input_x, 0);
-        auto initmaxInd = this->circuit.dummyInput(input_x, 0); //set dummy input gate
         std::shared_ptr<Gate<ShrType>> max, maxInd;
         for (int i = 0; i < count; ++i) {
-            //compare ret and x[i+1]
-            //set dummy input gate
-            auto next = this->circuit.slice(input_x, i);
-            auto nextInd = this->circuit.dummyInput(input_x, i); //set dummy input gate
+            auto next = this->circuit.slice(input_x,i);
             // compare max , next
-            if (i==0){
+            if (i == 0) {
                 auto sub_ = this->circuit.subtract(initmax, next); // subtract: max - next
                 auto b_ = this->circuit.gtz(sub_); //: max-next > 0
                 auto product = this->circuit.elementMultiply(b_, sub_);
                 auto productInd = this->circuit.multiplyByConstant(b_, -1);
                 max = this->circuit.add(product, next); //max = b(max-next) + next
-                maxInd = this->circuit.add(productInd, nextInd);
-            }else{
+                maxInd = this->circuit.addConstant(productInd, i);
+            } else {
                 auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
-                auto sub_Ind = this->circuit.subtract(maxInd, nextInd); // subtract
+                auto sub_Ind = this->circuit.addConstant(maxInd, -i); // subtract
                 auto b_ = this->circuit.gtz(sub_); //: max-next > 0
                 auto product = this->circuit.elementMultiply(b_, sub_);
                 auto productInd = this->circuit.elementMultiply(b_, sub_Ind);
                 max = this->circuit.add(product, next); //max = b(max-next) + next
-                maxInd = this->circuit.add(productInd, nextInd);
+                maxInd = this->circuit.addConstant(productInd, i);
             }
         }
         circuit.addEndpoint(maxInd);
