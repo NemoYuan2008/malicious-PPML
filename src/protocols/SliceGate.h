@@ -50,7 +50,8 @@ private:
 //        this->deltaClear = this->input_x->getDeltaClear()[?];
         const auto &delta = this->input_x->getDeltaClear();
         for (int i = 0; i < this->dimRow; ++i) {
-            this->lambdaShr.push_back(delta[i*this->cols + index]);
+//            this->lambdaShr.push_back(delta[i*this->cols + index]);
+            this->deltaClear.push_back(delta[i*this->cols + index]);
         }
     }
     size_t cols;

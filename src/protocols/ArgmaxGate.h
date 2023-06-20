@@ -38,12 +38,12 @@ public:
                 auto sub_ = this->circuit.subtract(initmax, next); // subtract: max - next
                 auto b_ = this->circuit.gtz(sub_); //: max-next > 0
                 auto product = this->circuit.elementMultiply(b_, sub_);
-                auto productInd = this->circuit.multiplyByConstant(b_, -1);
+                auto productInd = this->circuit.multiplyByConstant(b_, static_cast<ClearType>(-1));
                 max = this->circuit.add(product, next); //max = b(max-next) + next
                 maxInd = this->circuit.addConstant(productInd, i);
             } else {
                 auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
-                auto sub_Ind = this->circuit.addConstant(maxInd, -i); // subtract
+                auto sub_Ind = this->circuit.addConstant(maxInd, static_cast<ClearType>(-i)); // subtract
                 auto b_ = this->circuit.gtz(sub_); //: max-next > 0
                 auto product = this->circuit.elementMultiply(b_, sub_);
                 auto productInd = this->circuit.elementMultiply(b_, sub_Ind);
