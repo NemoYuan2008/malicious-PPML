@@ -205,6 +205,29 @@ private:
 
 
 template<typename ShrType, int N>
+class FakeAddConstantGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeAddConstantGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x, ClearType c)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), c(c) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
+    }
+
+private:
+    void doRunOffline() override {
+        this->lambdaClear = this->input_x->getLambdaClear();
+        this->lambdaShr = this->input_x->getLambdaShr();
+        this->lambdaShrMac = this->input_x->getLambdaShrMac();
+    }
+
+    ClearType c;
+};
+
+
+template<typename ShrType, int N>
 class FakeMultiplyByConstantGate : public FakeGate<ShrType, N> {
 public:
     using typename FakeGate<ShrType, N>::ClearType;
@@ -245,7 +268,7 @@ private:
         }
     }
 
-    SemiShrType c;
+    ClearType c;
 };
 
 

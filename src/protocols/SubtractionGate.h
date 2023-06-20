@@ -31,8 +31,8 @@ private:
 //    }
 
     void doRunOffline() override {
-        this->lambdaShr = matrixSubtract(this->input_x->getLambdaShr(), this->input_y->getLambdaShr());
-        this->lambdaShrMac = matrixSubtract(this->input_x->getLambdaShrMac(), this->input_y->getLambdaShrMac());
+//        this->lambdaShr = matrixSubtract(this->input_x->getLambdaShr(), this->input_y->getLambdaShr());
+//        this->lambdaShrMac = matrixSubtract(this->input_x->getLambdaShrMac(), this->input_y->getLambdaShrMac());
     }
 
     void doRunOnline() override {

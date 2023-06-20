@@ -42,7 +42,7 @@ private:
         this->deltaClear.resize(this->input_x->getDeltaClear().size());
         std::transform(std::execution::par_unseq,
                        this->input_x->getDeltaClear().begin(), this->input_x->getDeltaClear().end(),
-                       this->deltaClear.begin(), [this](SemiShrType x) {return x * c;});
+                       this->deltaClear.begin(), [this](SemiShrType x) { return x * c; });
     }
 
     SemiShrType c;

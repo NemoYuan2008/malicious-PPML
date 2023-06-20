@@ -21,7 +21,8 @@ int main() {
     auto e = circuit.multiplyByConstant(a, 23);
     auto z = circuit.input(0, 4, 2);
     auto b = circuit.multiply(e, z);
-    auto c = circuit.relu(b);
+    auto f = circuit.addConstant(b, 12);
+    auto c = circuit.relu(f);
     auto w = circuit.input(1, 2, 4);
     auto d = circuit.multiply(c, w);
     auto o = circuit.output(d);
