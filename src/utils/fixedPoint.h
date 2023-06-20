@@ -3,6 +3,8 @@
 
 
 #include <type_traits>
+#include <vector>
+#include <algorithm>
 
 namespace FixedPoint {
     const int fractionBits = 20;
@@ -13,6 +15,16 @@ namespace FixedPoint {
 template<typename ClearType>
 ClearType double2fix(double x) {
     return static_cast<ClearType>(x * FixedPoint::truncateValue);
+}
+
+template<typename ClearType>
+std::vector<ClearType> double2fixVec(const std::vector<double> &x) {
+    std::vector<ClearType> res(x.size());
+//    std::transform(x.begin(), x.end(), res.begin(), [](double x) { return static_cast<ClearType>(x * truncateValue); });
+    for (int i = 0; i < x.size(); i++) {
+        res[i] = double2fix<ClearType>(x[i]);
+    }
+    return res;
 }
 
 

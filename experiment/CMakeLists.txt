@@ -1,5 +1,6 @@
 add_subdirectory(multiplication)
 add_subdirectory(multiply-trunc)
+add_subdirectory(svm)
 add_subdirectory(comparison)
 add_subdirectory(conv2D)
 add_subdirectory(elemMultiplication)
