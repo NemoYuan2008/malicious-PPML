@@ -39,12 +39,12 @@ public:
         return gate;
     }
 
-//    std::shared_ptr<FakeDummyInputGate<ShrType, N>>
-//    dummyInput(int row = 1, int col = 1) {
-//        auto gate = std::make_shared<FakeDummyInputGate<ShrType, N>>(files, offline, row, col);
-//        gates.push_back(gate);
-//        return gate;
-//    }
+    std::shared_ptr<FakeDummyInputGate<ShrType, N>>
+    dummyInput(int row = 1, int col = 1) {
+        auto gate = std::make_shared<FakeDummyInputGate<ShrType, N>>(files, offline, row, col);
+        gates.push_back(gate);
+        return gate;
+    }
 
     std::shared_ptr<FakeAdditionGate<ShrType, N>>
     add(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,

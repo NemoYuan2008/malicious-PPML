@@ -59,12 +59,12 @@ public:
         return gate;
     }
 
-//    std::shared_ptr<DummyInputGate<ShrType>>
-//    dummyInput(int row = 1, int col = 1) {
-//        auto gate = std::make_shared<DummyInputGate<ShrType>>(party, row, col);
-//        gates.push_back(gate);
-//        return gate;
-//    }
+    std::shared_ptr<DummyInputGate<ShrType>>
+    dummyInput(int row = 1, int col = 1) {
+        auto gate = std::make_shared<DummyInputGate<ShrType>>(party, row, col);
+        gates.push_back(gate);
+        return gate;
+    }
 
     std::shared_ptr<InputGate<ShrType>>
     input(int ownerId = 0, int row = 1, int column = 1) {

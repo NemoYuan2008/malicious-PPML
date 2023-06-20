@@ -659,18 +659,18 @@ private:
 };
 
 
-//template<typename ShrType, int N>
-//class FakeDummyInputGate : public FakeGate<ShrType, N> {
-//public:
-//    using typename FakeGate<ShrType, N>::ClearType;
-//    using typename FakeGate<ShrType, N>::SemiShrType;
-//
-//    FakeDummyInputGate(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline,
-//                       int row, int column) : FakeGate<ShrType, N>(files, offline, row, column) {}
-//
-//private:
-//    void doRunOffline() override {}
-//};
+template<typename ShrType, int N>
+class FakeDummyInputGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    FakeDummyInputGate(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline,
+                       int row, int column) : FakeGate<ShrType, N>(files, offline, row, column) {}
+
+private:
+    void doRunOffline() override {}
+};
 
 
 template<typename ShrType, int N>

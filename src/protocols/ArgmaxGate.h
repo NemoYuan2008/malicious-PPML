@@ -35,46 +35,44 @@ public:
             if (this->myId() == 0) indexShr[i] = i;
         }
         //set dummy input gate
-        auto max = this->circuit.slice(1, 1);
-        max.setDeltaClear({Delta[0]});//set max <-- delta[0]
-        max.setLambdaShr({Lambda[0]});
-        auto maxInd = this->circuit.slice(1, 1); //set dummy input gate
-        if (this->myId() == 0) {
-            maxInd.setDeltaClear({0});//set max <-- delta[0]
-        }
-        maxInd.setLambdaClear({0});
+        auto initmax = this->circuit.slice(input_x, 0);
+        auto initmaxInd = this->circuit.dummyInput(input_x, 0); //set dummy input gate
+        std::shared_ptr<Gate<ShrType>> max, maxInd;
         for (int i = 0; i < count; ++i) {
             //compare ret and x[i+1]
             //set dummy input gate
-            auto next = this->circuit.slice(1, 1);
-            next.setDeltaClear({Delta[i + 1]});
-            next.setLambdaShr({Lambda[i + 1]});
-            auto nextInd = this->circuit.slice(1, 1); //set dummy input gate
-            if (this->myId() == 0) {
-                nextInd.setDeltaClear({i + 1});//set max <-- delta[0]
-            } else {
-                nextInd.setDeltaClear({0});
-            }
-            nextInd.setLambdaShr({0});
+            auto next = this->circuit.slice(input_x, i);
+            auto nextInd = this->circuit.dummyInput(input_x, i); //set dummy input gate
             // compare max , next
-            auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
-            auto sub_Ind = this->circuit.subtract(maxInd, nextInd); // subtract
-            auto b_ = this->circuit.gtz(); //: max-next > 0
-            auto product = this->circuit.elementMultiply(b_, sub_);
-            auto productInd = this->circuit.elementMultiply(b_, sub_Ind);
-            max = this->circuit.add(product, next); //max = b(max-next) + next
-            maxInd = this->circuit.add(productInd, nextInd);
+            if (i==0){
+                auto sub_ = this->circuit.subtract(initmax, next); // subtract: max - next
+                auto b_ = this->circuit.gtz(sub_); //: max-next > 0
+                auto product = this->circuit.elementMultiply(b_, sub_);
+                auto productInd = this->circuit.multiplyByConstant(b_, -1);
+                max = this->circuit.add(product, next); //max = b(max-next) + next
+                maxInd = this->circuit.add(productInd, nextInd);
+            }else{
+                auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
+                auto sub_Ind = this->circuit.subtract(maxInd, nextInd); // subtract
+                auto b_ = this->circuit.gtz(sub_); //: max-next > 0
+                auto product = this->circuit.elementMultiply(b_, sub_);
+                auto productInd = this->circuit.elementMultiply(b_, sub_Ind);
+                max = this->circuit.add(product, next); //max = b(max-next) + next
+                maxInd = this->circuit.add(productInd, nextInd);
+            }
         }
+        circuit.addEndpoint(maxInd);
     }
 
 private:
     void doRunOffline() override {
-        this->lambdaShr = matrixAdd(this->input_x->getLambdaShr(), this->input_y->getLambdaShr());
-        this->lambdaShrMac = matrixAdd(this->input_x->getLambdaShrMac(), this->input_y->getLambdaShrMac());
+        this->circuit.readOfflineFromFile();
+        this->lambdaShr = this->circuit.getEndpoints()[0]->getLambdaShr();
     }
 
     void doRunOnline() override {
-        this->deltaClear = matrixAdd(this->input_x->getDeltaClear(), this->input_y->getDeltaClear());
+        this->circuit.runOnline();
+        this->deltaClear = this->circuit.getEndpoints()[0]->getDeltaClear();
     }
 
 

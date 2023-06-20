@@ -19,9 +19,9 @@
 //
 //    DummyInputGate(Party<ShrType> *party, int row, int col) : Gate<ShrType>(party, row, col) {}
 //
-//    void setLambdaShr(const std::vector<SemiShrType> &value) { this->lambdaShr = value; }
-//
-//    void setDeltaClear(const std::vector<SemiShrType> &value) { this->deltaClear = value; }
+////    void setLambdaShr(const std::vector<SemiShrType> &value) { this->lambdaShr = value; }
+////
+////    void setDeltaClear(const std::vector<SemiShrType> &value) { this->deltaClear = value; }
 //
 ////    void setDimRow(int row) { this->dimRow = row; }
 //
