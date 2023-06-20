@@ -1,5 +1,5 @@
-#ifndef MALICIOUS_PPML_CONV2DGATE_H
-#define MALICIOUS_PPML_CONV2DGATE_H
+#ifndef MALICIOUS_PPML_CONV2DTRUNCGATE_H
+#define MALICIOUS_PPML_CONV2DTRUNCGATE_H
 
 
 #include <vector>
@@ -10,12 +10,12 @@
 
 
 template<typename ShrType>
-class Conv2DGate : public Gate<ShrType> {
+class Conv2DTruncGate : public Gate<ShrType> {
 public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
 
-    Conv2DGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
+    Conv2DTruncGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
                const Conv2DOp &op)
             : Gate<ShrType>(input_x, input_y), convOp(op) {
         //TODO: dimRow or dimCol?
@@ -31,9 +31,13 @@ private:
         this->lambdaShrMac.resize(size);
         this->lambda_xyShr.resize(size);
         this->lambda_xyShrMac.resize(size);
+        this->lambdaPreTruncShr.resize(size);
+        this->lambdaPreTruncShrMac.resize(size);
 
         for (int i = 0; i < size; ++i) {
-            ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i] >> this->lambda_xyShr[i] >> this->lambda_xyShrMac[i];
+            ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i]
+                >> this->lambda_xyShr[i] >> this->lambda_xyShrMac[i]
+                >> this->lambdaPreTruncShr[i] >> this->lambdaPreTruncShrMac[i];
         }
     }
 
@@ -107,7 +111,8 @@ private:
 protected:
     Conv2DOp convOp;
     std::vector<SemiShrType> lambda_xyShr, lambda_xyShrMac;
+    std::vector<SemiShrType> lambdaPreTruncShr, lambdaPreTruncShrMac;
 };
 
 
-#endif //MALICIOUS_PPML_CONV2DGATE_H
+#endif //MALICIOUS_PPML_CONV2DTRUNCGATE_H

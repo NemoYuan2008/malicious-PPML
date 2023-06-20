@@ -9,7 +9,7 @@ find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(src ${Boost_INCLUDE_DIR})
 
 add_executable(malicious_PPML
-        main.cpp src/protocols/Gate.h src/utils/rand.h src/protocols/InputGate.h src/protocols/AdditionGate.h src/protocols/MultiplicationGate.h src/protocols/Circuit.h src/utils/Party.h src/utils/linear_algebra.h src/protocols/OutputGate.h src/protocols/MultiplyTruncGate.h src/utils/fixedPoint.h src/protocols/LtzGate.h src/utils/tensor.h src/protocols/Conv2DGate.h src/protocols/ReLUGate.h src/protocols/GtzGate.h src/protocols/ElemMultiplicationGate.h src/protocols/SubtractionGate.h src/protocols/SliceGate.h src/protocols/ArgmaxGate.h src/protocols/DummyInputGate.h src/protocols/MultiplyByConstantGate.h src/protocols/AddConstantGate.h)
+        main.cpp src/protocols/Gate.h src/utils/rand.h src/protocols/InputGate.h src/protocols/AdditionGate.h src/protocols/MultiplicationGate.h src/protocols/Circuit.h src/utils/Party.h src/utils/linear_algebra.h src/protocols/OutputGate.h src/protocols/MultiplyTruncGate.h src/utils/fixedPoint.h src/protocols/LtzGate.h src/utils/tensor.h src/protocols/Conv2DGate.h src/protocols/ReLUGate.h src/protocols/GtzGate.h src/protocols/ElemMultiplicationGate.h src/protocols/SubtractionGate.h src/protocols/SliceGate.h src/protocols/ArgmaxGate.h src/protocols/DummyInputGate.h src/protocols/MultiplyByConstantGate.h src/protocols/AddConstantGate.h src/protocols/AvgPool2DGate.h src/protocols/Conv2DTruncGate.h)
 
 #target_link_libraries(malicious_PPML network Eigen3::Eigen)
 
