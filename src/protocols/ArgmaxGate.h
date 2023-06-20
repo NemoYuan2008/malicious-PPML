@@ -8,6 +8,7 @@
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
 #include "protocols/Circuit.h"
+#include "DummyInputGate.h"
 
 
 template<typename ShrType>
@@ -30,36 +31,44 @@ public:
         this->dimRow = this->input_x->getDimRow();
         this->dimCol = this->input_x->getDimCol();
         auto Delta = input_x->getDeltaClear();
+        auto Lambda = input_x->getLambdaShr();
         uint32_t count = Delta.size() - 1;
         std::vector<SemiShrType> indexShr(count+1,0);
         for (int i = 0; i < indexShr.size(); ++i) {
             if(this->myId()==0) indexShr[i] = i;
         }
         //set dummy input gate
-        auto max = Delta[0]; //set max <-- delta[0]
-        auto maxInd = 0; //set dummy input gate
+        auto max = this->circuit.dummyInput(1,1);
+        max.setDeltaClear({Delta[0]});//set max <-- delta[0]
+        max.setLambdaShr({Lambda[0]});
+        auto maxInd = this->circuit.dummyInput(1,1); //set dummy input gate
         if (this->myId()==0) {
-            auto maxInd = 0; // set dummy input gate
+            maxInd.setDeltaClear({0});//set max <-- delta[0]
         }
+        maxInd.setLambdaClear({0});
         for (int i = 0; i < count; ++i) {
             //compare ret and x[i+1]
             //set dummy input gate
-            auto next = Delta[i+1];
-            auto nextInd = i+1; //set dummy input gate
-            auto maxInd = 0; //set dummy input gate
+            auto next = this->circuit.dummyInput(1,1);
+            next.setDeltaClear({Delta[i+1]});
+            next.setLambdaShr({Lambda[i+1]});
+            auto nextInd = this->circuit.dummyInput(1,1); //set dummy input gate
             if (this->myId()==0) {
-                auto maxInd = i; // set dummy input gate
+                nextInd.setDeltaClear({i+1});//set max <-- delta[0]
             }
+            else{
+                nextInd.setDeltaClear({0});
+            }
+            nextInd.setLambdaShr({0});
             // compare max , next
             auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
             auto sub_Ind = this->circuit.subtract(maxInd,nextInd); // subtract
             auto b_ = this->circuit.gtz(); //: max-next > 0
-            auto product = this->circuit.multiply(b_,sub_);
-            auto productInd = this->circuit.multiply(b_,sub_Ind);
+            auto product = this->circuit.elementMultiply(b_,sub_);
+            auto productInd = this->circuit.elementMultiply(b_,sub_Ind);
             max = this->circuit.add(product, next); //max = b(max-next) + next
             maxInd = this->circuit.add(productInd, nextInd);
         }
-
     }
 
 private:

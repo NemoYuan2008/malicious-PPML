@@ -623,4 +623,69 @@ private:
     FakeCircuit<ShrType, N> circuit;
 };
 
+
+template<typename ShrType, int N>
+class FakeArgmaxGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeArgmaxGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), circuit(this->files, this->offline) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
+
+        auto b = this->circuit.gtz(this->input_x);
+        auto z = this->circuit.elementMultiply(this->input_x, b);
+        auto Delta = p_input_x->getDeltaClear();
+        auto Lambda = p_input_x->getLambdaShr();
+        uint32_t count = Delta.size() - 1;
+        std::vector<SemiShrType> indexShr(count+1,0);
+        for (int i = 0; i < indexShr.size(); ++i) {
+            if(this->myId()==0) indexShr[i] = i;
+        }
+        //set dummy input gate
+        auto max = this->circuit.dummyInput(1,1);
+        max.setDeltaClear({Delta[0]});//set max <-- delta[0]
+        max.setLambdaClear({Lambda[0]});
+        auto maxInd = this->circuit.dummyInput(1,1); //set dummy input gate
+        if (this->myId()==0) {
+            maxInd.setDeltaClear({0});//set max <-- delta[0]
+        }
+        maxInd.setLambdaClear({0});
+        for (int i = 0; i < count; ++i) {
+            //compare ret and x[i+1]
+            //set dummy input gate
+            auto next = this->circuit.dummyInput(1,1);
+            next.setDeltaClear({Delta[i+1]});
+            next.setLambdaShr({Lambda[i+1]});
+            auto nextInd = this->circuit.dummyInput(1,1); //set dummy input gate
+            if (this->myId()==0) {
+                nextInd.setDeltaClear({i+1});//set max <-- delta[0]
+            }
+            else{
+                nextInd.setDeltaClear({0});
+            }
+            nextInd.setLambdaClear({0});
+            // compare max , next
+            auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
+            auto sub_Ind = this->circuit.subtract(maxInd,nextInd); // subtract
+            auto b_ = this->circuit.gtz(); //: max-next > 0
+            auto product = this->circuit.multiply(b_,sub_);
+            auto productInd = this->circuit.multiply(b_,sub_Ind);
+            max = this->circuit.add(product, next); //max = b(max-next) + next
+            maxInd = this->circuit.add(productInd, nextInd);
+        }
+        circuit.addEndpoint(maxInd);
+    }
+
+private:
+    void doRunOffline() override {
+        this->circuit.runOffline();
+        this->lambdaClear = this->circuit.getEndpoints()[0]->getLambdaClear();
+        this->lambdaShr = this->circuit.getEndpoints()[0]->getLambdaShr();
+        this->lambdaShrMac = this->circuit.getEndpoints()[0]->getLambdaShrMac();
+    }
+    FakeCircuit<ShrType, N> circuit;
+};
 #endif //MALICIOUS_PPML_FAKEGATE_H
