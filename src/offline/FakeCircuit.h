@@ -14,6 +14,8 @@
 template<typename ShrType, int N>
 class FakeCircuit {
 public:
+    using ClearType = typename ShrType::ClearType;
+
     FakeCircuit(std::array<std::ostream *, N> &filePtrs, const FakeOfflineBase<ShrType, N> &offline)
             : files(filePtrs), offline(offline) {}
 
@@ -79,6 +81,20 @@ public:
     multiplyTrunc(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
                   const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {
         auto gate = std::make_shared<FakeMultiplyTruncGate<ShrType, N>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<FakeAddConstantGate<ShrType, N>>
+    addConstant(const std::shared_ptr<FakeGate<ShrType, N>> &input_x, ClearType c) {
+        auto gate = std::make_shared<FakeAddConstantGate<ShrType, N>>(input_x, c);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<FakeMultiplyByConstantGate<ShrType, N>>
+    multiplyByConstant(const std::shared_ptr<FakeGate<ShrType, N>> &input_x, ClearType c) {
+        auto gate = std::make_shared<FakeMultiplyByConstantGate<ShrType, N>>(input_x, c);
         gates.push_back(gate);
         return gate;
     }
