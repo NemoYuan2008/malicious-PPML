@@ -6,6 +6,7 @@
 #include <memory>
 #include "protocols/Gate.h"
 #include "protocols/AdditionGate.h"
+#include "protocols/SubtractGate.h"
 #include "protocols/InputGate.h"
 #include "protocols/MultiplicationGate.h"
 #include "protocols/MultiplyTruncGate.h"
@@ -56,6 +57,13 @@ public:
     std::shared_ptr<AdditionGate<ShrType>>
     add(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
         auto gate = std::make_shared<AdditionGate<ShrType>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<SubtractGate<ShrType>>
+    subtract(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
+        auto gate = std::make_shared<SubtractGate<ShrType>>(input_x, input_y);
         gates.push_back(gate);
         return gate;
     }

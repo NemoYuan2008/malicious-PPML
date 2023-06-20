@@ -45,6 +45,14 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeSubtractionGate<ShrType, N>>
+    subtract(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
+        const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {
+        auto gate = std::make_shared<FakeSubtractionGate<ShrType, N>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
     std::shared_ptr<FakeMultiplicationGate<ShrType, N>>
     multiply(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
              const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {
