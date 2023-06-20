@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include "protocols/Gate.h"
+#include "protocols/DummyInputGate.h"
 #include "protocols/AdditionGate.h"
 #include "protocols/SubtractGate.h"
 #include "protocols/InputGate.h"
@@ -45,6 +46,13 @@ public:
         for (const auto &gate: endpoints) {
             gate->runOnline();
         }
+    }
+
+    std::shared_ptr<DummyInputGate<ShrType>>
+    dummyInput(int row = 1, int col = 1) {
+        auto gate = std::make_shared<DummyInputGate<ShrType>>(party, row, col);
+        gates.push_back(gate);
+        return gate;
     }
 
     std::shared_ptr<InputGate<ShrType>>
