@@ -35,15 +35,31 @@ public:
         for (int i = 0; i < indexShr.size(); ++i) {
             if(this->myId()==0) indexShr[i] = i;
         }
+        //set dummy input gate
         auto max = Delta[0]; //set max <-- delta[0]
+        auto maxInd = 0; //set dummy input gate
+        if (this->myId()==0) {
+            auto maxInd = 0; // set dummy input gate
+        }
         for (int i = 0; i < count; ++i) {
             //compare ret and x[i+1]
+            //set dummy input gate
             auto next = Delta[i+1];
+            auto nextInd = i+1; //set dummy input gate
+            auto maxInd = 0; //set dummy input gate
+            if (this->myId()==0) {
+                auto maxInd = i; // set dummy input gate
+            }
             // compare max , next
-
+            auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
+            auto sub_Ind = this->circuit.subtract(maxInd,nextInd); // subtract
+            auto b_ = this->circuit.gtz(); //: max-next > 0
+            auto product = this->circuit.multiply(b_,sub_);
+            auto productInd = this->circuit.multiply(b_,sub_Ind);
+            max = this->circuit.add(product, next); //max = b(max-next) + next
+            maxInd = this->circuit.add(productInd, nextInd);
         }
-        auto b = this->circuit.gtz(input_x);
-        auto z = this->circuit.multiply(input_x, b);
+
     }
 
 private:
