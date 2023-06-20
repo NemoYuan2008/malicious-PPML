@@ -1,5 +1,5 @@
-#ifndef MALICIOUS_PPML_SUBTRACTGATE_H
-#define MALICIOUS_PPML_SUBTRACTGATE_H
+#ifndef MALICIOUS_PPML_SUBTRACTIONGATE_H
+#define MALICIOUS_PPML_SUBTRACTIONGATE_H
 
 
 #include <stdexcept>
@@ -9,14 +9,14 @@
 #include "utils/linear_algebra.h"
 
 template<typename ShrType>
-class SubtractGate : public Gate<ShrType> {
+class SubtractionGate : public Gate<ShrType> {
 public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
 
     using Gate<ShrType>::Gate;
 
-    SubtractGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y)
+    SubtractionGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y)
             : Gate<ShrType>(input_x, input_y) {
         if (input_x->getDimRow() != input_y->getDimRow() || input_x->getDimCol() != input_y->getDimCol()) {
             throw std::logic_error("Dimension of the two inputs of subtraction don't match");
@@ -26,6 +26,10 @@ public:
     }
 
 private:
+    void doReadOfflineFromFile(std::ifstream &ifs) override {
+        doRunOffline();
+    }
+
     void doRunOffline() override {
         this->lambdaShr = matrixSubtract(this->input_x->getLambdaShr(), this->input_y->getLambdaShr());
         this->lambdaShrMac = matrixSubtract(this->input_x->getLambdaShrMac(), this->input_y->getLambdaShrMac());
@@ -42,4 +46,4 @@ private:
     }
 };
 
-#endif //MALICIOUS_PPML_SUBTRACTGATE_H
+#endif //MALICIOUS_PPML_SUBTRACTIONGATE_H

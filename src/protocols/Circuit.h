@@ -5,17 +5,19 @@
 #include <vector>
 #include <memory>
 #include "protocols/Gate.h"
-#include "protocols/DummyInputGate.h"
 #include "protocols/AdditionGate.h"
-#include "protocols/SubtractGate.h"
+#include "protocols/SubtractionGate.h"
 #include "protocols/InputGate.h"
+#include "protocols/DummyInputGate.h"
 #include "protocols/MultiplicationGate.h"
+#include "protocols/MultiplyByConstantGate.h"
 #include "protocols/MultiplyTruncGate.h"
 #include "protocols/Conv2DGate.h"
 #include "protocols/LtzGate.h"
 #include "protocols/GtzGate.h"
 #include "protocols/ElemMultiplicationGate.h"
 #include "protocols/ReLUGate.h"
+#include "protocols/SliceGate.h"
 #include "protocols/OutputGate.h"
 #include "utils/Party.h"
 
@@ -23,6 +25,8 @@
 template<typename ShrType>
 class Circuit {
 public:
+    using ClearType = typename ShrType::ClearType;
+
     Circuit() = default;    //should only be used for tests
     explicit Circuit(Party<ShrType> *party) : party(party) {}
 
@@ -48,12 +52,19 @@ public:
         }
     }
 
-    std::shared_ptr<DummyInputGate<ShrType>>
-    dummyInput(int row = 1, int col = 1) {
-        auto gate = std::make_shared<DummyInputGate<ShrType>>(party, row, col);
+    std::shared_ptr<SliceGate<ShrType>>
+    slice(const std::shared_ptr<Gate<ShrType>> &input_x, std::size_t index) {
+        auto gate = std::make_shared<SliceGate<ShrType>>(input_x, index);
         gates.push_back(gate);
         return gate;
     }
+
+//    std::shared_ptr<DummyInputGate<ShrType>>
+//    dummyInput(int row = 1, int col = 1) {
+//        auto gate = std::make_shared<DummyInputGate<ShrType>>(party, row, col);
+//        gates.push_back(gate);
+//        return gate;
+//    }
 
     std::shared_ptr<InputGate<ShrType>>
     input(int ownerId = 0, int row = 1, int column = 1) {
@@ -69,9 +80,9 @@ public:
         return gate;
     }
 
-    std::shared_ptr<SubtractGate<ShrType>>
+    std::shared_ptr<SubtractionGate<ShrType>>
     subtract(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
-        auto gate = std::make_shared<SubtractGate<ShrType>>(input_x, input_y);
+        auto gate = std::make_shared<SubtractionGate<ShrType>>(input_x, input_y);
         gates.push_back(gate);
         return gate;
     }
@@ -79,6 +90,13 @@ public:
     std::shared_ptr<MultiplicationGate<ShrType>>
     multiply(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y) {
         auto gate = std::make_shared<MultiplicationGate<ShrType>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<MultiplyByConstantGate<ShrType>>
+    multiplyByConstant(const std::shared_ptr<Gate<ShrType>> &input_x, ClearType c) {
+        auto gate = std::make_shared<MultiplyByConstantGate<ShrType>>(input_x, c);
         gates.push_back(gate);
         return gate;
     }

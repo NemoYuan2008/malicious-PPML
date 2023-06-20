@@ -14,6 +14,8 @@
 template<typename ShrType, int N>
 class FakeCircuit {
 public:
+    using ClearType = typename ShrType::ClearType;
+
     FakeCircuit(std::array<std::ostream *, N> &filePtrs, const FakeOfflineBase<ShrType, N> &offline)
             : files(filePtrs), offline(offline) {}
 
@@ -37,12 +39,12 @@ public:
         return gate;
     }
 
-    std::shared_ptr<FakeDummyInputGate<ShrType, N>>
-    dummyInput(int row = 1, int col = 1) {
-        auto gate = std::make_shared<FakeDummyInputGate<ShrType, N>>(files, offline, row, col);
-        gates.push_back(gate);
-        return gate;
-    }
+//    std::shared_ptr<FakeDummyInputGate<ShrType, N>>
+//    dummyInput(int row = 1, int col = 1) {
+//        auto gate = std::make_shared<FakeDummyInputGate<ShrType, N>>(files, offline, row, col);
+//        gates.push_back(gate);
+//        return gate;
+//    }
 
     std::shared_ptr<FakeAdditionGate<ShrType, N>>
     add(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
@@ -79,6 +81,13 @@ public:
     multiplyTrunc(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
                   const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {
         auto gate = std::make_shared<FakeMultiplyTruncGate<ShrType, N>>(input_x, input_y);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<FakeMultiplyByConstantGate<ShrType, N>>
+    multiplyByConstant(const std::shared_ptr<FakeGate<ShrType, N>> &input_x, ClearType c) {
+        auto gate = std::make_shared<FakeMultiplyByConstantGate<ShrType, N>>(input_x, c);
         gates.push_back(gate);
         return gate;
     }

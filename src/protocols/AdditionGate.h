@@ -26,6 +26,10 @@ public:
     }
 
 private:
+    void doReadOfflineFromFile(std::ifstream &ifs) override {
+        doRunOffline();
+    }
+
     void doRunOffline() override {
         this->lambdaShr = matrixAdd(this->input_x->getLambdaShr(), this->input_y->getLambdaShr());
         this->lambdaShrMac = matrixAdd(this->input_x->getLambdaShrMac(), this->input_y->getLambdaShrMac());
