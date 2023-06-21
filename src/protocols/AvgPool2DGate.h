@@ -47,7 +47,7 @@ private:
 
         for (int i = 0; i < size; ++i) {
             ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i]
-                >> this->lambdaPreTruncShr[i] >> this->lambdaPreTruncShrMac[i];;
+                >> this->lambdaPreTruncShr[i] >> this->lambdaPreTruncShrMac[i];
         }
 #ifndef NDEBUG
         std::cout << "\nAvgPool2DGate Offline\n";
