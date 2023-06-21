@@ -62,13 +62,6 @@ private:
     }
 
     void doRunOnline() override {
-#ifndef NDEBUG
-        std::cout << "\nInputGate Online\n";
-        std::cout << "lambdaShr:";
-        printVector(this->lambdaShr);
-        std::cout << "deltaClear:";
-        printVector(this->deltaClear);
-#endif
         if (this->myId() == this->ownerId) {
             this->deltaClear = matrixAdd(this->lambdaClear, this->inputValue);
             this->party->getNetwork().send(1 - this->myId(), this->deltaClear);
@@ -76,6 +69,14 @@ private:
             this->deltaClear.resize(this->dimRow * this->dimCol);
             this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear, this->deltaClear.size());
         }
+
+#ifndef NDEBUG
+        std::cout << "\nInputGate Online\n";
+        std::cout << "lambdaShr:";
+        printVector(this->lambdaShr);
+        std::cout << "deltaClear:";
+        printVector(this->deltaClear);
+#endif
     }
 
 

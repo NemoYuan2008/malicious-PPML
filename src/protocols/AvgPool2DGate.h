@@ -11,6 +11,11 @@
 #include "utils/tensor.h"
 #include "utils/fixedPoint.h"
 
+#ifndef NDEBUG
+
+#include "utils/ioHelper.h"
+
+#endif
 
 template<typename ShrType>
 class AvgPool2DGate : public Gate<ShrType> {
@@ -34,7 +39,7 @@ public:
 private:
     void doReadOfflineFromFile(std::ifstream &ifs) override {
         //TODO: size is different now
-        int size = this->convOp.compute_output_size();
+        int size = this->maxPoolOp.compute_output_size();
         this->lambdaShr.resize(size);
         this->lambdaShrMac.resize(size);
         this->lambdaPreTruncShr.resize(size);
@@ -44,6 +49,13 @@ private:
             ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i]
                 >> this->lambdaPreTruncShr[i] >> this->lambdaPreTruncShrMac[i];;
         }
+#ifndef NDEBUG
+        std::cout << "\nAvgPool2DGate Offline\n";
+        std::cout << "lambdaShr:\n";
+        printVector(this->lambdaShr);
+        std::cout << "lambdaPreTruncShr:\n";
+        printVector(this->lambdaPreTruncShr);
+#endif
     }
 
     void doRunOffline() override {}
@@ -53,7 +65,14 @@ private:
         const auto &lambda_xShr = this->input_x->getLambdaShr();
 
         //[x] = Delta_x - [lambda_x]
-        auto xShr = matrixSubtract(delta_xClear - lambda_xShr);
+        std::vector<SemiShrType> xShr;
+        if (this->myId() == 0) {
+            xShr = matrixSubtract(delta_xClear, lambda_xShr);
+        } else {
+            xShr.resize(lambda_xShr.size());
+            std::transform(std::execution::par_unseq,
+                           lambda_xShr.begin(), lambda_xShr.end(), xShr.begin(), std::negate<>());
+        }
 
         auto delta_zShr = sumPool(xShr, maxPoolOp);
         std::for_each(std::execution::par_unseq,
@@ -62,7 +81,7 @@ private:
         //truncation (need communication)
         matrixAddAssign(delta_zShr, lambdaPreTruncShr);
 
-        std::vector<SemiShrType> delta_zRcv(this->deltaClear.size());
+        std::vector<SemiShrType> delta_zRcv(delta_zShr.size());
         std::thread t1([this, &delta_zShr]() {
             this->party->getNetwork().send(1 - this->myId(), delta_zShr);
         });
@@ -73,9 +92,26 @@ private:
         t2.join();
 
         this->deltaClear = matrixAdd(delta_zShr, delta_zRcv);
+
+#ifndef NDEBUG
+        std::cout << "\nAvgPool2DGate Online\n";
+        std::cout << "delta_xClear\n";
+        printVector(delta_xClear);
+        std::cout << "lambda_xShr\n";
+        printVector(lambda_xShr);
+        std::cout << "xShr:\n";
+        printVector(xShr);
+        std::cout << "deltaClearPreTrunc:\n";
+        printVector(this->deltaClear);
+#endif
+
         std::for_each(std::execution::par_unseq, this->deltaClear.begin(), this->deltaClear.end(),
                       [](SemiShrType &x) { x = static_cast<std::make_signed_t<ClearType>>(x) >> fractionBits; });
 
+#ifndef NDEBUG
+        std::cout << "deltaClearAfterTrunc:\n";
+        printVector(this->deltaClear);
+#endif
     }
 
 

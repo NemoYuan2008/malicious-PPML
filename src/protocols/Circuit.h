@@ -149,7 +149,7 @@ public:
     }
 
     std::shared_ptr<AvgPool2DGate<ShrType>>
-    avgPool2D(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
+    avgPool2D(const std::shared_ptr<Gate<ShrType>> &input_x,
               const MaxPoolOp &op) {
         auto gate = std::make_shared<AvgPool2DGate<ShrType>>(input_x, op);
         gates.push_back(gate);
