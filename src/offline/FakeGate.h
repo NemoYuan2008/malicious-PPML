@@ -740,31 +740,33 @@ public:
         this->dimRow = p_input_x->getDimRow();
         this->dimCol = p_input_x->getDimCol();
         uint32_t count = this->dimCol - 1;
-        std::vector<SemiShrType> indexShr(count + 1, 0);
         auto initmax = this->circuit.slice(p_input_x, 0);
+        auto initmaxInd = 0;
         std::shared_ptr<FakeGate<ShrType,N>> max, maxInd;
+//        max = initmax;
         for (int i = 0; i < count; ++i) {
-            auto next = this->circuit.slice(p_input_x,i);
+            auto next = this->circuit.slice(p_input_x,i+1);
+            int nextInd = i+1;
             // compare max , next
             if (i == 0) {
                 auto sub_ = this->circuit.subtract(initmax, next); // subtract: max - next
                 auto b_ = this->circuit.gtz(sub_); //: max-next > 0
-                auto product = this->circuit.elementMultiply(b_, sub_);
-                auto productInd = this->circuit.multiplyByConstant(b_, -1);
+                auto product = this->circuit.elementMultiply(b_,sub_);
+                auto productInd = this->circuit.multiplyByConstant(b_, static_cast<ClearType>(initmaxInd - nextInd));
                 max = this->circuit.add(product, next); //max = b(max-next) + next
-                maxInd = this->circuit.addConstant(productInd, i);
+                maxInd = this->circuit.addConstant(productInd, nextInd);
             } else {
                 auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
-                auto sub_Ind = this->circuit.addConstant(maxInd, -i); // subtract
+                auto sub_Ind = this->circuit.addConstant(maxInd, static_cast<ClearType>(-nextInd)); // subtract
                 auto b_ = this->circuit.gtz(sub_); //: max-next > 0
                 auto product = this->circuit.elementMultiply(b_, sub_);
                 auto productInd = this->circuit.elementMultiply(b_, sub_Ind);
                 max = this->circuit.add(product, next); //max = b(max-next) + next
-                maxInd = this->circuit.addConstant(productInd, i);
+                maxInd = this->circuit.addConstant(productInd, nextInd);
             }
         }
-        circuit.addEndpoint(maxInd);
 
+        circuit.addEndpoint(maxInd);
     }
 
 private:

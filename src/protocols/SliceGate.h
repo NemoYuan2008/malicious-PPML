@@ -44,7 +44,9 @@ private:
 
     }
 
-    void doRunOffline() override {}
+    void doRunOffline() override {
+
+    }
 
     void doRunOnline() override {
 //        this->deltaClear = this->input_x->getDeltaClear()[?];

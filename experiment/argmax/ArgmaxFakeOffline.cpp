@@ -24,7 +24,7 @@ int main() {
 
     auto x = circuit.input(0, rows, cols);
     auto b = circuit.argmax(x);
-    auto o = circuit.output(x);
+    auto o = circuit.output(b);
     circuit.addEndpoint(o);
 
     circuit.runOffline();
