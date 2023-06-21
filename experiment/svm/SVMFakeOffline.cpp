@@ -21,15 +21,17 @@ int main() {
             std::ofstream(path / "1.txt")
     };
 
-    FakeOffline<32, 32, 2> offline(files);
-    FakeCircuit<Spdz2kShare32, 2> circuit(files, offline);
+    FakeOffline<64, 64, 2> offline(files);
+    FakeCircuit<Spdz2kShare64, 2> circuit(files, offline);
 
     auto w = circuit.input(0, features, classes);
     auto b = circuit.input(0, batch_size, classes);
     auto x = circuit.input(0, batch_size, features);
-    auto y = circuit.multiply(x, w);
+    auto y = circuit.multiplyTrunc(x, w);
     auto z = circuit.add(y, b);
-    auto end = circuit.output(z);
+    auto pred = circuit.argmax(z);
+    auto end = circuit.output(pred);
+
     circuit.addEndpoint(end);
 
     circuit.runOffline();

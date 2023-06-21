@@ -33,4 +33,11 @@ double fix2double(ClearType x) {
     return static_cast<double>(static_cast<std::make_signed_t<ClearType>>(x)) / FixedPoint::truncateValue;
 }
 
+template<typename ClearType>
+std::vector<double> fix2doubleVec(const std::vector<ClearType> &x) {
+    std::vector<double> res(x.size());
+    std::transform(x.begin(), x.end(), res.begin(), fix2double<ClearType>);
+    return res;
+}
+
 #endif //MALICIOUS_PPML_FIXEDPOINT_H

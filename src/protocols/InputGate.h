@@ -71,11 +71,11 @@ private:
         }
 
 #ifndef NDEBUG
-        std::cout << "\nInputGate Online\n";
-        std::cout << "lambdaShr:";
-        printVector(this->lambdaShr);
-        std::cout << "deltaClear:";
-        printVector(this->deltaClear);
+//        std::cout << "\nInputGate Online\n";
+//        std::cout << "lambdaShr:";
+//        printVector(this->lambdaShr);
+//        std::cout << "deltaClear:";
+//        printVector(this->deltaClear);
 #endif
     }
 

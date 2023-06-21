@@ -161,8 +161,10 @@ int main() {
 //    cout <<z1<<z2 <<"\n";
 
 // argmax test
-    std::vector<int> delta(4);
-    delta = {11,2,7,10};
-    argmax(delta);
+    auto x = fix2double(4292382751);
+    std::cout << x << std::endl;
+//    std::vector<int> delta(4);
+//    delta = {11,2,7,10};
+//    argmax(delta);
     return 0;
 }

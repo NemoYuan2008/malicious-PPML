@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <vector>
 #include <numeric>
+#include <Eigen/Dense>
 #include "share/Spdz2kShare.h"
 #include "protocols/Circuit.h"
 #include "utils/rand.h"
@@ -14,15 +15,6 @@
 #include "utils/ioHelper.h"
 #include "SVMConfig.h"
 
-// transform b.shape to batch_size * classes
-template<typename ClearType>
-std::vector<ClearType> copyVector(std::vector<ClearType> v, int t) {
-    std::vector<ClearType> result;
-    for (int i = 0; i < t; i++) {
-        result.insert(result.end(), v.begin(), v.end());
-    }
-    return result;
-}
 
 // 读取 MNIST 图像数据
 std::vector<std::vector<double>> read_mnist_images(const std::string& filename) {
@@ -98,8 +90,17 @@ std::vector<double> transposeMatrix(const std::vector<double>& matrix, int rows,
             transposedMatrix[j * rows + i] = matrix[i * columns + j]; // 将原矩阵的元素按转置规则存储到新矩阵中
         }
     }
-
     return transposedMatrix;
+}
+
+// transform b.shape to batch_size * classes
+template<typename ClearType>
+std::vector<ClearType> copyVector(std::vector<ClearType> v, int t) {
+    std::vector<ClearType> result;
+    for (int i = 0; i < t; i++) {
+        result.insert(result.end(), v.begin(), v.end());
+    }
+    return result;
 }
 
 int main() {
@@ -108,8 +109,13 @@ int main() {
 //    std::cout << "Max size of vector: " << vec.max_size() << std::endl;
 
     std::vector<double> origin_w = read_mnist_model("../../../data/mnist_w.txt");
-    auto w_t = transposeMatrix(origin_w, classes, features);
+
+    std::vector<double> w_t = transposeMatrix(origin_w, classes, features);
+
     std::vector<double> origin_b = read_mnist_model("../../../data/mnist_b.txt");
+
+//    std::vector<double> batch_origin_b = copyVector(origin_b, batch_size);
+
 //    std::vector<std::vector<double>> origin_test_images;
 //    std::cout << origin_test_images.max_size() << std::endl;
     auto origin_test_images = read_mnist_images("../../../data/t10k-images.idx3-ubyte");
@@ -122,11 +128,11 @@ int main() {
     std::vector<double> x_test_images;
     std::vector<int> x_test_lables = std::vector<int>(origin_test_labels.begin(), origin_test_labels.begin() + batch_size);
     for (int i = 0; i < batch_size; i++) {
-        x_test_images.insert(x_test_images.end(), origin_test_images[i].begin(), origin_test_images[i].end());
+//        x_test_images.insert(x_test_images.end(), origin_test_images[i].begin(), origin_test_images[i].end());
+        x_test_images.insert(x_test_images.end(), origin_test_images[i].begin(), origin_test_images[i].begin() + features);
     }
-
     //    std::vector<std::vector<double>> origin_train_images = read_mnist_images("../data/train-images.idx3-ubyte");
-//    std::vector<int> origin_train_labels = read_mnist_labels("../data/train-labels.idx1-ubyte");
+    //    std::vector<int> origin_train_labels = read_mnist_labels("../data/train-labels.idx1-ubyte");
 
     // 输出读取的数据
 //    std::cout << "w.size: " << origin_w.size() << " b.size: " << origin_b.size() << std::endl;
@@ -138,30 +144,46 @@ int main() {
 //    std::cout << "Test image size: " << origin_test_images[0].size() << std::endl;
 
     auto path = std::filesystem::temp_directory_path();
-    Party<Spdz2kShare32> party(0, 2, (path / "0.txt").string());
-    Circuit<Spdz2kShare32> circuit(&party);
+    Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
+    Circuit<Spdz2kShare64> circuit(&party);
 
     auto w = circuit.input(0, features, classes);
     auto b = circuit.input(0, batch_size, classes);
     auto x = circuit.input(0, batch_size, features);
-    auto y = circuit.multiply(x, w);
+    auto y = circuit.multiplyTrunc(x, w);
     auto z = circuit.add(y, b);
+    auto pred = circuit.argmax(z);
+    auto end = circuit.output(pred);
 
-    auto end = circuit.output(z);
     circuit.addEndpoint(end);
+
     circuit.readOfflineFromFile();
 
-    std::vector<Spdz2kShare32::ClearType> wIn(classes * features), bIn(classes), xIn(batch_size * features);
-    wIn = double2fixVec<Spdz2kShare32::ClearType>(w_t);
-    bIn = double2fixVec<Spdz2kShare32::ClearType>(origin_b);
-    xIn = double2fixVec<Spdz2kShare32::ClearType>(x_test_images);
+    std::vector<Spdz2kShare64::ClearType> wIn(classes * features), bIn(classes), xIn(batch_size * features);
+    wIn = double2fixVec<Spdz2kShare64::ClearType>(w_t);
+
+    bIn = double2fixVec<Spdz2kShare64::ClearType>(origin_b);
+    xIn = double2fixVec<Spdz2kShare64::ClearType>(x_test_images);
     bIn = copyVector(bIn, batch_size);
     std::cout << "win.size: " << wIn.size() << " bin.size: " << bIn.size() << " xin.size: " << xIn.size() << "\n";
+
     w->setInput(wIn);
     b->setInput(bIn);
     x->setInput(xIn);
 
     circuit.runOnline();
+
+    int count = 0;
+    auto res = end->getClear();
+    for (int i = 0; i < batch_size; i++) {
+        std::cout << x_test_lables[i] << " ";
+        if (x_test_lables[i] == res[i]) {
+            count++;
+        }
+    }
+    std::cout << "\n";
+
     printVector(end->getClear());
+    std::cout << "acc" << (double)count /batch_size << std::endl;
     return 0;
 }

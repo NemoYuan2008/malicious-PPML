@@ -902,8 +902,10 @@ public:
     explicit FakeArgmaxGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
             : FakeGate<ShrType, N>(p_input_x, nullptr), circuit(this->files, this->offline) {
         this->dimRow = p_input_x->getDimRow();
-        this->dimCol = p_input_x->getDimCol();
-        uint32_t count = this->dimCol - 1;
+        this->dimCol = 1;
+        this->cols = this->input_x->getDimCol();
+        uint32_t batchsize = this->dimRow;
+        uint32_t count = this->cols - 1;
         auto initmax = this->circuit.slice(p_input_x, 0);
         auto initmaxInd = 0;
         std::shared_ptr<FakeGate<ShrType,N>> max, maxInd;
@@ -940,7 +942,7 @@ private:
         this->lambdaShr = this->circuit.getEndpoints()[0]->getLambdaShr();
         this->lambdaShrMac = this->circuit.getEndpoints()[0]->getLambdaShrMac();
     }
-
+    size_t cols;
     FakeCircuit<ShrType, N> circuit;
 };
 

@@ -26,9 +26,10 @@ public:
 //        }
         //TODO: ??
         this->dimRow = this->input_x->getDimRow();
-        this->dimCol = this->input_x->getDimCol();
+        this->dimCol = 1;
+        this->cols = this->input_x->getDimCol();
         uint32_t batchsize = this->dimRow;
-        uint32_t count = this->dimCol - 1;
+        uint32_t count = this->cols - 1;
         auto initmax = this->circuit.slice(input_x, 0);
         auto initmaxInd = 0;
         std::shared_ptr<Gate<ShrType>> max, maxInd;
@@ -76,6 +77,7 @@ private:
 
 
     Circuit<ShrType> circuit;
+    size_t cols;
 };
 
 #endif //MALICIOUS_PPML_ARGMAXGATE_H

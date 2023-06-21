@@ -4,7 +4,7 @@
 
 const int times = 1;
 const int rows = 2;
-const int cols = 5;
+const int cols = 10;
 
 
 #endif //MALICIOUS_PPML_ARGMAXCONFIG_H

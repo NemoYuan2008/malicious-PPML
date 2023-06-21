@@ -30,13 +30,13 @@ private:
 
     void doRunOnline() override {
 #ifndef NDEBUG
-        std::cout << "\nOutput Online\n";
-        auto lambda = this->input_x->getLambdaShr();
-        std::cout << "send LambdaShr: \n";
-        printVector(this->input_x->getDeltaClear());
+//        std::cout << "\nOutput Online\n";
+//        auto lambda = this->input_x->getLambdaShr();
+//        std::cout << "send LambdaShr: \n";
+//        printVector(this->input_x->getDeltaClear());
 
 #endif
-        int size = this->input_x->getLambdaShr().size(); // rows * cols?
+        int size = this->dimRow * this->dimCol; // rows * cols?
         lambdaClear.resize(size);
 
 
