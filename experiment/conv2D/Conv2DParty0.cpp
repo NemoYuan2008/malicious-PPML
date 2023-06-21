@@ -6,6 +6,7 @@
 #include "protocols/Circuit.h"
 #include "utils/Party.h"
 #include "utils/ioHelper.h"
+#include "utils/fixedPoint.h"
 #include "Conv2DConfig.h"
 
 
@@ -16,7 +17,7 @@ int main() {
 
     auto x = circuit.input(0, 18, 1);
     auto y = circuit.input(0, 18, 1);
-    auto a = circuit.conv2D(x, y, conv_op);
+    auto a = circuit.conv2DTrunc(x, y, conv_op);
     auto o = circuit.output(a);
 
     circuit.addEndpoint(o);
@@ -31,11 +32,15 @@ int main() {
             1, 1, 1, 0, 0, 0, 1, 1, 1,
     };
 
+    std::for_each(xIn.begin(), xIn.end(), [](auto &num) { num = double2fix<Spdz2kShare64::ClearType>(num); });
+    std::for_each(yIn.begin(), yIn.end(), [](auto &num) { num = double2fix<Spdz2kShare64::ClearType>(num); });
+
     x->setInput(xIn);
     y->setInput(yIn);
 
     circuit.runOnline();
     printVector(o->getClear());
+    std::cout << fix2double(o->getClear()[0]) << '\n';
 
     return 0;
 }

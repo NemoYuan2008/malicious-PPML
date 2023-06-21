@@ -132,6 +132,14 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeAvgPool2DGate<ShrType, N>>
+    avgPool2D(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
+              const MaxPoolOp &op) {
+        auto gate = std::make_shared<FakeAvgPool2DGate<ShrType, N>>(input_x, op);
+        gates.push_back(gate);
+        return gate;
+    }
+
     std::shared_ptr<FakeElemMultiplicationGate<ShrType, N>>
     elementMultiply(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
                     const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {

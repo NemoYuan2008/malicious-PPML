@@ -22,7 +22,7 @@ int main() {
 
     auto x = circuit.input(0, 18, 1);
     auto y = circuit.input(0, 18, 1);
-    auto a = circuit.conv2D(x, y, conv_op);
+    auto a = circuit.conv2DTrunc(x, y, conv_op);
     auto o = circuit.output(a);
 
     circuit.addEndpoint(o);

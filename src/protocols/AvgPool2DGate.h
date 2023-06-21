@@ -9,6 +9,7 @@
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
 #include "utils/tensor.h"
+#include "utils/fixedPoint.h"
 
 
 template<typename ShrType>
@@ -17,11 +18,15 @@ public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
 
-    AvgPool2DGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
+    static const SemiShrType fractionBits = FixedPoint::fractionBits;
+
+    AvgPool2DGate(const std::shared_ptr<Gate<ShrType>> &input_x,
                   const MaxPoolOp &op)
-            : Gate<ShrType>(input_x, input_y), maxPoolOp(op) {
+            : Gate<ShrType>(input_x, nullptr),
+              maxPoolOp(op),
+              factor(double2fix<ClearType>(1.0 / op.compute_kernel_size())) {
         //TODO: dimRow or dimCol?
-        this->dimRow = op.compute_output_size();
+        this->dimRow = maxPoolOp.compute_output_size();
     }
 
 //    const auto &getLambdaXyShr() const { return lambda_xyShr; }
@@ -32,34 +37,52 @@ private:
         int size = this->convOp.compute_output_size();
         this->lambdaShr.resize(size);
         this->lambdaShrMac.resize(size);
-        this->lambda_xyShr.resize(size);
-        this->lambda_xyShrMac.resize(size);
+        this->lambdaPreTruncShr.resize(size);
+        this->lambdaPreTruncShrMac.resize(size);
 
         for (int i = 0; i < size; ++i) {
-            ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i] >> this->lambda_xyShr[i] >> this->lambda_xyShrMac[i];
+            ifs >> this->lambdaShr[i] >> this->lambdaShrMac[i]
+                >> this->lambdaPreTruncShr[i] >> this->lambdaPreTruncShrMac[i];;
         }
     }
 
-    void doRunOffline() override {
-        // generate random lambdaShr
-        // compute triple
-    }
+    void doRunOffline() override {}
 
     void doRunOnline() override {
         const auto &delta_xClear = this->input_x->getDeltaClear();
-        const auto &delta_yClear = this->input_y->getDeltaClear();
         const auto &lambda_xShr = this->input_x->getLambdaShr();
-        const auto &lambda_yShr = this->input_y->getLambdaShr();
 
-        auto outputSize = maxPoolOp.compute_output_size();
+        //[x] = Delta_x - [lambda_x]
+        auto xShr = matrixSubtract(delta_xClear - lambda_xShr);
 
-//        auto delta
+        auto delta_zShr = sumPool(xShr, maxPoolOp);
+        std::for_each(std::execution::par_unseq,
+                      delta_zShr.begin(), delta_zShr.end(), [this](auto &x) { x *= factor; });
+
+        //truncation (need communication)
+        matrixAddAssign(delta_zShr, lambdaPreTruncShr);
+
+        std::vector<SemiShrType> delta_zRcv(this->deltaClear.size());
+        std::thread t1([this, &delta_zShr]() {
+            this->party->getNetwork().send(1 - this->myId(), delta_zShr);
+        });
+        std::thread t2([this, &delta_zRcv]() {
+            this->party->getNetwork().rcv(1 - this->myId(), &delta_zRcv, delta_zRcv.size());
+        });
+        t1.join();
+        t2.join();
+
+        this->deltaClear = matrixAdd(delta_zShr, delta_zRcv);
+        std::for_each(std::execution::par_unseq, this->deltaClear.begin(), this->deltaClear.end(),
+                      [](SemiShrType &x) { x = static_cast<std::make_signed_t<ClearType>>(x) >> fractionBits; });
+
     }
 
 
 protected:
     MaxPoolOp maxPoolOp;
-//    std::vector<SemiShrType> lambda_xyShr, lambda_xyShrMac;
+    ClearType factor;   //equals 1/kernel_size
+    std::vector<SemiShrType> lambdaPreTruncShr, lambdaPreTruncShrMac;
 };
 
 

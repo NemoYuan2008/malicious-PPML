@@ -4,9 +4,12 @@
 
 #include <vector>
 #include <thread>
+#include <algorithm>
+#include <execution>
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
 #include "utils/tensor.h"
+#include "utils/fixedPoint.h"
 
 
 template<typename ShrType>
@@ -14,6 +17,8 @@ class Conv2DTruncGate : public Gate<ShrType> {
 public:
     using typename Gate<ShrType>::ClearType;
     using typename Gate<ShrType>::SemiShrType;
+
+    static const SemiShrType fractionBits = FixedPoint::fractionBits;
 
     Conv2DTruncGate(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
                const Conv2DOp &op)
@@ -61,7 +66,7 @@ private:
         //delta_zShr = lambda_xyShr + lambdaShr
         auto delta_zShr = this->lambda_xyShr;
         std::transform(std::execution::par_unseq,
-                       delta_zShr.begin(), delta_zShr.end(), this->lambdaShr.begin(), delta_zShr.begin(),
+                       delta_zShr.begin(), delta_zShr.end(), this->lambdaPreTruncShr.begin(), delta_zShr.begin(),
                        std::plus<>());
 
         //delta_zShr = lambda_xyShr + lambdaShr
@@ -105,6 +110,24 @@ private:
         t2.join();
 
         this->deltaClear = matrixAdd(delta_zShr, delta_z_rcv);
+
+#ifndef NDEBUG
+        std::cout << "lambdaShr:\n";
+        printVector(this->lambdaShr);
+        std::cout << "lambdaPreTruncShr:\n";
+        printVector(this->lambdaPreTruncShr);
+        std::cout << "Before Truncation, deltaClear:\n";
+        printVector(this->deltaClear);
+#endif
+
+        //upper bits of x is of no use, should be eliminated before shifting right
+        std::for_each(std::execution::par_unseq, this->deltaClear.begin(), this->deltaClear.end(),
+                      [](SemiShrType &x) { x = static_cast<std::make_signed_t<ClearType>>(x) >> fractionBits; });
+
+#ifndef NDEBUG
+        std::cout << "After Truncation, deltaClear:\n";
+        printVector(this->deltaClear);
+#endif
     }
 
 

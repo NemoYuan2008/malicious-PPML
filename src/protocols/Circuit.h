@@ -14,6 +14,8 @@
 #include "protocols/MultiplyByConstantGate.h"
 #include "protocols/MultiplyTruncGate.h"
 #include "protocols/Conv2DGate.h"
+#include "protocols/Conv2DTruncGate.h"
+#include "protocols/AvgPool2DGate.h"
 #include "protocols/LtzGate.h"
 #include "protocols/GtzGate.h"
 #include "protocols/ElemMultiplicationGate.h"
@@ -134,6 +136,22 @@ public:
     conv2D(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
            const Conv2DOp &op) {
         auto gate = std::make_shared<Conv2DGate<ShrType>>(input_x, input_y, op);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<Conv2DTruncGate<ShrType>>
+    conv2DTrunc(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
+                const Conv2DOp &op) {
+        auto gate = std::make_shared<Conv2DTruncGate<ShrType>>(input_x, input_y, op);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<AvgPool2DGate<ShrType>>
+    avgPool2D(const std::shared_ptr<Gate<ShrType>> &input_x, const std::shared_ptr<Gate<ShrType>> &input_y,
+              const MaxPoolOp &op) {
+        auto gate = std::make_shared<AvgPool2DGate<ShrType>>(input_x, op);
         gates.push_back(gate);
         return gate;
     }
