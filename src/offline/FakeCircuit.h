@@ -14,6 +14,8 @@
 template<typename ShrType, int N>
 class FakeCircuit {
 public:
+    using ClearType = typename ShrType::ClearType;
+
     FakeCircuit(std::array<std::ostream *, N> &filePtrs, const FakeOfflineBase<ShrType, N> &offline)
             : files(filePtrs), offline(offline) {}
 
@@ -83,6 +85,20 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeAddConstantGate<ShrType, N>>
+    addConstant(const std::shared_ptr<FakeGate<ShrType, N>> &input_x, ClearType c) {
+        auto gate = std::make_shared<FakeAddConstantGate<ShrType, N>>(input_x, c);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<FakeMultiplyByConstantGate<ShrType, N>>
+    multiplyByConstant(const std::shared_ptr<FakeGate<ShrType, N>> &input_x, ClearType c) {
+        auto gate = std::make_shared<FakeMultiplyByConstantGate<ShrType, N>>(input_x, c);
+        gates.push_back(gate);
+        return gate;
+    }
+
     std::shared_ptr<FakeGtzGate<ShrType, N>>
     gtz(const std::shared_ptr<FakeGate<ShrType, N>> &input_x) {
         auto gate = std::make_shared<FakeGtzGate<ShrType, N>>(input_x);
@@ -122,6 +138,19 @@ public:
         return gate;
     }
 
+    std::shared_ptr<FakeArgmaxGate<ShrType, N>>
+    argmax(const std::shared_ptr<FakeGate<ShrType, N>> &input_x) {
+        auto gate = std::make_shared<FakeArgmaxGate<ShrType, N>>(input_x);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<FakeSliceGate<ShrType,N>>
+    slice(const std::shared_ptr<FakeGate<ShrType,N>> &input_x, std::size_t index) {
+        auto gate = std::make_shared<FakeSliceGate<ShrType,N>>(input_x, index);
+        gates.push_back(gate);
+        return gate;
+    }
 
     void addEndpoint(const std::shared_ptr<FakeGate<ShrType, N>> &gate) {
         endpoints.push_back(gate);

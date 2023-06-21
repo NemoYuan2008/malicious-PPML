@@ -20,6 +20,9 @@
 #include "utils/fixedPoint.h"
 
 
+//Design principal: set lambdaClear appropriately in runOffline()
+
+
 template<typename ShrType, int N>
 class FakeGate {
 public:
@@ -133,20 +136,6 @@ private:
 
 
 template<typename ShrType, int N>
-class FakeDummyInputGate : public FakeGate<ShrType, N> {
-public:
-    using typename FakeGate<ShrType, N>::ClearType;
-    using typename FakeGate<ShrType, N>::SemiShrType;
-
-    FakeDummyInputGate(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline,
-                       int row, int column) : FakeGate<ShrType, N>(files, offline, row, column) {}
-
-private:
-    void doRunOffline() override {}
-};
-
-
-template<typename ShrType, int N>
 class FakeAdditionGate : public FakeGate<ShrType, N> {
 public:
     using typename FakeGate<ShrType, N>::ClearType;
@@ -213,6 +202,75 @@ private:
         }
     }
 };
+
+
+template<typename ShrType, int N>
+class FakeAddConstantGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeAddConstantGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x, ClearType c)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), c(c) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
+    }
+
+private:
+    void doRunOffline() override {
+        this->lambdaClear = this->input_x->getLambdaClear();
+        this->lambdaShr = this->input_x->getLambdaShr();
+        this->lambdaShrMac = this->input_x->getLambdaShrMac();
+    }
+
+    ClearType c;
+};
+
+
+template<typename ShrType, int N>
+class FakeMultiplyByConstantGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeMultiplyByConstantGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x, ClearType c)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), c(c) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
+    }
+
+private:
+    void doRunOffline() override {
+        int size = this->dimRow * this->dimCol;
+        this->lambdaClear.resize(size);
+        std::transform(std::execution::par_unseq,
+                       this->input_x->getLambdaClear().begin(), this->input_x->getLambdaClear().end(),
+                       this->lambdaClear.begin(), [this](SemiShrType x) { return c * x; });
+
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i].resize(size);
+            this->lambdaShrMac[i].resize(size);
+
+            std::transform(this->input_x->getLambdaShr()[i].begin(), this->input_x->getLambdaShr()[i].end(),
+                           this->lambdaShr[i].begin(), [this](SemiShrType x) { return c * x; });
+
+            std::transform(this->input_x->getLambdaShrMac()[i].begin(), this->input_x->getLambdaShrMac()[i].end(),
+                           this->lambdaShrMac[i].begin(), [this](SemiShrType x) { return c * x; });
+
+//            this->lambdaShr[i] = matrixSubtract(this->input_x->getLambdaShr()[i], this->input_y->getLambdaShr()[i]);
+//            this->lambdaShrMac[i] = matrixSubtract(this->input_x->getLambdaShrMac()[i],
+//                                                   this->input_y->getLambdaShrMac()[i]);
+
+            for (int j = 0; j < size; ++j) {
+                *this->files[i] << this->lambdaShr[i][j] << ' ' << this->lambdaShrMac[i][j] << '\n';
+            }
+            *this->files[i] << '\n';
+        }
+    }
+
+    ClearType c;
+};
+
 
 template<typename ShrType, int N>
 class FakeMultiplicationGate : public FakeGate<ShrType, N> {
@@ -592,6 +650,39 @@ protected:
     std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
 };
 
+template<typename ShrType, int N>
+class FakeSliceGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeSliceGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x, size_t index)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), index(index) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = 1;
+        this->cols = p_input_x->getDimCol();
+    }
+
+private:
+    void doRunOffline() override {
+        int size = this->dimRow * this->dimCol;
+
+        const auto &lambdaClear = this->input_x->getLambdaClear();
+        const auto &lambda = this->input_x->getLambdaShr();
+        const auto &lambdaMac = this->input_x->getLambdaShrMac();
+
+        for (int i = 0; i < size; ++i) {
+            this->lambdaClear.push_back(lambdaClear[i*this->cols + index]);
+
+            for (int j = 0; j < N; ++j) {
+                this->lambdaShr[j].push_back(lambda[j][i*this->cols + index]);
+                this->lambdaShrMac[j].push_back(lambdaMac[j][i*this->cols + index]);
+            }
+        }
+    }
+    size_t index;
+    size_t cols;
+};
 
 template<typename ShrType, int N>
 class FakeCircuit;
@@ -622,5 +713,72 @@ private:
 
     FakeCircuit<ShrType, N> circuit;
 };
+
+
+template<typename ShrType, int N>
+class FakeDummyInputGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    FakeDummyInputGate(std::array<std::ostream *, N> &files, const FakeOfflineBase<ShrType, N> &offline,
+                       int row, int column) : FakeGate<ShrType, N>(files, offline, row, column) {}
+
+private:
+    void doRunOffline() override {}
+};
+
+
+template<typename ShrType, int N>
+class FakeArgmaxGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeArgmaxGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), circuit(this->files, this->offline) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = p_input_x->getDimCol();
+        uint32_t count = this->dimCol - 1;
+        auto initmax = this->circuit.slice(p_input_x, 0);
+        auto initmaxInd = 0;
+        std::shared_ptr<FakeGate<ShrType,N>> max, maxInd;
+//        max = initmax;
+        for (int i = 0; i < count; ++i) {
+            auto next = this->circuit.slice(p_input_x,i+1);
+            int nextInd = i+1;
+            // compare max , next
+            if (i == 0) {
+                auto sub_ = this->circuit.subtract(initmax, next); // subtract: max - next
+                auto b_ = this->circuit.gtz(sub_); //: max-next > 0
+                auto product = this->circuit.elementMultiply(b_,sub_);
+                auto productInd = this->circuit.multiplyByConstant(b_, static_cast<ClearType>(initmaxInd - nextInd));
+                max = this->circuit.add(product, next); //max = b(max-next) + next
+                maxInd = this->circuit.addConstant(productInd, nextInd);
+            } else {
+                auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
+                auto sub_Ind = this->circuit.addConstant(maxInd, static_cast<ClearType>(-nextInd)); // subtract
+                auto b_ = this->circuit.gtz(sub_); //: max-next > 0
+                auto product = this->circuit.elementMultiply(b_, sub_);
+                auto productInd = this->circuit.elementMultiply(b_, sub_Ind);
+                max = this->circuit.add(product, next); //max = b(max-next) + next
+                maxInd = this->circuit.addConstant(productInd, nextInd);
+            }
+        }
+
+        circuit.addEndpoint(maxInd);
+    }
+
+private:
+    void doRunOffline() override {
+        this->circuit.runOffline();
+        this->lambdaClear = this->circuit.getEndpoints()[0]->getLambdaClear();
+        this->lambdaShr = this->circuit.getEndpoints()[0]->getLambdaShr();
+        this->lambdaShrMac = this->circuit.getEndpoints()[0]->getLambdaShrMac();
+    }
+
+    FakeCircuit<ShrType, N> circuit;
+};
+
 
 #endif //MALICIOUS_PPML_FAKEGATE_H

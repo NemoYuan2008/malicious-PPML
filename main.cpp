@@ -65,7 +65,52 @@ std::vector<bool> BitLT(std::vector<uint32_t> &pInt, // output s = (pInt < sInt)
     return s;
 }
 
-
+void argmax(std::vector<int> Delta){
+    int count = Delta.size()-1;
+    auto maxInd = 0; //set dummy input gate
+    auto max = Delta[0];
+    auto initmax = Delta[0];
+    auto initmaxInd = 0;
+    for (int i = 0; i < count; ++i) {
+        auto next = Delta[i+1];
+        int nextInd = i+1;
+        // compare max , next
+        if (i == 0) {
+            auto sub_ = initmax - next; // subtract: max - next
+            auto b_ = int (sub_>0); //: max-next > 0
+            auto product = b_ * sub_;
+            auto productInd = b_ * (initmaxInd - nextInd);
+            max = product + next; //max = b(max-next) + next
+            maxInd = productInd + nextInd;
+        } else {
+            auto sub_ = max - next; // subtract: max - next
+            auto sub_Ind = maxInd - nextInd; // subtract
+            auto b_ = int (sub_>0); //: max-next > 0
+            auto product = b_ * sub_;
+            auto productInd = b_*sub_Ind;
+            max = product + next; //max = b(max-next) + next
+            maxInd = productInd + nextInd;
+        }
+    }
+//    for (int i = 0; i < count; ++i) {
+//        //compare ret and x[i+1]
+//        //set dummy input gate
+//        auto next = Delta[i+1];
+//        auto nextInd = i+1; //set dummy input gate
+//
+//        // compare max , next
+//        auto sub_ = max - next; // subtract: mex - next
+//        auto sub_Ind = maxInd - nextInd; // subtract
+//        auto b = (sub_>0); //: max-next > 0
+//        //B2A
+//        auto b_ = (int) b;
+//        auto product = b_ * sub_;
+//        auto productInd = b_ * sub_Ind;
+//        max = product + next; //max = b(max-next) + next
+//        maxInd = productInd + nextInd;
+//    }
+    std::cout << "max: "<< max <<"\n maxInd: "<< maxInd <<"\n";
+}
 int main() {
 //    cout << hex;
 //    double x = -132.35, y = 230.165;
@@ -81,26 +126,28 @@ int main() {
 //    lambda_x = shr1 ^ shr2;
 //    cout<< "delta_x: "<< delta_x <<"\n" << "lambda_x: " << lambda_x <<"\n";
     uint32_t n = 1;
-    std::vector<std::bitset<sizeof (uint32_t)*8>> a(1);
-    std::vector<std::bitset<sizeof (uint32_t)*8>> b(1);
-    std::vector<std::bitset<sizeof (uint32_t)*8>> p(1);
-    std::vector<std::bitset<sizeof (uint32_t)*8>> g(1);
-    std::vector<uint32_t> x(1);
-    std::vector<uint32_t> y(1);
-    x[0] = 3875437382;
-    y[0] = 3875437381;
-    a[0] = 254;
-    b[0] = 0;
-    std::cout<<"a: "<<a[0]<<"\n b: "<<b[0]<<"\n";
-    for (int i = 0; i < a.size(); ++i) {
-        for (int j = 0; j < sizeof (uint32_t)*8; ++j) {
-            cout<< "a,b: "<< a[i][j]<<" "<<b[i][j]<<"\n";
-            p[i][j] = a[i][j]^b[i][j];
-            g[i][j] = a[i][j]&b[i][j];
-        }
-    }
-    auto ret = BitLT(x,y);
-    cout<< "ret value: "<<ret[0]<<"\n";
+//    std::vector<std::bitset<sizeof (uint32_t)*8>> a(1);
+//    std::vector<std::bitset<sizeof (uint32_t)*8>> b(1);
+//    std::vector<std::bitset<sizeof (uint32_t)*8>> p(1);
+//    std::vector<std::bitset<sizeof (uint32_t)*8>> g(1);
+//    std::vector<uint32_t> x(1);
+//    std::vector<uint32_t> y(1);
+//    x[0] = 3875437382;
+//    y[0] = 3875437381;
+//    a[0] = 254;
+//    b[0] = 0;
+//    std::cout<<"a: "<<a[0]<<"\n b: "<<b[0]<<"\n";
+//    for (int i = 0; i < a.size(); ++i) {
+//        for (int j = 0; j < sizeof (uint32_t)*8; ++j) {
+//            cout<< "a,b: "<< a[i][j]<<" "<<b[i][j]<<"\n";
+//            p[i][j] = a[i][j]^b[i][j];
+//            g[i][j] = a[i][j]&b[i][j];
+//        }
+//    }
+//    auto ret = BitLT(x,y);
+//    cout<< "ret value: "<<ret[0]<<"\n";
+
+
 //    bool a=false,b=false,c=false;
 //    bool z, x ,y, alpha, beta,z1,z2;
 //    bool s1x,s2x, s1y, s2y;
@@ -112,5 +159,10 @@ int main() {
 //    z1 = c ^ (alpha & s1y) ^ (beta & s1x) ^ (alpha & beta);
 //    z2 = c ^ (alpha & s2y) ^ (beta & s2x);
 //    cout <<z1<<z2 <<"\n";
+
+// argmax test
+    std::vector<int> delta(4);
+    delta = {11,2,7,10};
+    argmax(delta);
     return 0;
 }
