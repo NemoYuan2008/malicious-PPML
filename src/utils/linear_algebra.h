@@ -175,4 +175,40 @@ std::vector<T> convolution(const std::vector<T> &input_buffer,
 }
 
 
+template <typename T>
+void sumPool(const T* input, T* output, const MaxPoolOp& op) {
+    assert(op.verify());
+    using TensorType3C = Eigen::Tensor<const T, 3, Eigen::RowMajor>;
+    using TensorType3 = Eigen::Tensor<T, 3, Eigen::RowMajor>;
+    const auto in_channels = static_cast<Eigen::Index>(op.input_shape_[0]);
+    const auto in_rows = static_cast<Eigen::Index>(op.input_shape_[1]);
+    const auto in_columns = static_cast<Eigen::Index>(op.input_shape_[2]);
+    const auto out_channels = static_cast<Eigen::Index>(op.output_shape_[0]);
+    const auto out_rows = static_cast<Eigen::Index>(op.output_shape_[1]);
+    const auto out_columns = static_cast<Eigen::Index>(op.output_shape_[2]);
+    const auto kernel_rows = static_cast<Eigen::Index>(op.kernel_shape_[0]);
+    const auto kernel_columns = static_cast<Eigen::Index>(op.kernel_shape_[1]);
+    const auto stride_rows = static_cast<Eigen::Index>(op.strides_[0]);
+    const auto stride_columns = static_cast<Eigen::Index>(op.strides_[1]);
+
+    Eigen::TensorMap<TensorType3C> tensor_src(input, in_channels, in_rows, in_columns);
+    Eigen::TensorMap<TensorType3> tensor_dst(output, out_channels, out_rows, out_columns);
+
+    tensor_dst = tensor_src.shuffle(Eigen::array<Eigen::Index, 3>{2, 1, 0})
+            .extract_image_patches(kernel_rows, kernel_columns, stride_rows, stride_columns,
+                                   1, 1, 1, 1, 0, 0, 0, 0, T(0))
+            .sum(Eigen::array<Eigen::Index, 2>{1, 2})
+            .reshape(Eigen::array<Eigen::Index, 3>{out_columns, out_rows, out_channels})
+            .shuffle(Eigen::array<Eigen::Index, 3>{2, 1, 0});
+}
+
+
+template<typename T>
+inline
+std::vector<T> sumPool(const std::vector<T> &inputBuf, const MaxPoolOp& op) {
+    std::vector<T> outputBuf(op.compute_output_size());
+    sumPool(inputBuf.data(), outputBuf.data(), op);
+    return outputBuf;
+}
+
 #endif //MALICIOUS_PPML_LINEAR_ALGEBRA_H

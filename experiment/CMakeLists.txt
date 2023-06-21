@@ -5,4 +5,6 @@ add_subdirectory(comparison)
 add_subdirectory(conv2D)
 add_subdirectory(elemMultiplication)
 add_subdirectory(ReLU)
+add_subdirectory(AvgPool)
+
 add_subdirectory(argmax)

@@ -56,7 +56,7 @@ public:
 
     std::shared_ptr<FakeSubtractionGate<ShrType, N>>
     subtract(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
-        const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {
+             const std::shared_ptr<FakeGate<ShrType, N>> &input_y) {
         auto gate = std::make_shared<FakeSubtractionGate<ShrType, N>>(input_x, input_y);
         gates.push_back(gate);
         return gate;
@@ -119,6 +119,23 @@ public:
            const std::shared_ptr<FakeGate<ShrType, N>> &input_y,
            const Conv2DOp &op) {
         auto gate = std::make_shared<FakeConv2DGate<ShrType, N>>(input_x, input_y, op);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<FakeConv2DTruncGate<ShrType, N>>
+    conv2DTrunc(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
+                const std::shared_ptr<FakeGate<ShrType, N>> &input_y,
+                const Conv2DOp &op) {
+        auto gate = std::make_shared<FakeConv2DTruncGate<ShrType, N>>(input_x, input_y, op);
+        gates.push_back(gate);
+        return gate;
+    }
+
+    std::shared_ptr<FakeAvgPool2DGate<ShrType, N>>
+    avgPool2D(const std::shared_ptr<FakeGate<ShrType, N>> &input_x,
+              const MaxPoolOp &op) {
+        auto gate = std::make_shared<FakeAvgPool2DGate<ShrType, N>>(input_x, op);
         gates.push_back(gate);
         return gate;
     }

@@ -517,7 +517,10 @@ public:
     FakeConv2DGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
                    const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y,
                    const Conv2DOp &op)
-            : FakeGate<ShrType, N>(p_input_x, p_input_y), convOp(op) {}
+            : FakeGate<ShrType, N>(p_input_x, p_input_y), convOp(op) {
+        //TODO: dimRow or dimCol?
+        this->dimRow = convOp.compute_output_size();
+    }
 
 private:
     void doRunOffline() override {
@@ -574,6 +577,167 @@ protected:
     Conv2DOp convOp;
     std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
     std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
+};
+
+
+template<typename ShrType, int N>
+class FakeConv2DTruncGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    static const SemiShrType fractionBits = FixedPoint::fractionBits;
+
+    FakeConv2DTruncGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
+                        const std::shared_ptr<FakeGate<ShrType, N>> &p_input_y,
+                        const Conv2DOp &op)
+            : FakeGate<ShrType, N>(p_input_x, p_input_y), convOp(op) {
+        //TODO: dimRow or dimCol?
+        this->dimRow = convOp.compute_output_size();
+    }
+
+private:
+    void doRunOffline() override {
+        int size = this->convOp.compute_output_size();
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i].reserve(size);
+            this->lambdaShrMac[i].reserve(size);
+            this->lambda_xyShr[i].reserve(size);
+            this->lambda_xyShrMac[i].reserve(size);
+        }
+
+        //Compute lambda_xyClear
+        this->lambda_xyClear = convolution(this->input_x->getLambdaClear(), this->input_y->getLambdaClear(), convOp);
+        assert(size == this->lambda_xyClear.size());
+
+        //Fill lambdaPreTruncClear with random numbers
+        this->lambdaPreTruncClear.resize(size);
+        std::generate(this->lambdaPreTruncClear.begin(), this->lambdaPreTruncClear.end(), getRand<ClearType>);
+
+        //Compute lambdaClear by truncation
+        this->lambdaClear.resize(size);
+        std::transform(this->lambdaPreTruncClear.begin(), this->lambdaPreTruncClear.end(),
+                       this->lambdaClear.begin(),
+                       [](SemiShrType x) { return static_cast<std::make_signed_t<ClearType>>(x) >> fractionBits; });
+
+        //Generate shares and write to files
+        for (int i = 0; i < size; ++i) {
+            auto lambdaShrElem = this->offline.generateShares(this->lambdaClear[i]);
+            auto lambda_xyShrElem = this->offline.generateShares(this->lambda_xyClear[i]);
+            auto lambdaPreTruncShrElem = this->offline.generateShares(this->lambdaPreTruncClear[i]);
+
+            for (int j = 0; j < N; ++j) {
+                this->lambdaShr[j].push_back(lambdaShrElem[j].xi);
+                this->lambdaShrMac[j].push_back(lambdaShrElem[j].mi);
+                this->lambda_xyShr[j].push_back(lambda_xyShrElem[j].xi);
+                this->lambda_xyShrMac[j].push_back(lambda_xyShrElem[j].mi);
+                this->lambdaPreTruncShr[j].push_back(lambdaPreTruncShrElem[j].xi);
+                this->lambdaPreTruncShrMac[j].push_back(lambdaPreTruncShrElem[j].mi);
+
+                *this->files[j] << lambdaShrElem[j].xi << ' '
+                                << lambdaShrElem[j].mi << ' '
+                                << lambda_xyShrElem[j].xi << ' '
+                                << lambda_xyShrElem[j].mi << ' '
+                                << lambdaPreTruncShrElem[j].xi << ' '
+                                << lambdaPreTruncShrElem[j].mi << '\n';
+            }
+        }
+
+        for (int j = 0; j < N; ++j) {
+            *this->files[j] << '\n';
+        }
+    }
+
+
+public:
+    const auto &getLambdaXyClear() const { return lambda_xyClear; }
+
+    const auto &getLambdaXyShr() const { return lambda_xyShr; }
+
+    const auto &getLambdaXyShrMac() const { return lambda_xyShrMac; }
+
+protected:
+    Conv2DOp convOp;
+    std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
+    std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
+
+    std::vector<SemiShrType> lambdaPreTruncClear;
+    std::array<std::vector<SemiShrType>, N> lambdaPreTruncShr, lambdaPreTruncShrMac;
+};
+
+
+template<typename ShrType, int N>
+class FakeAvgPool2DGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    static const SemiShrType fractionBits = FixedPoint::fractionBits;
+
+    FakeAvgPool2DGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x,
+                      const MaxPoolOp &op)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), maxPoolOp(op) {
+        //TODO: dimRow or dimCol?
+        this->dimRow = maxPoolOp.compute_output_size();
+    }
+
+private:
+    void doRunOffline() override {
+        int size = this->maxPoolOp.compute_output_size();
+        for (int i = 0; i < N; ++i) {
+            this->lambdaShr[i].reserve(size);
+            this->lambdaShrMac[i].reserve(size);
+        }
+
+        //Fill lambdaPreTruncClear with random numbers
+        this->lambdaPreTruncClear.resize(size);
+        std::generate(this->lambdaPreTruncClear.begin(), this->lambdaPreTruncClear.end(), getRand<ClearType>);
+
+        //Compute lambdaClear by truncation
+        this->lambdaClear.resize(size);
+        std::transform(this->lambdaPreTruncClear.begin(), this->lambdaPreTruncClear.end(),
+                       this->lambdaClear.begin(),
+                       [](SemiShrType x) { return static_cast<std::make_signed_t<ClearType>>(x) >> fractionBits; });
+
+        //Generate shares and write to files
+        for (int i = 0; i < size; ++i) {
+            auto lambdaShrElem = this->offline.generateShares(this->lambdaClear[i]);
+            auto lambdaPreTruncShrElem = this->offline.generateShares(this->lambdaPreTruncClear[i]);
+
+            for (int j = 0; j < N; ++j) {
+                this->lambdaShr[j].push_back(lambdaShrElem[j].xi);
+                this->lambdaShrMac[j].push_back(lambdaShrElem[j].mi);
+                this->lambdaPreTruncShr[j].push_back(lambdaPreTruncShrElem[j].xi);
+                this->lambdaPreTruncShrMac[j].push_back(lambdaPreTruncShrElem[j].mi);
+
+                *this->files[j] << lambdaShrElem[j].xi << ' '
+                                << lambdaShrElem[j].mi << ' '
+                                << lambdaPreTruncShrElem[j].xi << ' '
+                                << lambdaPreTruncShrElem[j].mi << '\n';
+            }
+        }
+
+        for (int j = 0; j < N; ++j) {
+            *this->files[j] << '\n';
+        }
+    }
+
+
+//public:
+//    const auto &getLambdaXyClear() const { return lambda_xyClear; }
+//
+//    const auto &getLambdaXyShr() const { return lambda_xyShr; }
+//
+//    const auto &getLambdaXyShrMac() const { return lambda_xyShrMac; }
+
+protected:
+    MaxPoolOp maxPoolOp;
+    ClearType factor;   //equals 1/kernel_size
+//    std::vector<SemiShrType> lambda_xyClear;   //is ClearType, stored as SemiShrType
+//    std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
+
+    std::vector<SemiShrType> lambdaPreTruncClear;
+    std::array<std::vector<SemiShrType>, N> lambdaPreTruncShr, lambdaPreTruncShrMac;
 };
 
 
