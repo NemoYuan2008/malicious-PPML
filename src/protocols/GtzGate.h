@@ -132,13 +132,13 @@ private:
         matrixAddAssign(this->deltaClear, deltaRcv);
     }
 
-    bool LT(int32_t x_loc, int32_t y_loc){ // (x<y)
-        auto delta = this->getDeltaClear();
-        auto lambda = this->lambda_xBinShr;
-        auto delta_xy = delta[x_loc] - delta[y_loc];
-        auto lambda_xy = lambda[x_loc]^lambda[y_loc];
-
-    }
+//    bool LT(int32_t x_loc, int32_t y_loc){ // (x<y)
+//        auto delta = this->getDeltaClear();
+//        auto lambda = this->lambda_xBinShr;
+//        auto delta_xy = delta[x_loc] - delta[y_loc];
+//        auto lambda_xy = lambda[x_loc]^lambda[y_loc];
+//
+//    }
 
     template<typename T>
     bool BitLT_Ind(T aInt,T bInt){ // aInt < bInt

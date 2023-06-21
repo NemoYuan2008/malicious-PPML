@@ -27,42 +27,46 @@ public:
         //TODO: ??
         this->dimRow = this->input_x->getDimRow();
         this->dimCol = this->input_x->getDimCol();
-        auto Delta = input_x->getDeltaClear();
-        auto Lambda = input_x->getLambdaShr();
-        uint32_t count = Delta.size() - 1;
-        std::vector<SemiShrType> indexShr(count + 1, 0);
-        for (int i = 0; i < indexShr.size(); ++i) {
-            if (this->myId() == 0) indexShr[i] = i;
-        }
+        uint32_t batchsize = this->dimRow;
+        uint32_t count = this->dimCol - 1;
         auto initmax = this->circuit.slice(input_x, 0);
+        auto initmaxInd = 0;
         std::shared_ptr<Gate<ShrType>> max, maxInd;
+//        max = initmax;
         for (int i = 0; i < count; ++i) {
-            auto next = this->circuit.slice(input_x,i);
+            auto next = this->circuit.slice(input_x,i+1);
+            int nextInd = i+1;
             // compare max , next
             if (i == 0) {
                 auto sub_ = this->circuit.subtract(initmax, next); // subtract: max - next
                 auto b_ = this->circuit.gtz(sub_); //: max-next > 0
-                auto product = this->circuit.elementMultiply(b_, sub_);
-                auto productInd = this->circuit.multiplyByConstant(b_, -1);
+                auto product = this->circuit.elementMultiply(b_,sub_);
+                auto productInd = this->circuit.multiplyByConstant(b_, static_cast<ClearType>(initmaxInd - nextInd));
                 max = this->circuit.add(product, next); //max = b(max-next) + next
-                maxInd = this->circuit.addConstant(productInd, i);
+                maxInd = this->circuit.addConstant(productInd, nextInd);
             } else {
                 auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
-                auto sub_Ind = this->circuit.addConstant(maxInd, -i); // subtract
+                auto sub_Ind = this->circuit.addConstant(maxInd, static_cast<ClearType>(-nextInd)); // subtract
                 auto b_ = this->circuit.gtz(sub_); //: max-next > 0
                 auto product = this->circuit.elementMultiply(b_, sub_);
                 auto productInd = this->circuit.elementMultiply(b_, sub_Ind);
                 max = this->circuit.add(product, next); //max = b(max-next) + next
-                maxInd = this->circuit.addConstant(productInd, i);
+                maxInd = this->circuit.addConstant(productInd, nextInd);
             }
         }
+
         circuit.addEndpoint(maxInd);
     }
 
 private:
-    void doRunOffline() override {
+    void doReadOfflineFromFile(std::ifstream &ifs) override {
         this->circuit.readOfflineFromFile();
         this->lambdaShr = this->circuit.getEndpoints()[0]->getLambdaShr();
+    }
+
+
+    void doRunOffline() override {
+
     }
 
     void doRunOnline() override {

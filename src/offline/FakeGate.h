@@ -814,6 +814,39 @@ protected:
     std::array<std::vector<SemiShrType>, N> lambda_xyShr, lambda_xyShrMac;
 };
 
+template<typename ShrType, int N>
+class FakeSliceGate : public FakeGate<ShrType, N> {
+public:
+    using typename FakeGate<ShrType, N>::ClearType;
+    using typename FakeGate<ShrType, N>::SemiShrType;
+
+    explicit FakeSliceGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x, size_t index)
+            : FakeGate<ShrType, N>(p_input_x, nullptr), index(index) {
+        this->dimRow = p_input_x->getDimRow();
+        this->dimCol = 1;
+        this->cols = p_input_x->getDimCol();
+    }
+
+private:
+    void doRunOffline() override {
+        int size = this->dimRow * this->dimCol;
+
+        const auto &lambdaClear = this->input_x->getLambdaClear();
+        const auto &lambda = this->input_x->getLambdaShr();
+        const auto &lambdaMac = this->input_x->getLambdaShrMac();
+
+        for (int i = 0; i < size; ++i) {
+            this->lambdaClear.push_back(lambdaClear[i*this->cols + index]);
+
+            for (int j = 0; j < N; ++j) {
+                this->lambdaShr[j].push_back(lambda[j][i*this->cols + index]);
+                this->lambdaShrMac[j].push_back(lambdaMac[j][i*this->cols + index]);
+            }
+        }
+    }
+    size_t index;
+    size_t cols;
+};
 
 template<typename ShrType, int N>
 class FakeCircuit;
@@ -870,47 +903,33 @@ public:
             : FakeGate<ShrType, N>(p_input_x, nullptr), circuit(this->files, this->offline) {
         this->dimRow = p_input_x->getDimRow();
         this->dimCol = p_input_x->getDimCol();
-
-        auto b = this->circuit.gtz(this->input_x);
-        auto z = this->circuit.elementMultiply(this->input_x, b);
-        auto Delta = p_input_x->getDeltaClear();
-        auto Lambda = p_input_x->getLambdaShr();
-        uint32_t count = Delta.size() - 1;
-        std::vector<SemiShrType> indexShr(count + 1, 0);
-        for (int i = 0; i < indexShr.size(); ++i) {
-            if (this->myId() == 0) indexShr[i] = i;
-        }
-        //set dummy input gate
-        auto max = this->circuit.dummyInput(1, 1);
-        max.setDeltaClear({Delta[0]});//set max <-- delta[0]
-        max.setLambdaClear({Lambda[0]});
-        auto maxInd = this->circuit.dummyInput(1, 1); //set dummy input gate
-        if (this->myId() == 0) {
-            maxInd.setDeltaClear({0});//set max <-- delta[0]
-        }
-        maxInd.setLambdaClear({0});
+        uint32_t count = this->dimCol - 1;
+        auto initmax = this->circuit.slice(p_input_x, 0);
+        auto initmaxInd = 0;
+        std::shared_ptr<FakeGate<ShrType,N>> max, maxInd;
+//        max = initmax;
         for (int i = 0; i < count; ++i) {
-            //compare ret and x[i+1]
-            //set dummy input gate
-            auto next = this->circuit.dummyInput(1, 1);
-            next.setDeltaClear({Delta[i + 1]});
-            next.setLambdaShr({Lambda[i + 1]});
-            auto nextInd = this->circuit.dummyInput(1, 1); //set dummy input gate
-            if (this->myId() == 0) {
-                nextInd.setDeltaClear({i + 1});//set max <-- delta[0]
-            } else {
-                nextInd.setDeltaClear({0});
-            }
-            nextInd.setLambdaClear({0});
+            auto next = this->circuit.slice(p_input_x,i+1);
+            int nextInd = i+1;
             // compare max , next
-            auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
-            auto sub_Ind = this->circuit.subtract(maxInd, nextInd); // subtract
-            auto b_ = this->circuit.gtz(); //: max-next > 0
-            auto product = this->circuit.multiply(b_, sub_);
-            auto productInd = this->circuit.multiply(b_, sub_Ind);
-            max = this->circuit.add(product, next); //max = b(max-next) + next
-            maxInd = this->circuit.add(productInd, nextInd);
+            if (i == 0) {
+                auto sub_ = this->circuit.subtract(initmax, next); // subtract: max - next
+                auto b_ = this->circuit.gtz(sub_); //: max-next > 0
+                auto product = this->circuit.elementMultiply(b_,sub_);
+                auto productInd = this->circuit.multiplyByConstant(b_, static_cast<ClearType>(initmaxInd - nextInd));
+                max = this->circuit.add(product, next); //max = b(max-next) + next
+                maxInd = this->circuit.addConstant(productInd, nextInd);
+            } else {
+                auto sub_ = this->circuit.subtract(max, next); // subtract: max - next
+                auto sub_Ind = this->circuit.addConstant(maxInd, static_cast<ClearType>(-nextInd)); // subtract
+                auto b_ = this->circuit.gtz(sub_); //: max-next > 0
+                auto product = this->circuit.elementMultiply(b_, sub_);
+                auto productInd = this->circuit.elementMultiply(b_, sub_Ind);
+                max = this->circuit.add(product, next); //max = b(max-next) + next
+                maxInd = this->circuit.addConstant(productInd, nextInd);
+            }
         }
+
         circuit.addEndpoint(maxInd);
     }
 

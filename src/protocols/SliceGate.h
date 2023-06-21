@@ -35,8 +35,8 @@ public:
 private:
 
     void doReadOfflineFromFile(std::ifstream &ifs) override {
-        const auto &lambda = this->input_x.getLambdaShr();
-        const auto &lambdaMac = this->input_x.getLambdaShrMac();
+        const auto &lambda = this->input_x->getLambdaShr();
+        const auto &lambdaMac = this->input_x->getLambdaShrMac();
         for (int i = 0; i < this->dimRow; ++i) {
             this->lambdaShr.push_back(lambda[i*this->cols + index]);
             this->lambdaShrMac.push_back(lambdaMac[i*this->cols + index]);
@@ -44,13 +44,16 @@ private:
 
     }
 
-    void doRunOffline() override {}
+    void doRunOffline() override {
+
+    }
 
     void doRunOnline() override {
 //        this->deltaClear = this->input_x->getDeltaClear()[?];
-        const auto &delta = this->input_x.getDeltaClear();
+        const auto &delta = this->input_x->getDeltaClear();
         for (int i = 0; i < this->dimRow; ++i) {
-            this->lambdaShr.push_back(delta[i*this->cols + index]);
+//            this->lambdaShr.push_back(delta[i*this->cols + index]);
+            this->deltaClear.push_back(delta[i*this->cols + index]);
         }
     }
     size_t cols;

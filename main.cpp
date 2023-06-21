@@ -69,23 +69,46 @@ void argmax(std::vector<int> Delta){
     int count = Delta.size()-1;
     auto maxInd = 0; //set dummy input gate
     auto max = Delta[0];
+    auto initmax = Delta[0];
+    auto initmaxInd = 0;
     for (int i = 0; i < count; ++i) {
-        //compare ret and x[i+1]
-        //set dummy input gate
         auto next = Delta[i+1];
-        auto nextInd = i+1; //set dummy input gate
-
+        int nextInd = i+1;
         // compare max , next
-        auto sub_ = max - next; // subtract: mex - next
-        auto sub_Ind = maxInd - nextInd; // subtract
-        auto b = (sub_>0); //: max-next > 0
-        //B2A
-        auto b_ = (int) b;
-        auto product = b_ * sub_;
-        auto productInd = b_ * sub_Ind;
-        max = product + next; //max = b(max-next) + next
-        maxInd = productInd + nextInd;
+        if (i == 0) {
+            auto sub_ = initmax - next; // subtract: max - next
+            auto b_ = int (sub_>0); //: max-next > 0
+            auto product = b_ * sub_;
+            auto productInd = b_ * (initmaxInd - nextInd);
+            max = product + next; //max = b(max-next) + next
+            maxInd = productInd + nextInd;
+        } else {
+            auto sub_ = max - next; // subtract: max - next
+            auto sub_Ind = maxInd - nextInd; // subtract
+            auto b_ = int (sub_>0); //: max-next > 0
+            auto product = b_ * sub_;
+            auto productInd = b_*sub_Ind;
+            max = product + next; //max = b(max-next) + next
+            maxInd = productInd + nextInd;
+        }
     }
+//    for (int i = 0; i < count; ++i) {
+//        //compare ret and x[i+1]
+//        //set dummy input gate
+//        auto next = Delta[i+1];
+//        auto nextInd = i+1; //set dummy input gate
+//
+//        // compare max , next
+//        auto sub_ = max - next; // subtract: mex - next
+//        auto sub_Ind = maxInd - nextInd; // subtract
+//        auto b = (sub_>0); //: max-next > 0
+//        //B2A
+//        auto b_ = (int) b;
+//        auto product = b_ * sub_;
+//        auto productInd = b_ * sub_Ind;
+//        max = product + next; //max = b(max-next) + next
+//        maxInd = productInd + nextInd;
+//    }
     std::cout << "max: "<< max <<"\n maxInd: "<< maxInd <<"\n";
 }
 int main() {
@@ -139,7 +162,7 @@ int main() {
 
 // argmax test
     std::vector<int> delta(4);
-    delta = {1,2,7,4};
+    delta = {11,2,7,10};
     argmax(delta);
     return 0;
 }
