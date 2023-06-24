@@ -11,6 +11,7 @@
 #include "utils/ioHelper.h"
 #include "LenetConfig.h"
 
+#include <chrono>
 // 读取 MNIST 图像数据
 std::vector<std::vector<double>> read_mnist_images(const std::string &filename) {
     std::ifstream infile(filename, std::ios::binary);
@@ -126,7 +127,7 @@ int main() {
 
     Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
     Circuit<Spdz2kShare64> circuit(&party);
-
+    auto start = std::chrono::high_resolution_clock::now();
 //    for (int i = 0; i < times; ++i) {
     auto x = circuit.input(0, features, 1);
     auto conv1_weight = circuit.input(0, 6 * 1 * conv_kernel * conv_kernel, 1);
@@ -212,6 +213,8 @@ int main() {
     << " fc2_bias: " << f2bIn.size() << " fc3_weight:" << f3wIn.size() << " fc3_bias: " << f3bIn.size() << "\n";
 //    std::cout << benchmark([&]() { circuit.runOnline(); }) << "ms\n";
     circuit.runOnline();
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
 
     std::cout << "Result: \n";
     printVector(end->getClear());
@@ -219,6 +222,6 @@ int main() {
     auto maxIt = std::max_element(res.begin(), res.end());
     int maxIndex = std::distance(res.begin(), maxIt);
     std::cout << maxIndex << "\n";
-
+    std::cout <<"running time: "<< duration.count()<<" s\n";
     return 0;
 }

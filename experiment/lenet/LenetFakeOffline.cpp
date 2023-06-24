@@ -10,9 +10,10 @@
 #include "offline/FakeCircuit.h"
 
 #include "LenetConfig.h"
-
+#include <chrono>
 
 int main() {
+    auto start = std::chrono::high_resolution_clock ::now();
     auto path = std::filesystem::temp_directory_path();
     std::cout << path << '\n';
 
@@ -66,6 +67,9 @@ int main() {
 //    }
 
     circuit.runOffline();
+    auto stop = std::chrono::high_resolution_clock ::now();
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
+    std::cout<<"running time: "<<duration.count()<<" s\n";
 
     return 0;
 }
