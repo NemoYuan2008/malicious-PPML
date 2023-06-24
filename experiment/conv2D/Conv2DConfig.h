@@ -8,7 +8,7 @@
 const int times = 100;
 const int rows = 1;
 const int cols = 10000;
-
+const int layers = 4;
 const Conv2DOp conv_op = {.kernel_shape_ = {1, 2, 3, 3},
         .input_shape_ = {2, 3, 3},
         .output_shape_ = {1, 1, 1},

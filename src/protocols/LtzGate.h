@@ -41,10 +41,10 @@ private:
         }
 
 #ifndef NDEBUG
-        std::cout << "lambda from input: ";
-        printVector(this->input_x->getLambdaShr());
-        std::cout << "lambdaShr: ";
-        printVector(this->lambda_xBinShr);
+//        std::cout << "lambda from input: ";
+//        printVector(this->input_x->getLambdaShr());
+//        std::cout << "lambdaShr: ";
+//        printVector(this->lambda_xBinShr);
 #endif
     }
 
@@ -56,27 +56,28 @@ private:
         auto ret = BitLT(delta_x, this->lambda_xBinShr);
 
 #ifndef NDEBUG
-        std::cout << "delta_x: ";
-        printVector(delta_x);
-        std::cout << "Lambda_xBinShr: ";
-        printVector(this->lambda_xBinShr);
-        std::cout << "\n Ret value of BitLT:";
-        printVector(ret);
+//        std::cout << "delta_x: ";
+//        printVector(delta_x);
+//        std::cout << "Lambda_xBinShr: ";
+//        printVector(this->lambda_xBinShr);
+//        std::cout << "\n Ret value of BitLT:";
+//        printVector(ret);
 #endif
 
         //TODO: this is fake
 
         int msgBytes = (ret.size() + 7) / 8; // round up
-        std::vector<std::bitset<sizeof(uint8_t) * 8>> sendmsg(msgBytes, 0);
-        std::vector<std::bitset<sizeof(uint8_t) * 8>> rcvmsg(msgBytes, 0);
-
+        std::vector<uint8_t> sendmsg(msgBytes, 0);
+        std::vector<uint8_t> rcvmsg(msgBytes, 0);
         int vec_loc, bit_loc;
         for (int j = 0; j < ret.size(); ++j) {
             vec_loc = j / 8;
             bit_loc = j % 8;
-            sendmsg[vec_loc][bit_loc] = ret[j]; //[p1] -[a]
+            sendmsg[vec_loc] += ret[j]<<bit_loc; //[p1] -[a]
         }
-
+#ifndef NDEBUG
+        std::cout << "LtzGate open ret value, size: "<<sendmsg.size()<<"\n";
+#endif
         std::thread t1([this, &sendmsg]() { this->getParty()->getNetwork().send(1 - this->myId(), sendmsg); });
         std::thread t2(
                 [this, &rcvmsg]() { this->getParty()->getNetwork().rcv(1 - this->myId(), &rcvmsg, rcvmsg.size()); });
@@ -87,7 +88,7 @@ private:
         for (int j = 0; j < rcv.size(); ++j) {
             vec_loc = j / 8;
             bit_loc = j % 8;
-            rcv[j] = rcvmsg[vec_loc][bit_loc]; //[p1] -[a]
+            rcv[j] = std::bitset<sizeof(uint8_t)*8>(rcvmsg[vec_loc])[bit_loc]; //[p1] -[a]
         }
 
 
@@ -164,8 +165,8 @@ private:
 
             // each triple should send alpha, beta -- 2 bits
             int msgBytes = (numTriples * 2 + 7) / 8; // round up
-            std::vector<std::bitset<sizeof(uint8_t) * 8>> sendmsg(msgBytes, 0);
-            std::vector<std::bitset<sizeof(uint8_t) * 8>> rcvmsg(msgBytes, 0);
+            std::vector<uint8_t> sendmsg(msgBytes, 0);
+            std::vector<uint8_t> rcvmsg(msgBytes, 0);
             int vec_loc, bit_loc;
             int index_triple = 0;
             // load the msg
@@ -174,17 +175,20 @@ private:
                     vec_loc = index_triple * 2 / 8;
                     bit_loc = (index_triple * 2) % 8;
                     index_triple++;
-                    sendmsg[vec_loc][bit_loc] = p[i][2 * j] ^ a; //[p1] -[a]
-                    sendmsg[vec_loc][bit_loc + 1] = p[i][2 * j + 1] ^ b; //[p2] -[b]
+                    sendmsg[vec_loc] += (p[i][2 * j] ^ a)<<bit_loc; //[p1] -[a]
+                    sendmsg[vec_loc] += (p[i][2 * j + 1] ^ b)<<(bit_loc+1); //[p2] -[b]
                     vec_loc = index_triple * 2 / 8;
                     bit_loc = (index_triple * 2) % 8;
                     index_triple++;
-                    sendmsg[vec_loc][bit_loc] = g[i][2 * j] ^ a; //[g1] -[a]
-                    sendmsg[vec_loc][bit_loc + 1] = p[i][2 * j + 1] ^ b; //[p2] -[b]
+                    sendmsg[vec_loc] += (g[i][2 * j] ^ a)<<bit_loc; //[g1] -[a]
+                    sendmsg[vec_loc] += (p[i][2 * j + 1] ^ b)<<(bit_loc+1); //[p2] -[b]
                 }
             }
             //send & rcv
             //send numTriples, sendmsg; receive numTriples rcvmsg
+#ifndef NDEBUG
+            std::cout << "LtzGate send p,g triples, size: "<<sendmsg.size()<<"\n";
+#endif
             std::thread t1([this, &sendmsg]() {
                 this->party->getNetwork().send(1 - this->myId(), sendmsg);
             });
@@ -205,8 +209,8 @@ private:
                     vec_loc = index_triple * 2 / 8;
                     bit_loc = (index_triple * 2) % 8;
                     index_triple++;
-                    alpha = sendmsg[vec_loc][bit_loc] ^ rcvmsg[vec_loc][bit_loc]; // alpha = p1 -a
-                    beta = sendmsg[vec_loc][bit_loc + 1] ^ rcvmsg[vec_loc][bit_loc + 1]; // beta = p2 - b
+                    alpha = std::bitset<sizeof(uint8_t) * 8>(sendmsg[vec_loc])[bit_loc] ^ std::bitset<sizeof(uint8_t) * 8>(rcvmsg[vec_loc])[bit_loc]; // alpha = p1 -a
+                    beta = std::bitset<sizeof(uint8_t) * 8>(sendmsg[vec_loc])[bit_loc + 1] ^ std::bitset<sizeof(uint8_t) * 8>(rcvmsg[vec_loc])[bit_loc + 1]; // beta = p2 - b
                     x_ = p[i][2 * j], y_ = p[i][2 * j + 1]; //x_ -- p1, y_ -- p2
                     z = c ^ (alpha & y_) ^ (beta & x_); // z = p1p2
                     if (this->myId() == 0) z ^= (alpha & beta);
@@ -214,8 +218,8 @@ private:
                     vec_loc = index_triple * 2 / 8;
                     bit_loc = (index_triple * 2) % 8;
                     index_triple++;
-                    alpha = sendmsg[vec_loc][bit_loc] ^ rcvmsg[vec_loc][bit_loc];  // open g1 -a
-                    beta = sendmsg[vec_loc][bit_loc + 1] ^ rcvmsg[vec_loc][bit_loc + 1]; // open  p2 -b
+                    alpha = std::bitset<sizeof(uint8_t) * 8>(sendmsg[vec_loc])[bit_loc] ^ std::bitset<sizeof(uint8_t) * 8>(rcvmsg[vec_loc])[bit_loc]; // open p1 -a
+                    beta = std::bitset<sizeof(uint8_t) * 8>(sendmsg[vec_loc])[bit_loc + 1] ^ std::bitset<sizeof(uint8_t) * 8>(rcvmsg[vec_loc])[bit_loc + 1]; // open  p2 -b
                     x_ = g[i][2 * j], y_ = p[i][2 * j + 1]; // x_ -- g1 y_ -- p2
                     z = c ^ (alpha & y_) ^ (beta & x_); // z = p2g1
                     if (this->myId() == 0) z ^= (alpha & beta);

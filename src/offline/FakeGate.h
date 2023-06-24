@@ -520,6 +520,7 @@ public:
             : FakeGate<ShrType, N>(p_input_x, p_input_y), convOp(op) {
         //TODO: dimRow or dimCol?
         this->dimRow = convOp.compute_output_size();
+        this->dimCol = 1;
     }
 
 private:
@@ -594,6 +595,7 @@ public:
             : FakeGate<ShrType, N>(p_input_x, p_input_y), convOp(op) {
         //TODO: dimRow or dimCol?
         this->dimRow = convOp.compute_output_size();
+        this->dimCol = 1;
     }
 
 private:
@@ -679,6 +681,7 @@ public:
             : FakeGate<ShrType, N>(p_input_x, nullptr), maxPoolOp(op) {
         //TODO: dimRow or dimCol?
         this->dimRow = maxPoolOp.compute_output_size();
+        this->dimCol = 1;
     }
 
 private:

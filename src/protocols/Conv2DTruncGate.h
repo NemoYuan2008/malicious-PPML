@@ -25,6 +25,7 @@ public:
             : Gate<ShrType>(input_x, input_y), convOp(op) {
         //TODO: dimRow or dimCol?
         this->dimRow = op.compute_output_size();
+        this->dimCol = 1;
     }
 
     const auto &getLambdaXyShr() const { return lambda_xyShr; }
@@ -112,12 +113,12 @@ private:
         this->deltaClear = matrixAdd(delta_zShr, delta_z_rcv);
 
 #ifndef NDEBUG
-        std::cout << "lambdaShr:\n";
-        printVector(this->lambdaShr);
-        std::cout << "lambdaPreTruncShr:\n";
-        printVector(this->lambdaPreTruncShr);
-        std::cout << "Before Truncation, deltaClear:\n";
-        printVector(this->deltaClear);
+//        std::cout << "lambdaShr:\n";
+//        printVector(this->lambdaShr);
+//        std::cout << "lambdaPreTruncShr:\n";
+//        printVector(this->lambdaPreTruncShr);
+//        std::cout << "Before Truncation, deltaClear:\n";
+//        printVector(this->deltaClear);
 #endif
 
         //upper bits of x is of no use, should be eliminated before shifting right
@@ -126,7 +127,7 @@ private:
 
 #ifndef NDEBUG
         std::cout << "After Truncation, deltaClear:\n";
-        printVector(this->deltaClear);
+//        printVector(this->deltaClear);
 #endif
     }
 

@@ -20,6 +20,7 @@ public:
             : Gate<ShrType>(input_x, input_y), convOp(op) {
         //TODO: dimRow or dimCol?
         this->dimRow = op.compute_output_size();
+        this->dimCol = 1;
     }
 
     const auto &getLambdaXyShr() const { return lambda_xyShr; }

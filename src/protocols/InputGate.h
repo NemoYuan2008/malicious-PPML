@@ -63,10 +63,17 @@ private:
 
     void doRunOnline() override {
         if (this->myId() == this->ownerId) {
+
             this->deltaClear = matrixAdd(this->lambdaClear, this->inputValue);
+#ifndef NDEBUG
+            std::cout <<"set input, size: "<<this->deltaClear.size()<<"\n";
+#endif
             this->party->getNetwork().send(1 - this->myId(), this->deltaClear);
         } else {
             this->deltaClear.resize(this->dimRow * this->dimCol);
+#ifndef NDEBUG
+            std::cout <<"receive input, size: "<<this->deltaClear.size()<<"\n";
+#endif
             this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear, this->deltaClear.size());
         }
 

@@ -32,6 +32,7 @@ public:
               factor(double2fix<ClearType>(1.0 / op.compute_kernel_size())) {
         //TODO: dimRow or dimCol?
         this->dimRow = maxPoolOp.compute_output_size();
+        this->dimCol = 1;
     }
 
 //    const auto &getLambdaXyShr() const { return lambda_xyShr; }
@@ -50,11 +51,11 @@ private:
                 >> this->lambdaPreTruncShr[i] >> this->lambdaPreTruncShrMac[i];
         }
 #ifndef NDEBUG
-        std::cout << "\nAvgPool2DGate Offline\n";
-        std::cout << "lambdaShr:\n";
-        printVector(this->lambdaShr);
-        std::cout << "lambdaPreTruncShr:\n";
-        printVector(this->lambdaPreTruncShr);
+//        std::cout << "\nAvgPool2DGate Offline\n";
+//        std::cout << "lambdaShr:\n";
+//        printVector(this->lambdaShr);
+//        std::cout << "lambdaPreTruncShr:\n";
+//        printVector(this->lambdaPreTruncShr);
 #endif
     }
 
@@ -95,14 +96,14 @@ private:
 
 #ifndef NDEBUG
         std::cout << "\nAvgPool2DGate Online\n";
-        std::cout << "delta_xClear\n";
-        printVector(delta_xClear);
-        std::cout << "lambda_xShr\n";
-        printVector(lambda_xShr);
-        std::cout << "xShr:\n";
-        printVector(xShr);
-        std::cout << "deltaClearPreTrunc:\n";
-        printVector(this->deltaClear);
+//        std::cout << "delta_xClear\n";
+//        printVector(delta_xClear);
+//        std::cout << "lambda_xShr\n";
+//        printVector(lambda_xShr);
+//        std::cout << "xShr:\n";
+//        printVector(xShr);
+//        std::cout << "deltaClearPreTrunc:\n";
+//        printVector(this->deltaClear);
 #endif
 
         std::for_each(std::execution::par_unseq, this->deltaClear.begin(), this->deltaClear.end(),
@@ -110,7 +111,7 @@ private:
 
 #ifndef NDEBUG
         std::cout << "deltaClearAfterTrunc:\n";
-        printVector(this->deltaClear);
+//        printVector(this->deltaClear);
 #endif
     }
 

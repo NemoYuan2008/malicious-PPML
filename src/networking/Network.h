@@ -135,9 +135,9 @@ bool Network::send(uint party_id, const std::vector<T> &data) {
     }
 //    uint8_t *buf = (uint8_t *) malloc(numBytes);
 //    memcpy(buf, data.data(), numBytes);
-    uint32_t bufferSize = 2048;
-    uint16_t rcvbytes = 0;
-    uint16_t sendbytes = 2048;
+//    uint32_t bufferSize = 2048;
+//    uint16_t rcvbytes = 0;
+//    uint16_t sendbytes = 2048;
     auto *dest = data.data();
     write(*sendsockets[socket_id], boost::asio::buffer(dest, numBytes), err);
     if (!err) {

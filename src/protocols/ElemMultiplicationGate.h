@@ -54,11 +54,11 @@ private:
     void doRunOnline() override {
 #ifndef NDEBUG
         std::cout << "\nElemMultiply Online\n";
-        std::cout << "LambdaShr:";
-        printVector(this->lambdaShr);
-        std::cout << "lambda_xyShr: ";
-        printVector(this->lambda_xyShr);
-        std::cout << std::endl;
+//        std::cout << "LambdaShr:";
+//        printVector(this->lambdaShr);
+//        std::cout << "lambda_xyShr: ";
+//        printVector(this->lambda_xyShr);
+//        std::cout << std::endl;
 #endif
 
         const auto &delta_xClear = this->input_x->getDeltaClear();
@@ -115,8 +115,8 @@ private:
         //TODO: only works for 2PC, extend to n-PC
 //        std::vector<SemiShrType> delta_z_rcv(delta_zShr.size());
 #ifndef NDEBUG
-        std::cout << "delta_zShr:";
-        printVector(delta_zShr);
+//        std::cout << "delta_zShr:";
+//        printVector(delta_zShr);
         std::cout << "ElemMultiply send delta_zShr, size: " << delta_zShr.size() << "\n";
 #endif
 
