@@ -136,11 +136,8 @@ int main() {
 
     // 输出读取的数据
 //    std::cout << "w.size: " << origin_w.size() << " b.size: " << origin_b.size() << std::endl;
-//    std::cout << "Number of training images: " << origin_train_images.size() << std::endl;
-//    std::cout << "Number of training labels: " << origin_train_labels.size() << std::endl;
 //    std::cout << "Number of test images: " << origin_test_images.size() << std::endl;
 //    std::cout << "Number of test labels: " << origin_test_labels.size() << std::endl;
-//    std::cout << "Training image size: " << origin_train_images[0].size() << std::endl;
 //    std::cout << "Test image size: " << origin_test_images[0].size() << std::endl;
 
     auto path = std::filesystem::temp_directory_path();
@@ -161,7 +158,6 @@ int main() {
 
     std::vector<Spdz2kShare64::ClearType> wIn(classes * features), bIn(classes), xIn(batch_size * features);
     wIn = double2fixVec<Spdz2kShare64::ClearType>(w_t);
-
     bIn = double2fixVec<Spdz2kShare64::ClearType>(origin_b);
     xIn = double2fixVec<Spdz2kShare64::ClearType>(x_test_images);
     bIn = copyVector(bIn, batch_size);

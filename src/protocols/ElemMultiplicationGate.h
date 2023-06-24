@@ -119,12 +119,12 @@ private:
 //        printVector(delta_zShr);
         std::cout << "ElemMultiply send delta_zShr, size: " << delta_zShr.size() << "\n";
 #endif
-
+        this->deltaClear.resize(delta_zShr.size());
         std::thread t1([this, &delta_zShr]() {
             this->party->getNetwork().send(1 - this->myId(), delta_zShr);
         });
 
-        this->deltaClear.resize(delta_zShr.size());
+
         std::thread t2([this]() {
             this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear, this->deltaClear.size());
         });

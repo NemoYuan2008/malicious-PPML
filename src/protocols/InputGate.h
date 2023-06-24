@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include "protocols/Gate.h"
 #include "utils/linear_algebra.h"
-
 #ifndef NDEBUG
 
 #include "utils/ioHelper.h"
@@ -76,6 +75,7 @@ private:
 #endif
             this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear, this->deltaClear.size());
         }
+        sleep(1);
 
 #ifndef NDEBUG
 //        std::cout << "\nInputGate Online\n";

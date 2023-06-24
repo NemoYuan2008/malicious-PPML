@@ -19,8 +19,8 @@ int main() {
     FakeOffline<64, 64, 2> offline(files);
     FakeCircuit<Spdz2kShare64, 2> circuit(files, offline);
 
-    auto x = circuit.input(0, 1, 1);
-    auto y = circuit.input(0, 1, 1);
+    auto x = circuit.input(0, rows, cols);
+    auto y = circuit.input(0, cols, classes);
     auto a = circuit.multiplyTrunc(x, y);
     auto o = circuit.output(a);
 
