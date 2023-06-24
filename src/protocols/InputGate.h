@@ -75,7 +75,7 @@ private:
 #endif
             this->party->getNetwork().rcv(1 - this->myId(), &this->deltaClear, this->deltaClear.size());
         }
-        sleep(1);
+//        sleep(1);
 
 #ifndef NDEBUG
 //        std::cout << "\nInputGate Online\n";
