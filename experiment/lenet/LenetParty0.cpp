@@ -13,7 +13,6 @@
 
 #include <chrono>
 
-// 读取 MNIST 图像数据
 std::vector<double> generateRandIn(int rows, int cols){
     std::vector<double> ret(rows*cols);
     for (int i = 0; i < rows*cols; ++i) {
@@ -22,120 +21,14 @@ std::vector<double> generateRandIn(int rows, int cols){
     return ret;
 }
 
-std::vector<std::vector<double>> read_mnist_images(const std::string &filename) {
-    std::ifstream infile(filename, std::ios::binary);
-    if (!infile) {
-        std::cerr << "Error: cannot open file " << filename << std::endl;
-        return {};
-    }
-    int magic_number, num_images, rows, cols;
-    infile.read(reinterpret_cast<char *>(&magic_number), sizeof(magic_number));
-    infile.read(reinterpret_cast<char *>(&num_images), sizeof(num_images));
-    infile.read(reinterpret_cast<char *>(&rows), sizeof(rows));
-    infile.read(reinterpret_cast<char *>(&cols), sizeof(cols));
-    magic_number = __builtin_bswap32(magic_number);
-    num_images = __builtin_bswap32(num_images);
-    rows = __builtin_bswap32(rows);
-    cols = __builtin_bswap32(cols);
-    std::vector<std::vector<double>> images(num_images, std::vector<double>(rows * cols));
-    for (int i = 0; i < num_images; i++) {
-        std::vector<unsigned char> buffer(rows * cols);
-        infile.read(reinterpret_cast<char *>(buffer.data()), rows * cols);
-        for (int j = 0; j < rows * cols; j++) {
-            images[i][j] = static_cast<double>(buffer[j]) / 255.0;
-        }
-    }
-    infile.close();
-    return images;
-}
-
-// 从文件中读取MNIST标签数据
-std::vector<int> read_mnist_labels(const std::string &filename) {
-    std::ifstream infile(filename, std::ios::binary);
-    if (!infile) {
-        std::cerr << "Error: cannot open file " << filename << std::endl;
-        return {};
-    }
-    int magic_number, num_labels;
-    infile.read(reinterpret_cast<char *>(&magic_number), sizeof(magic_number));
-    infile.read(reinterpret_cast<char *>(&num_labels), sizeof(num_labels));
-    magic_number = __builtin_bswap32(magic_number);
-    num_labels = __builtin_bswap32(num_labels);
-    std::vector<int> labels(num_labels);
-    std::vector<unsigned char> buffer(num_labels);
-    infile.read(reinterpret_cast<char *>(buffer.data()), num_labels);
-    for (int i = 0; i < num_labels; i++) {
-        labels[i] = static_cast<int>(buffer[i]);
-    }
-    infile.close();
-    return labels;
-}
-
-// read model
-std::vector<std::vector<double>> readModelParameters(const std::string &path) {
-    torch::jit::script::Module model;
-    try {
-//        model = torch::jit::load("./lenet_mnist_model");
-        model = torch::jit::load(path);
-    } catch (const c10::Error &e) {
-        std::cerr << "Error loading model!!" << e.msg() << std::endl;
-        return {};
-    }
-    // 存储模型参数的 vector
-    std::vector<std::vector<float>> parameter_data;
-    for (const auto &parameter: model.parameters()) {
-        // 获取参数数据的指针
-        const float *data_ptr = parameter.data().data_ptr<float>();
-        // 将参数数据存储到 vector
-        std::vector<float> parameter_values(data_ptr, data_ptr + parameter.data().numel());
-        parameter_data.push_back(parameter_values);
-    }
-    std::vector<std::vector<double>> resultVector;
-    for (const auto &innerVector: parameter_data) {
-        std::vector<double> convertedVector;
-        for (const auto &num: innerVector) {
-            convertedVector.push_back(static_cast<double>(num));
-        }
-        resultVector.push_back(convertedVector);
-    }
-    return resultVector;
-}
-
-// copy_bias
-template<typename ClearType>
-std::vector<ClearType> copyVectorNTimes(const std::vector<ClearType> &inputVector, int n) {
-    std::vector<ClearType> resultVector;
-    for (const auto &num: inputVector) {
-        for (int i = 0; i < n; i++) {
-            resultVector.push_back(num);
-        }
-    }
-    return resultVector;
-}
-
 int main() {
-    // read data and preprocess
-//    std::vector<std::vector<double>> parameter_data = readModelParameters("../../../data/lenet_mnist_model");
-//    for (int i = 0; i < parameter_data.size(); i++) {
-//        std::cout << parameter_data[i].size() << " ";
-//    }
-//    std::cout << "\n";
-//    auto origin_test_images = read_mnist_images("../../../data/t10k-images.idx3-ubyte");
-//    std::vector<int> origin_test_labels = read_mnist_labels("../../../data/t10k-labels.idx1-ubyte");
-//    std::vector<double> x_test_images;
-//    std::vector<int> x_test_lables = std::vector<int>(origin_test_labels.begin(),
-//                                                      origin_test_labels.begin() + batch_size);
-//
-////    std::vector<int> pred(x_test_lables.size());
+
     auto path = std::filesystem::temp_directory_path();
     Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
     Circuit<Spdz2kShare64> circuit(&party);
 
     uint32_t dur_time = 0;
     for (int i = 0; i < batch_size; ++i) {
-
-//        x_test_images.clear();
-//        std::copy(origin_test_images[i].begin(), origin_test_images[i].end(), std::back_inserter(x_test_images));
 
         auto x = circuit.input(0, features, 1);
         auto conv1_weight = circuit.input(0, conv1_op.kernel_shape_[0] * conv1_op.kernel_shape_[1] * conv1_op.kernel_shape_[2] * conv1_op.kernel_shape_[3], 1);
@@ -193,9 +86,6 @@ int main() {
         auto c1b_ = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv1_op.output_shape_[0]*conv1_op.output_shape_[1]*conv1_op.output_shape_[2],1));
         auto c2b_ = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv2_op.output_shape_[0]*conv2_op.output_shape_[1]*conv2_op.output_shape_[2],1));
 
-//        auto c1b_ = copyVectorNTimes(parameter_data[1], 24 * 24);
-//        auto c2b_ = copyVectorNTimes(parameter_data[3], 8 * 8);
-//        std::cout << "c1b_.size: " << c1b_.size() << " c2b_:" << c2b_.size();
         xIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(features,1));
         c1wIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv1_op.kernel_shape_[0]*conv1_op.kernel_shape_[1]*conv1_op.kernel_shape_[2]*conv1_op.kernel_shape_[3],1));
         c1bIn = c1b_;
@@ -226,22 +116,7 @@ int main() {
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
         dur_time += duration.count();
-//        std::cout << "Result: \n";
-//        printVector(end->getClear());
-//        auto res = fix2doubleVec(end->getClear());
-//        auto maxIt = std::max_element(res.begin(), res.end());
-//        int maxIndex = std::distance(res.begin(), maxIt);
-//        std::cout << "x_test: " << maxIndex << " ";
-//        pred[i] = maxIndex;
     }
-
-//    int count = 0;
-//    for (int i = 0; i < x_test_lables.size(); i++) {
-//        if (pred[i] == x_test_lables[i]) {
-//            count++;
-//        }
-//    }
-//    std::cout << "acc: " << (double) count / batch_size << "\n";
 
     std::cout << "average time: " << dur_time / batch_size << "ms \n";
     return 0;

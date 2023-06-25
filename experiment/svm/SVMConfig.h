@@ -8,6 +8,6 @@
 const int times = 1;
 const int classes = 10;
 const int features = 784;
-const int batch_size = 10000;
+const int batch_size = 100;
 
 #endif //MALICIOUS_PPML_SVMCONFIG_H
