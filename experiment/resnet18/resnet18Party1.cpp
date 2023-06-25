@@ -58,6 +58,9 @@ int main() {
     for (int i = 0; i < layers; ++i) {
         out = ResBlock1(i,circuit,out);
     }
+    auto fc = circuit.input(0,classes,out->getDimCol()*out->getDimRow());
+    out = circuit.multiplyTrunc(fc,out);
+
     circuit.addEndpoint(out);
     circuit.readOfflineFromFile();
     circuit.runOnline();

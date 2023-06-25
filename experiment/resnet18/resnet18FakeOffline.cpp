@@ -83,7 +83,9 @@ int main() {
     for (int i = 0; i < layers; ++i) {
         out = ResBlock(i,circuit,out);
     }
-
+    //FC layer
+    auto fc = circuit.input(0,classes,out->getDimCol()*out->getDimRow());
+    out = circuit.multiplyTrunc(fc,out);
     circuit.addEndpoint(out);
 
     circuit.runOffline();

@@ -7,8 +7,9 @@ const int times = 1;
 const int rows = 32;
 const int cols = 32;
 const int layers = 4;
-std::vector<int> expansion1 = {2,2,2,2};
-std::vector<int> expansion2 = {2,2,2,2};
+const int classes = 10;
+std::vector<int> expansion1 = {1,1,2,2};
+std::vector<int> expansion2 = {1,1,2,2};
 std::vector <Conv2DOp> Conv1op(layers),Conv2op(layers),Conv3op(layers);
 void InitializeConv(){
     uint32_t conv1_in_channels = 1; // initial input channels

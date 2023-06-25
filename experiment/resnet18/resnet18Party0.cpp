@@ -10,7 +10,7 @@
 #include "utils/fixedPoint.h"
 #include <chrono>
 #define NDEBUG
-std::vector<double> generateRandIn(int rows, int cols){
+std::vector<double> generateRandIn(uint32_t rows, uint32_t cols){
     std::vector<double> ret(rows*cols);
     for (int i = 0; i < rows*cols; ++i) {
         ret[i] = rand();
@@ -95,6 +95,12 @@ int main() {
     for (int i = 0; i < layers; ++i) {
         out = ResBlock0(i,circuit,out);
     }
+    uint32_t fc_size = out->getDimCol()*out->getDimRow();
+    auto fc = circuit.input(0,classes,fc_size);
+    fc->setInput(double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(classes,fc_size)));
+    out = circuit.multiplyTrunc(fc,out);
+
+
     circuit.addEndpoint(out);
 
     circuit.readOfflineFromFile();
