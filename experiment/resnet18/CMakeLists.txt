@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
-list(APPEND CMAKE_PREFIX_PATH "/home/ysx/Documents/github/libtorch")
+list(APPEND CMAKE_PREFIX_PATH "/home/zyx/Downloads/libtorch")
 find_package(Torch REQUIRED)
 
 add_executable(resnet18_party0 resnet18Party0.cpp resnet18Config.h)

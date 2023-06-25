@@ -1,4 +1,4 @@
-list(APPEND CMAKE_PREFIX_PATH "/home/zyx/Downloads/libtorch-shared-with-deps-2.0.1+cpu/libtorch")
+list(APPEND CMAKE_PREFIX_PATH "/home/zyx/Downloads/libtorch")
 find_package(Torch REQUIRED)
 
 add_executable(lenet_party0 LenetParty0.cpp LenetConfig.h)
