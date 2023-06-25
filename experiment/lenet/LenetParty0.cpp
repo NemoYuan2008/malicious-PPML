@@ -232,6 +232,6 @@ int main() {
 //    }
 //    std::cout << "acc: " << (double) count / batch_size << "\n";
 
-//    std::cout << maxIndex << "\n";
+    std::cout << "average time: " << dur_time / batch_size << "ms \n";
     return 0;
 }
