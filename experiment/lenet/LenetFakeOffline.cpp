@@ -27,16 +27,16 @@ int main() {
 
     for (int i = 0; i < batch_size; ++i) {
         auto x = circuit.input(0, features, 1);
-        auto conv1_weight = circuit.input(0, 6 * 1 * conv_kernel * conv_kernel, 1);
-        auto conv1_bias = circuit.input(0, 6 * 24 * 24, 1);
-        auto conv2_weight = circuit.input(0, 16 * 6 * conv_kernel * conv_kernel, 1);
-        auto conv2_bias = circuit.input(0, 16 * 8 * 8, 1);
-        auto fc1_weight = circuit.input(0, 120, 256);
-        auto fc1_bias = circuit.input(0, 120, 1);
-        auto fc2_weight = circuit.input(0, 84, 120);
-        auto fc2_bias = circuit.input(0, 84, 1);
-        auto fc3_weight = circuit.input(0, 10, 84);
-        auto fc3_bias = circuit.input(0, 10, 1);
+        auto conv1_weight = circuit.input(0, conv1_op.kernel_shape_[0] * conv1_op.kernel_shape_[1] * conv1_op.kernel_shape_[2] * conv1_op.kernel_shape_[3], 1);
+        auto conv1_bias = circuit.input(0, conv1_op.output_shape_[0] * conv1_op.output_shape_[1] * conv1_op.output_shape_[2], 1);
+        auto conv2_weight = circuit.input(0, conv2_op.kernel_shape_[0] * conv2_op.kernel_shape_[1] * conv2_op.kernel_shape_[2] * conv2_op.kernel_shape_[3], 1);
+        auto conv2_bias = circuit.input(0, conv2_op.output_shape_[0] * conv2_op.output_shape_[1] * conv2_op.output_shape_[2], 1);
+        auto fc1_weight = circuit.input(0, linear1, avg_op2.output_shape_[0]*avg_op2.output_shape_[1]*avg_op2.output_shape_[2]);
+        auto fc1_bias = circuit.input(0, linear1, 1);
+        auto fc2_weight = circuit.input(0, linear2, linear1);
+        auto fc2_bias = circuit.input(0, linear2, 1);
+        auto fc3_weight = circuit.input(0, classes, linear2);
+        auto fc3_bias = circuit.input(0, classes, 1);
         // conv1
         auto conv1 = circuit.conv2DTrunc(x, conv1_weight, conv1_op);
         auto add1 = circuit.add(conv1, conv1_bias);

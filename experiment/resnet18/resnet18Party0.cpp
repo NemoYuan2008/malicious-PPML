@@ -9,7 +9,7 @@
 #include "resnet18Config.h"
 #include "utils/fixedPoint.h"
 #include <chrono>
-#define NDEBUG
+
 std::vector<double> generateRandIn(int rows, int cols){
     std::vector<double> ret(rows*cols);
     for (int i = 0; i < rows*cols; ++i) {

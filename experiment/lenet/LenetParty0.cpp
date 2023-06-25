@@ -14,6 +14,14 @@
 #include <chrono>
 
 // 读取 MNIST 图像数据
+std::vector<double> generateRandIn(int rows, int cols){
+    std::vector<double> ret(rows*cols);
+    for (int i = 0; i < rows*cols; ++i) {
+        ret[i] = rand();
+    }
+    return ret;
+}
+
 std::vector<std::vector<double>> read_mnist_images(const std::string &filename) {
     std::ifstream infile(filename, std::ios::binary);
     if (!infile) {
@@ -107,18 +115,18 @@ std::vector<ClearType> copyVectorNTimes(const std::vector<ClearType> &inputVecto
 
 int main() {
     // read data and preprocess
-    std::vector<std::vector<double>> parameter_data = readModelParameters("../../../data/lenet_mnist_model");
-    for (int i = 0; i < parameter_data.size(); i++) {
-        std::cout << parameter_data[i].size() << " ";
-    }
-    std::cout << "\n";
-    auto origin_test_images = read_mnist_images("../../../data/t10k-images.idx3-ubyte");
-    std::vector<int> origin_test_labels = read_mnist_labels("../../../data/t10k-labels.idx1-ubyte");
-    std::vector<double> x_test_images;
-    std::vector<int> x_test_lables = std::vector<int>(origin_test_labels.begin(),
-                                                      origin_test_labels.begin() + batch_size);
-
-//    std::vector<int> pred(x_test_lables.size());
+//    std::vector<std::vector<double>> parameter_data = readModelParameters("../../../data/lenet_mnist_model");
+//    for (int i = 0; i < parameter_data.size(); i++) {
+//        std::cout << parameter_data[i].size() << " ";
+//    }
+//    std::cout << "\n";
+//    auto origin_test_images = read_mnist_images("../../../data/t10k-images.idx3-ubyte");
+//    std::vector<int> origin_test_labels = read_mnist_labels("../../../data/t10k-labels.idx1-ubyte");
+//    std::vector<double> x_test_images;
+//    std::vector<int> x_test_lables = std::vector<int>(origin_test_labels.begin(),
+//                                                      origin_test_labels.begin() + batch_size);
+//
+////    std::vector<int> pred(x_test_lables.size());
     auto path = std::filesystem::temp_directory_path();
     Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
     Circuit<Spdz2kShare64> circuit(&party);
@@ -126,20 +134,20 @@ int main() {
     uint32_t dur_time = 0;
     for (int i = 0; i < batch_size; ++i) {
 
-        x_test_images.clear();
-        std::copy(origin_test_images[i].begin(), origin_test_images[i].end(), std::back_inserter(x_test_images));
+//        x_test_images.clear();
+//        std::copy(origin_test_images[i].begin(), origin_test_images[i].end(), std::back_inserter(x_test_images));
 
         auto x = circuit.input(0, features, 1);
-        auto conv1_weight = circuit.input(0, 6 * 1 * conv_kernel * conv_kernel, 1);
-        auto conv1_bias = circuit.input(0, 6 * 24 * 24, 1);
-        auto conv2_weight = circuit.input(0, 16 * 6 * conv_kernel * conv_kernel, 1);
-        auto conv2_bias = circuit.input(0, 16 * 8 * 8, 1);
-        auto fc1_weight = circuit.input(0, 120, 256);
-        auto fc1_bias = circuit.input(0, 120, 1);
-        auto fc2_weight = circuit.input(0, 84, 120);
-        auto fc2_bias = circuit.input(0, 84, 1);
-        auto fc3_weight = circuit.input(0, 10, 84);
-        auto fc3_bias = circuit.input(0, 10, 1);
+        auto conv1_weight = circuit.input(0, conv1_op.kernel_shape_[0] * conv1_op.kernel_shape_[1] * conv1_op.kernel_shape_[2] * conv1_op.kernel_shape_[3], 1);
+        auto conv1_bias = circuit.input(0, conv1_op.output_shape_[0] * conv1_op.output_shape_[1] * conv1_op.output_shape_[2], 1);
+        auto conv2_weight = circuit.input(0, conv2_op.kernel_shape_[0] * conv2_op.kernel_shape_[1] * conv2_op.kernel_shape_[2] * conv2_op.kernel_shape_[3], 1);
+        auto conv2_bias = circuit.input(0, conv2_op.output_shape_[0] * conv2_op.output_shape_[1] * conv2_op.output_shape_[2], 1);
+        auto fc1_weight = circuit.input(0, linear1, avg_op2.output_shape_[0]*avg_op2.output_shape_[1]*avg_op2.output_shape_[2]);
+        auto fc1_bias = circuit.input(0, linear1, 1);
+        auto fc2_weight = circuit.input(0, linear2, linear1);
+        auto fc2_bias = circuit.input(0, linear2, 1);
+        auto fc3_weight = circuit.input(0, classes, linear2);
+        auto fc3_bias = circuit.input(0, classes, 1);
         // conv1
         auto conv1 = circuit.conv2DTrunc(x, conv1_weight, conv1_op);
         auto add1 = circuit.add(conv1, conv1_bias);
@@ -172,30 +180,33 @@ int main() {
         auto start = std::chrono::high_resolution_clock::now();
 
         std::vector<Spdz2kShare64::ClearType> xIn(features),
-                c1wIn(6 * 1 * conv_kernel * conv_kernel),
-                c1bIn(6 * 24 * 24),
-                c2wIn(16 * 6 * conv_kernel * conv_kernel),
-                c2bIn(16 * 8 * 8),
-                f1wIn(120 * 256),
-                f1bIn(120 * 1),
-                f2wIn(84 * 120),
-                f2bIn(84 * 1),
-                f3wIn(10 * 84),
-                f3bIn(10 * 1);
-        auto c1b_ = copyVectorNTimes(parameter_data[1], 24 * 24);
-        auto c2b_ = copyVectorNTimes(parameter_data[3], 8 * 8);
+                c1wIn(conv1_op.kernel_shape_[0]*conv1_op.kernel_shape_[1]*conv1_op.kernel_shape_[2]*conv1_op.kernel_shape_[3]),
+                c1bIn(conv1_op.output_shape_[0]*conv1_op.output_shape_[1]*conv1_op.output_shape_[2]),
+                c2wIn(conv2_op.kernel_shape_[0]*conv2_op.kernel_shape_[1]*conv2_op.kernel_shape_[2]*conv2_op.kernel_shape_[3]),
+                c2bIn(conv2_op.output_shape_[0]*conv2_op.output_shape_[1]*conv2_op.output_shape_[2]),
+                f1wIn(linear1 * avg_op2.output_shape_[0]*avg_op2.output_shape_[1]*avg_op2.output_shape_[2]),
+                f1bIn(linear1 * 1),
+                f2wIn(linear2 * linear1),
+                f2bIn(linear2 * 1),
+                f3wIn(classes * linear2),
+                f3bIn(classes * 1);
+        auto c1b_ = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv1_op.output_shape_[0]*conv1_op.output_shape_[1]*conv1_op.output_shape_[2],1));
+        auto c2b_ = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv2_op.output_shape_[0]*conv2_op.output_shape_[1]*conv2_op.output_shape_[2],1));
+
+//        auto c1b_ = copyVectorNTimes(parameter_data[1], 24 * 24);
+//        auto c2b_ = copyVectorNTimes(parameter_data[3], 8 * 8);
 //        std::cout << "c1b_.size: " << c1b_.size() << " c2b_:" << c2b_.size();
-        xIn = double2fixVec<Spdz2kShare64::ClearType>(x_test_images);
-        c1wIn = double2fixVec<Spdz2kShare64::ClearType>(parameter_data[0]);
-        c1bIn = double2fixVec<Spdz2kShare64::ClearType>(c1b_);
-        c2wIn = double2fixVec<Spdz2kShare64::ClearType>(parameter_data[2]);
-        c2bIn = double2fixVec<Spdz2kShare64::ClearType>(c2b_);
-        f1wIn = double2fixVec<Spdz2kShare64::ClearType>(parameter_data[4]);
-        f1bIn = double2fixVec<Spdz2kShare64::ClearType>(parameter_data[5]);
-        f2wIn = double2fixVec<Spdz2kShare64::ClearType>(parameter_data[6]);
-        f2bIn = double2fixVec<Spdz2kShare64::ClearType>(parameter_data[7]);
-        f3wIn = double2fixVec<Spdz2kShare64::ClearType>(parameter_data[8]);
-        f3bIn = double2fixVec<Spdz2kShare64::ClearType>(parameter_data[9]);
+        xIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(features,1));
+        c1wIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv1_op.kernel_shape_[0]*conv1_op.kernel_shape_[1]*conv1_op.kernel_shape_[2]*conv1_op.kernel_shape_[3],1));
+        c1bIn = c1b_;
+        c2wIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv2_op.kernel_shape_[0]*conv2_op.kernel_shape_[1]*conv2_op.kernel_shape_[2]*conv2_op.kernel_shape_[3],1));
+        c2bIn = c2b_;
+        f1wIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(linear1 * avg_op2.output_shape_[0]*avg_op2.output_shape_[1]*avg_op2.output_shape_[2],1));
+        f1bIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(linear1,1));
+        f2wIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(linear2 * linear1,1));
+        f2bIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(linear2,1));
+        f3wIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(classes * linear2,1));
+        f3bIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(classes,1));
 //        std::cout << "input: \n";
         x->setInput(xIn);
         conv1_weight->setInput(c1wIn);

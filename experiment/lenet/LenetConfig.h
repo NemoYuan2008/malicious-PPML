@@ -13,6 +13,8 @@ const int batch_size = 10;
 const int classes = 10;
 const int conv_kernel = 5;
 const int avg_kernel = 2;
+const int linear1 = 120;
+const int linear2 = 84;
 
 const Conv2DOp conv1_op = {.kernel_shape_ = {6, 1, 5, 5},
         .input_shape_ = {1, 28, 28},
