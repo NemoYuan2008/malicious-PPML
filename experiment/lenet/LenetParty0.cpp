@@ -30,7 +30,7 @@ int main() {
     uint32_t dur_time = 0;
     for (int i = 0; i < batch_size; ++i) {
 
-        auto x = circuit.input(0, features, 1);
+        auto x = circuit.input(0, channel * features, 1);
         auto conv1_weight = circuit.input(0, conv1_op.kernel_shape_[0] * conv1_op.kernel_shape_[1] * conv1_op.kernel_shape_[2] * conv1_op.kernel_shape_[3], 1);
         auto conv1_bias = circuit.input(0, conv1_op.output_shape_[0] * conv1_op.output_shape_[1] * conv1_op.output_shape_[2], 1);
         auto conv2_weight = circuit.input(0, conv2_op.kernel_shape_[0] * conv2_op.kernel_shape_[1] * conv2_op.kernel_shape_[2] * conv2_op.kernel_shape_[3], 1);
@@ -72,7 +72,7 @@ int main() {
         // start time
         auto start = std::chrono::high_resolution_clock::now();
 
-        std::vector<Spdz2kShare64::ClearType> xIn(features),
+        std::vector<Spdz2kShare64::ClearType> xIn(channel * features),
                 c1wIn(conv1_op.kernel_shape_[0]*conv1_op.kernel_shape_[1]*conv1_op.kernel_shape_[2]*conv1_op.kernel_shape_[3]),
                 c1bIn(conv1_op.output_shape_[0]*conv1_op.output_shape_[1]*conv1_op.output_shape_[2]),
                 c2wIn(conv2_op.kernel_shape_[0]*conv2_op.kernel_shape_[1]*conv2_op.kernel_shape_[2]*conv2_op.kernel_shape_[3]),
@@ -86,7 +86,7 @@ int main() {
         auto c1b_ = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv1_op.output_shape_[0]*conv1_op.output_shape_[1]*conv1_op.output_shape_[2],1));
         auto c2b_ = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv2_op.output_shape_[0]*conv2_op.output_shape_[1]*conv2_op.output_shape_[2],1));
 
-        xIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(features,1));
+        xIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(channel * features,1));
         c1wIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv1_op.kernel_shape_[0]*conv1_op.kernel_shape_[1]*conv1_op.kernel_shape_[2]*conv1_op.kernel_shape_[3],1));
         c1bIn = c1b_;
         c2wIn = double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(conv2_op.kernel_shape_[0]*conv2_op.kernel_shape_[1]*conv2_op.kernel_shape_[2]*conv2_op.kernel_shape_[3],1));

@@ -4,9 +4,10 @@
 #ifndef MALICIOUS_PPML_MULTIPLICATIONCONFIG_H
 #define MALICIOUS_PPML_MULTIPLICATIONCONFIG_H
 
-// mnist: rows = cols = 28;
-// cifar10: rows = cols = 32;
+// mnist: rows = cols = 28; channel = 1
+// cifar10: rows = cols = 32; channel = 3
 
+const int channel = 3;
 const int times = 1;
 const int rows = 32;
 const int cols = 32;
@@ -18,8 +19,8 @@ const int avg_kernel = 2;
 const int linear1 = 120;
 const int linear2 = 84;
 
-const Conv2DOp conv1_op = {.kernel_shape_ = {6, 1, conv_kernel, conv_kernel},
-        .input_shape_ = {1, rows, cols},
+const Conv2DOp conv1_op = {.kernel_shape_ = {6, channel, conv_kernel, conv_kernel},
+        .input_shape_ = {channel, rows, cols},
         .output_shape_ = {6, rows - conv_kernel + 1, cols - conv_kernel + 1},
         .dilations_ = {1, 1},
         .pads_ = {0, 0, 0, 0},

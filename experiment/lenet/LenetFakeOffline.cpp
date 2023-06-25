@@ -26,7 +26,7 @@ int main() {
     FakeCircuit<Spdz2kShare64, 2> circuit(files, offline);
 
     for (int i = 0; i < batch_size; ++i) {
-        auto x = circuit.input(0, features, 1);
+        auto x = circuit.input(0, channel * features, 1);
         auto conv1_weight = circuit.input(0, conv1_op.kernel_shape_[0] * conv1_op.kernel_shape_[1] * conv1_op.kernel_shape_[2] * conv1_op.kernel_shape_[3], 1);
         auto conv1_bias = circuit.input(0, conv1_op.output_shape_[0] * conv1_op.output_shape_[1] * conv1_op.output_shape_[2], 1);
         auto conv2_weight = circuit.input(0, conv2_op.kernel_shape_[0] * conv2_op.kernel_shape_[1] * conv2_op.kernel_shape_[2] * conv2_op.kernel_shape_[3], 1);
