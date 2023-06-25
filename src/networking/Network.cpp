@@ -9,8 +9,8 @@ using std::cout;
 using std::endl;
 using std::array;
 
-Network::Network(uint32_t id, uint16_t port)
-        : id(id), port(port) {
+Network::Network(uint32_t id, uint16_t port, const char* addr)
+        : id(id), port(port), addr(addr){
 //    sockets.resize(nparties-1);
     sendsockets.resize(nparties - 1);
     rcvsockets.resize(nparties - 1);

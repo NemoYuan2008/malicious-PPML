@@ -9,6 +9,13 @@
 #include "utils/fixedPoint.h"
 #include "Conv2DConfig.h"
 
+std::vector<double> generateRandIn(int rows, int cols){
+    std::vector<double> ret(rows*cols);
+    for (int i = 0; i < rows*cols; ++i) {
+        ret[i] = rand();
+    }
+    return ret;
+}
 
 int main() {
     auto path = std::filesystem::temp_directory_path();
