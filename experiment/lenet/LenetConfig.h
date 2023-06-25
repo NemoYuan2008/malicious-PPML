@@ -6,11 +6,12 @@
 
 // mnist: rows = cols = 28; channel = 1
 // cifar10: rows = cols = 32; channel = 3
+// tiny imagenet: rows= cols = 64; channel = 3
 
 const int channel = 3;
 const int times = 1;
-const int rows = 32;
-const int cols = 32;
+const int rows = 64;
+const int cols = 64;
 const int features = rows * cols;
 const int batch_size = 10;
 const int classes = 10;
