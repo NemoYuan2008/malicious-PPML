@@ -7,7 +7,7 @@ const int times = 1;
 const int rows = 32;
 const int cols = 32;
 const int layers = 4;
-std::vector<int> expansion1 = {4,2,2,2};
+std::vector<int> expansion1 = {2,2,2,2};
 std::vector<int> expansion2 = {2,2,2,2};
 std::vector <Conv2DOp> Conv1op(layers),Conv2op(layers),Conv3op(layers);
 void InitializeConv(){
