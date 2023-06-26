@@ -7,7 +7,8 @@
 #include "utils/Party.h"
 #include "utils/ioHelper.h"
 #include "resnet18Config.h"
-#include <chrono>
+#include "utils/benchmark.h"
+
 template<typename ShrType>
 std::shared_ptr<Gate<ShrType>> ResBlock1(int layer,Circuit<ShrType> &circuit, std::shared_ptr<Gate<ShrType>> xIn){
     auto kernel1 = circuit.input(0,Conv1op[layer].kernel_shape_[0]*Conv1op[layer].kernel_shape_[1],Conv1op[layer].kernel_shape_[2]*Conv1op[layer].kernel_shape_[3]);
@@ -63,9 +64,7 @@ int main() {
 
     circuit.addEndpoint(out);
     circuit.readOfflineFromFile();
-    circuit.runOnline();
-    auto end = std::chrono::high_resolution_clock ::now();
-    auto duration =std::chrono::duration_cast<std::chrono::seconds>(end - start);
-    std::cout<<"running time: "<<duration.count()<<" s\n";
+    circuit.shakeHand();
+    std::cout << benchmark([&]() { circuit.runOnline(); }) << "ms\n";
     return 0;
 }

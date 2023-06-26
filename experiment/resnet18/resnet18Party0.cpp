@@ -8,8 +8,8 @@
 #include "utils/ioHelper.h"
 #include "resnet18Config.h"
 #include "utils/fixedPoint.h"
-#include <chrono>
-#define NDEBUG
+#include "utils/benchmark.h"
+
 std::vector<double> generateRandIn(uint32_t rows, uint32_t cols){
     std::vector<double> ret(rows*cols);
     for (int i = 0; i < rows*cols; ++i) {
@@ -104,9 +104,7 @@ int main() {
     circuit.addEndpoint(out);
 
     circuit.readOfflineFromFile();
-    circuit.runOnline();
-    auto end = std::chrono::high_resolution_clock ::now();
-    auto duration =std::chrono::duration_cast<std::chrono::seconds>(end - start);
-    std::cout<<"running time: "<<duration.count()<<" s\n";
+    circuit.shakeHand();
+    std::cout << benchmark([&]() { circuit.runOnline(); }) << "ms\n";
     return 0;
 }

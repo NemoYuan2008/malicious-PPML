@@ -7,28 +7,26 @@
 #include "utils/Party.h"
 #include "utils/ioHelper.h"
 #include "ComparisonConfig.h"
-
+#include "utils/benchmark.h"
 using std::cout;
 
 int main() {
     auto path = std::filesystem::temp_directory_path();
-
-    Party<Spdz2kShare32> party(0, 2, (path / "0.txt").string());
-    Circuit<Spdz2kShare32> circuit(&party);
-
-    auto x = circuit.input(0, rows, cols);
-    auto b = circuit.gtz(x);
-    auto o = circuit.output(b);
-    circuit.addEndpoint(o);
-
+    std::vector<Spdz2kShare64::ClearType> xIn;
+    xIn = {static_cast<uint64_t>(-10220)};
+    Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
+    Circuit<Spdz2kShare64> circuit(&party);
+    for (int i = 0; i < times; ++i) {
+        auto x = circuit.input(0, rows, cols);
+        auto b = circuit.gtz(x);
+        auto o = circuit.output(b);
+        x->setInput(xIn);
+        circuit.addEndpoint(o);
+    }
     circuit.readOfflineFromFile();
 
-    std::vector<Spdz2kShare32::ClearType> xIn;
-    xIn.push_back(static_cast<uint32_t>(-10220));
-    x->setInput(xIn);
-
-    circuit.runOnline();
-    printVector(o->getClear());
+    circuit.shakeHand();
+    std::cout << benchmark([&]() { circuit.runOnline(); }) << "ms\n";
 
     return 0;
 }

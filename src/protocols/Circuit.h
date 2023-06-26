@@ -56,6 +56,21 @@ public:
         }
     }
 
+    void shakeHand() {
+
+        uint8_t sendmsg = 1;
+        uint8_t rcvmsg;
+        std::thread t1([this, &sendmsg]() {
+            this->party->getNetwork().send(1 - this->party->getMyId(), sendmsg);
+        });
+
+        std::thread t2([this, &rcvmsg]() {
+            this->party->getNetwork().rcv(1 - this->party->getMyId(), &rcvmsg);
+        });
+        t1.join();
+        t2.join();
+    }
+
     std::shared_ptr<SliceGate<ShrType>>
     slice(const std::shared_ptr<Gate<ShrType>> &input_x, std::size_t index) {
         auto gate = std::make_shared<SliceGate<ShrType>>(input_x, index);

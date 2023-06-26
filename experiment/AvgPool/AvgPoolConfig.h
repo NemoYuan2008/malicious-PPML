@@ -5,15 +5,16 @@
 #include "utils/tensor.h"
 
 
-const int times = 1;
-const int rows = 3;
-const int cols = 3;
-
+const int times = 100;
+const int rows = 32;
+const int cols = 32;
+const int kernel_size = 5;
+const int stride = 1;
 
 const MaxPoolOp op = {
-        .input_shape_ = {1, 3, 3},
-        .output_shape_ = {1, 2, 2},
-        .kernel_shape_ = {2, 2},
+        .input_shape_ = {1, rows, cols},
+        .output_shape_ = {1, (rows+1-kernel_size)/stride, (cols+1-kernel_size)/stride},
+        .kernel_shape_ = {kernel_size, kernel_size},
         .strides_ = {1, 1},
 };
 
