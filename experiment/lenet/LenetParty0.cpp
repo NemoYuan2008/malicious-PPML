@@ -1,8 +1,7 @@
 #include <iostream>
 #include <filesystem>
 #include <vector>
-#include <torch/script.h>
-#include <torch/torch.h>
+
 #include "share/Spdz2kShare.h"
 #include "protocols/Circuit.h"
 #include "utils/rand.h"
