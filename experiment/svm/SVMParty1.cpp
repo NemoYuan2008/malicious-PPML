@@ -28,7 +28,6 @@ int main() {
     auto pred = circuit.argmax(z);
     auto end = circuit.output(pred);
 
-
     circuit.addEndpoint(end);
 
     circuit.readOfflineFromFile();
