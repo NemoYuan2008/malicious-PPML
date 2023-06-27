@@ -20,7 +20,7 @@ std::vector<double> generateRandIn(uint32_t rows, uint32_t cols){
 int main() {
     auto path = std::filesystem::temp_directory_path();
     std::vector<Spdz2kShare64::ClearType> xIn;
-    xIn = {double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(classes,fc_size))};
+    xIn = {double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(rows,cols))};
     Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
     Circuit<Spdz2kShare64> circuit(&party);
     for (int i = 0; i < times; ++i) {
@@ -31,8 +31,8 @@ int main() {
         circuit.addEndpoint(o);
     }
     circuit.readOfflineFromFile();
-
     circuit.shakeHand();
+
     std::cout << benchmark([&]() { circuit.runOnline(); }) << "ms\n";
 
     return 0;

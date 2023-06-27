@@ -14,7 +14,7 @@
 class Network {
 
 public:
-    Network(uint32_t id, uint16_t port = 7766,const char* addr="47.102.198.209");
+    Network(uint32_t id, uint16_t port = 7766,const char* addr="127.0.0.1");
 
     uint32_t getID() const;
 
@@ -58,7 +58,7 @@ public:
 private:
     const uint32_t id;
     const uint16_t port;
-    const char *addr = "47.102.198.209";
+    const char *addr;
 //    std::vector<boost::asio::ip::tcp::socket *> sockets;
     std::vector<boost::asio::ip::tcp::socket *> sendsockets;
     std::vector<boost::asio::ip::tcp::socket *> rcvsockets;

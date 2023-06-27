@@ -9,7 +9,6 @@
 #include "utils/benchmark.h"
 
 int main() {
-    std::cout << std::hex;
 
     auto path = std::filesystem::temp_directory_path();
     Party<Spdz2kShare64> party(1, 2, (path / "1.txt").string());

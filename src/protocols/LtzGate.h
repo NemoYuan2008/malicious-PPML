@@ -167,8 +167,8 @@ private:
             int msgBytes = (numTriples * 2 + 7) / 8; // round up
             std::vector<uint8_t> sendmsg(msgBytes, 0);
             std::vector<uint8_t> rcvmsg(msgBytes, 0);
-            std::vector<SemiShrType> sendMacmsg(numTriples*2,0);
-            std::vector<SemiShrType> rcvMacmsg(numTriples*2,0);
+            std::vector<ClearType> sendMacmsg(numTriples*2,0);
+            std::vector<ClearType> rcvMacmsg(numTriples*2,0);
             int vec_loc, bit_loc;
             int index_triple = 0;
             // load the msg

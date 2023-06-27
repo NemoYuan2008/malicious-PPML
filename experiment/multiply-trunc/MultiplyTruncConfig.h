@@ -2,9 +2,9 @@
 #define MALICIOUS_PPML_MULTIPLICATIONCONFIG_H
 
 
-const int times = 65536;
-const int rows = 1;
-const int cols = 1;
+const int times = 100;
+const int rows = 32;
+const int cols = 32;
 
 
 #endif //MALICIOUS_PPML_MULTIPLICATIONCONFIG_H

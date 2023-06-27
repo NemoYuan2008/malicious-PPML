@@ -268,7 +268,6 @@ void Network::ConnectTo(uint32_t partyid, uint type) { //TODO: should read a loc
                          port + id * partyoffset + partyid + socketsoffset);
         ip::tcp::acceptor acceptor(ios, ep);
         acceptor.accept(*socket);
-        acceptor.bind(ep,ec);
         if (ec) {
             // Failed to bind the acceptor socket. Breaking
             // execution.
@@ -287,7 +286,6 @@ void Network::ConnectTo(uint32_t partyid, uint type) { //TODO: should read a loc
         ip::tcp::acceptor acceptor(ios,
                                    ep);
         acceptor.accept(*socket);
-        acceptor.bind(ep,ec);
 
         if (ec) {
             // Failed to bind the acceptor socket. Breaking
