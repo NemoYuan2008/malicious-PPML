@@ -8,12 +8,19 @@
 #include "utils/ioHelper.h"
 #include "ComparisonConfig.h"
 #include "utils/benchmark.h"
+#include "utils/fixedPoint.h"
 using std::cout;
-
+std::vector<double> generateRandIn(uint32_t rows, uint32_t cols){
+    std::vector<double> ret(rows*cols);
+    for (int i = 0; i < rows*cols; ++i) {
+        ret[i] = rand();
+    }
+    return ret;
+}
 int main() {
     auto path = std::filesystem::temp_directory_path();
     std::vector<Spdz2kShare64::ClearType> xIn;
-    xIn = {static_cast<uint64_t>(-10220)};
+    xIn = {double2fixVec<Spdz2kShare64::ClearType>(generateRandIn(classes,fc_size))};
     Party<Spdz2kShare64> party(0, 2, (path / "0.txt").string());
     Circuit<Spdz2kShare64> circuit(&party);
     for (int i = 0; i < times; ++i) {

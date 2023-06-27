@@ -15,33 +15,23 @@ using std::array;
 
 
 int main (int argc, char **argv) {
-  string ipS = "127.0.0.1";
-  uint16_t portS = 7766;
-  uint16_t port = 7200;
-  uint id = 0;
-  auto SECURITYLEVEL = 128;
+    string ipS = "47.102.107.191";
+    uint id = 0;
+    uint16_t port = 5000;
+    io_context ios;
+    auto socket = tcp::socket(ios);
 
-  // for(int i=1; i< argc; i++){
-  //   cout<< atoi(argv[i])<<endl;
-  // }
-  int length = 100000000;
-  std::vector<uint64_t> q(length);
-  for (int i = 0; i < q.size(); ++i) {
-      q[i]=0;
-  }
+    tcp::endpoint ep(ip::address::from_string(ipS), port);
+
+    ip::tcp::acceptor acceptor(ios, ep);
+    acceptor.accept(socket);
+    boost::system::error_code ec;
+    acceptor.bind(ep,ec);
+    //socket.send("hello");
 //  for (int i = 0; i < q.size(); ++i) {
 //        std::cout<<q[i];
 //  }
   std::cout<<"\n";
-  Network player(id,port);
-  cout << "initialized"<<endl;
-  player.connect();
-  //player.send(1,q);
-  player.rcv(1,&q,length);
-  for (int i = 0; i < 4; ++i) {
-      std::cout<<q[length-i-1]<<"\n";
-  }
-
 //  uint8_t * msg;
 //  msg = (uint8_t*)malloc(1);
 //  cout<< "hello world!"<<endl;

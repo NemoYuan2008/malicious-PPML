@@ -216,15 +216,15 @@ void Network::connect() {
         io_context ios;
         tcp::socket *socket = new tcp::socket(ios);
         std::cout << "sendsocket connect to player " << i << ", port: " << port + i * partyoffset + id << "\n";
-        socket->connect(tcp::endpoint(ip::address::from_string(addr), port + i * partyoffset + id));
+        socket->connect(tcp::endpoint(boost::asio::ip::tcp::v4(), port + i * partyoffset + id));
         sendsockets[i] = socket;
         std::cout << "sendsocket with player " << i << " connected.\n";
     }
     for (int i = 0; i < id; ++i) {
         io_context ios;
         tcp::socket *socket = new tcp::socket(ios);
-        std::cout << "rcvsocket connect to player " << i << ", port: " << port + i * partyoffset + id << "\n";
-        socket->connect(tcp::endpoint(ip::address::from_string(addr), port + i * partyoffset + id + socketsoffset));
+        std::cout << "rcvsocket connect to player " << i << ", port: " << port + i * partyoffset + id + socketsoffset << "\n";
+        socket->connect(tcp::endpoint(boost::asio::ip::tcp::v4(), port + i * partyoffset + id + socketsoffset));
         rcvsockets[i] = socket;
         std::cout << "rcvsocket with player " << i << " connected.\n";
     }
@@ -259,23 +259,43 @@ void Network::ConnectTo(uint32_t partyid, uint type) { //TODO: should read a loc
 //    int socketsoffset = 5;
     io_context ios;
     tcp::socket *socket = new tcp::socket(ios);
+    boost::system::error_code ec;
     if (type == 1) { // make the acceptor of sendsocket
         printmutex.lock();
-        std::cout << "waiting for player " << partyid << ", port: " << port + id * 10 + partyid << "\n";
+        std::cout << "waiting for rcv player " << partyid << ", port: " << port + id * partyoffset + partyid + socketsoffset << "\n";
         printmutex.unlock();
-        ip::tcp::acceptor acceptor(ios, tcp::endpoint(ip::address::from_string(addr),
-                                                      port + id * partyoffset + partyid + socketsoffset));
+        tcp::endpoint ep(boost::asio::ip::tcp::v4(),
+                         port + id * partyoffset + partyid + socketsoffset);
+        ip::tcp::acceptor acceptor(ios, ep);
         acceptor.accept(*socket);
+        acceptor.bind(ep,ec);
+        if (ec) {
+            // Failed to bind the acceptor socket. Breaking
+            // execution.
+            std::cout << "Failed to bind the acceptor socket."
+                      << "Error code = " << ec.value() << ". Message: "
+                      << ec.message();
+        }
         sendmutex.lock();
         sendsockets[socketid] = socket;
         sendmutex.unlock();
     } else {
         printmutex.lock();
-        std::cout << "waiting for player " << partyid << ", port: " << port + id * 10 + partyid << "\n";
+        std::cout << "waiting for send player " << partyid << ", port: " << port + id * partyoffset + partyid << "\n";
         printmutex.unlock();
+        tcp::endpoint ep(boost::asio::ip::tcp::v4(), port + id * partyoffset + partyid);
         ip::tcp::acceptor acceptor(ios,
-                                   tcp::endpoint(ip::address::from_string(addr), port + id * partyoffset + partyid));
+                                   ep);
         acceptor.accept(*socket);
+        acceptor.bind(ep,ec);
+
+        if (ec) {
+            // Failed to bind the acceptor socket. Breaking
+            // execution.
+            std::cout << "Failed to bind the acceptor socket."
+                      << "Error code = " << ec.value() << ". Message: "
+                      << ec.message();
+        }
         rcvmutex.lock();
         rcvsockets[socketid] = socket;
         rcvmutex.unlock();
