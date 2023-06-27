@@ -53,9 +53,17 @@ int main() {
     Party<Spdz2kShare64> party(1, 2, (path / "1.txt").string());
     Circuit<Spdz2kShare64> circuit(&party);
     std::shared_ptr<Gate<Spdz2kShare64>> out;
-    auto start = std::chrono::high_resolution_clock::now();
-    auto input_image = circuit.input(0,Conv1op[0].output_shape_[1],Conv1op[0].output_shape_[2]);
+
+    auto input_image = circuit.input(0,3*rows,cols);
     out = circuit.addConstant(input_image,0);
+    auto kernel1 = circuit.input(0,conv1_op.kernel_shape_[0]*conv1_op.kernel_shape_[1],conv1_op.kernel_shape_[2]*conv1_op.kernel_shape_[3]);
+    auto bn1_bias = circuit.input(0,conv1_op.output_shape_[0]*conv1_op.output_shape_[1]*conv1_op.output_shape_[2],1);
+    auto bn1_scale = circuit.input(0,conv1_op.output_shape_[0]*conv1_op.output_shape_[1]*conv1_op.output_shape_[2],1);
+
+    out = circuit.conv2DTrunc(out,kernel1,conv1_op);
+    out = circuit.elementMultiply(out,bn1_scale);
+    out = circuit.add(out,bn1_bias);
+
     for (int i = 0; i < layers; ++i) {
         out = ResBlock1(i,circuit,out);
     }
