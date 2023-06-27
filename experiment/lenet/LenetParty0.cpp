@@ -70,7 +70,7 @@ int main() {
         circuit.readOfflineFromFile();
 
         // start time
-        auto start = std::chrono::high_resolution_clock::now();
+        auto start = std::chrono::steady_clock::now();
 
         std::vector<Spdz2kShare64::ClearType> xIn(channel * features),
                 c1wIn(conv1_op.kernel_shape_[0]*conv1_op.kernel_shape_[1]*conv1_op.kernel_shape_[2]*conv1_op.kernel_shape_[3]),
@@ -113,7 +113,7 @@ int main() {
         circuit.runOnline();
 
         // end time
-        auto stop = std::chrono::high_resolution_clock::now();
+        auto stop = std::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
         dur_time += duration.count();
     }
