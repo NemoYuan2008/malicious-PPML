@@ -115,11 +115,11 @@ private:
 
 #ifndef NDEBUG
         std::cout << "lambdaShr:\n";
-        printVector(this->lambdaShr);
+//        printVector(this->lambdaShr);
         std::cout << "lambdaPreTruncShr:\n";
-        printVector(this->lambdaPreTruncShr);
+//        printVector(this->lambdaPreTruncShr);
         std::cout << "Before Truncation, deltaClear:\n";
-        printVector(this->deltaClear);
+//        printVector(this->deltaClear);
 #endif
         //upper bits of x is of no use, should be eliminated before shifting right
         std::for_each(std::execution::par_unseq, this->deltaClear.begin(), this->deltaClear.end(),
@@ -127,7 +127,7 @@ private:
 
 #ifndef NDEBUG
         std::cout << "After Truncation, deltaClear:\n";
-        printVector(this->deltaClear);
+//        printVector(this->deltaClear);
 #endif
     }
 

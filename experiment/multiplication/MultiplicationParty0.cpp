@@ -18,6 +18,7 @@ int main() {
     Circuit<Spdz2kShare64> circuit(&party);
 
     for (int i = 0; i < times; ++i) {
+
         auto x = circuit.input(0, rows, cols);
         auto y = circuit.input(0, cols, rows);
         auto a = circuit.multiply(x, y);

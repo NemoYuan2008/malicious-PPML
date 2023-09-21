@@ -344,6 +344,8 @@ private:
             int msgBytes = (numTriples * 2 + 7) / 8; // round up
             std::vector<uint8_t> sendmsg(msgBytes, 0);
             std::vector<uint8_t> rcvmsg(msgBytes, 0);
+            std::vector<ClearType> sendMacmsg(numTriples*2,0);
+            std::vector<ClearType> rcvMacmsg(numTriples*2,0);
             int vec_loc, bit_loc;
             int index_triple = 0;
             // load the msg
@@ -366,14 +368,17 @@ private:
 #ifndef NDEBUG
             std::cout << "GtzGate send p,g triples, size: "<<sendmsg.size()<<"\n";
 #endif
-            std::thread t1([this, &sendmsg]() {
+            std::thread t1([this, &sendmsg,&sendMacmsg]() {
                 this->party->getNetwork().send(1 - this->myId(), sendmsg);
+                this->party->getNetwork().send(1 - this->myId(), sendMacmsg);
             });
-            std::thread t2([this, &rcvmsg]() {
+            std::thread t2([this, &rcvmsg,&rcvMacmsg]() {
                 this->party->getNetwork().rcv(1 - this->myId(), &rcvmsg, rcvmsg.size());
+                this->party->getNetwork().rcv(1 - this->myId(), &rcvMacmsg, rcvMacmsg.size());
             });
             t1.join();
             t2.join();
+
 //#ifndef NDEBUG
 //            std::cout<<"sendmsg: ";printVector(sendmsg);
 //            std::cout<<"rcvmsg: "; printVector(rcvmsg);

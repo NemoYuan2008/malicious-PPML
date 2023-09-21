@@ -8,4 +8,4 @@ add_executable(resnet18_fakeOffline resnet18FakeOffline.cpp resnet18Config.h)
 target_link_libraries(resnet18_party0 network Eigen3::Eigen "${TORCH_LIBRARIES}")
 target_link_libraries(resnet18_party1 network Eigen3::Eigen "${TORCH_LIBRARIES}")
 target_link_libraries(resnet18_fakeOffline Eigen3::Eigen "${TORCH_LIBRARIES}")
-target_link_libraries(readtest "${TORCH_LIBRARIES}")
+
