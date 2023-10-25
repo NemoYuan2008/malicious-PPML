@@ -17,15 +17,18 @@ int main() {
     Circuit<Spdz2kShare32> circuit(&party);
 
     auto x = circuit.input(0, rows, cols);
-    auto b = circuit.argmax(x);
+    auto y = circuit.input(0, rows, cols);
+    auto z = circuit.add(x, y);
+    auto b = circuit.argmax(z);
     auto o = circuit.output(b);
     circuit.addEndpoint(o);
 
     circuit.readOfflineFromFile();
 
-    std::vector<Spdz2kShare32::ClearType> xIn = {0,2,32,40,100,1,2,3,static_cast<Spdz2kShare32::ClearType>(45),0,
-                                                 10,2,3,24,5,30,5,Spdz2kShare32::ClearType(433.1),5,100};
+    std::vector<Spdz2kShare32::ClearType> xIn = {10,2,3,24,5,30,5,102,5,0,
+                                                 0,2,32,40,100,1,2,3,0,0};
     x->setInput(xIn);
+    y->setInput(xIn);
 
     circuit.runOnline();
     printVector(o->getClear());

@@ -825,9 +825,10 @@ public:
 
     explicit FakeSliceGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x, size_t index)
             : FakeGate<ShrType, N>(p_input_x, nullptr), index(index) {
-        this->dimRow = p_input_x->getDimRow();
-        this->dimCol = 1;
-        this->cols = p_input_x->getDimCol();
+        this->dimRow = 1;
+        this->dimCol = p_input_x->getDimCol();
+
+        this->cols = this->input_x->getDimRow();
     }
 
 private:
@@ -904,9 +905,10 @@ public:
 
     explicit FakeArgmaxGate(const std::shared_ptr<FakeGate<ShrType, N>> &p_input_x)
             : FakeGate<ShrType, N>(p_input_x, nullptr), circuit(this->files, this->offline) {
-        this->dimRow = p_input_x->getDimRow();
-        this->dimCol = 1;
-        this->cols = this->input_x->getDimCol();
+        this->dimRow = 1;
+        this->dimCol = p_input_x->getDimCol();
+
+        this->cols = this->input_x->getDimRow();
         uint32_t batchsize = this->dimRow;
         uint32_t count = this->cols - 1;
         auto initmax = this->circuit.slice(p_input_x, 0);

@@ -60,11 +60,15 @@ int main() {
         // linear3
         auto m5 = circuit.multiplyTrunc(fc3_weight, r4);
         auto add5 = circuit.add(m5, fc3_bias);
-        //    auto pred = circuit.argmax(add5);
-        auto end = circuit.output(add5);
+
+        //without argmax
+//        auto end = circuit.output(add5);
+
+        //with argmax
+        auto pred = circuit.argmax(add5);
+        auto end = circuit.output(pred);
 
         circuit.addEndpoint(end);
-        //    }
         circuit.runOffline();
     }
 

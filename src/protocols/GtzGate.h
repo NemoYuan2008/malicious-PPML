@@ -418,7 +418,7 @@ private:
             }
             auto ret = CarryOutAux(u_p, u_g, u_len); // u_len : bit length
             return ret;
-        } else {
+        } else { //k<=1
             std::vector<bool> ret(g.size());
             for (int i = 0; i < ret.size(); ++i) {
                 ret[i] = g[i][0];

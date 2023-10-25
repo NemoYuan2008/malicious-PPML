@@ -19,18 +19,11 @@ public:
 
     SliceGate(const std::shared_ptr<Gate<ShrType>> &input_x, size_t index)
             : Gate<ShrType>(input_x, nullptr), index(index) {
-        this->dimRow = input_x->getDimRow();
-        this->dimCol = 1;
-        this->cols = input_x->getDimCol();
+        this->dimRow = 1;
+        this->dimCol = input_x->getDimCol(); // TODO: dimension check
+        //1 * dimCol, slice  1*dimCol elements to compare, the index-th col of input_x
+        this->cols = this->input_x->getDimRow();
     }
-
-//    void setLambdaShr(const std::vector<SemiShrType> &value) { this->lambdaShr = value; }
-
-//    void setDeltaClear(const std::vector<SemiShrType> &value) { this->deltaClear = value; }
-
-//    void setDimRow(int row) { this->dimRow = row; }
-
-//    void setDimCol(int col) { this->dimCol = col; }
 
 private:
 
@@ -51,7 +44,7 @@ private:
     void doRunOnline() override {
 //        this->deltaClear = this->input_x->getDeltaClear()[?];
         const auto &delta = this->input_x->getDeltaClear();
-        for (int i = 0; i < this->dimRow; ++i) {
+        for (int i = 0; i < this->dimCol; ++i) {
 //            this->lambdaShr.push_back(delta[i*this->cols + index]);
             this->deltaClear.push_back(delta[i*this->cols + index]);
         }

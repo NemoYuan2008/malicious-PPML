@@ -21,10 +21,12 @@ int main() {
     FakeOffline<32, 32, 2> offline(files);
     FakeCircuit<Spdz2kShare32, 2> circuit(files, offline);
 
-
     auto x = circuit.input(0, rows, cols);
-    auto b = circuit.argmax(x);
+    auto y = circuit.input(0, rows, cols);
+    auto z = circuit.add(x, y);
+    auto b = circuit.argmax(z);
     auto o = circuit.output(b);
+
     circuit.addEndpoint(o);
 
     circuit.runOffline();

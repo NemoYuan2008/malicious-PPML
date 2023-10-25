@@ -17,8 +17,11 @@ int main() {
     Circuit<Spdz2kShare32> circuit(&party);
 
     auto x = circuit.input(0, rows, cols);
-    auto b = circuit.argmax(x);
+    auto y = circuit.input(0, rows, cols);
+    auto z = circuit.add(x, y);
+    auto b = circuit.argmax(z);
     auto o = circuit.output(b);
+
     circuit.addEndpoint(o);
 
     circuit.readOfflineFromFile();

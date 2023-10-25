@@ -51,21 +51,18 @@ int main() {
         // linear3
         auto m5 = circuit.multiplyTrunc(fc3_weight, r4);
         auto add5 = circuit.add(m5, fc3_bias);
-        //    auto pred = circuit.argmax(add5);
-        auto end = circuit.output(add5);
+
+        //without argmax
+//        auto end = circuit.output(add5);
+
+        //with argmax
+        auto pred = circuit.argmax(add5);
+        auto end = circuit.output(pred);
 
         circuit.addEndpoint(end);
-        //    }
         circuit.readOfflineFromFile();
-        //    std::cout << benchmark([&]() { circuit.runOnline(); }) << "ms\n";
         circuit.runOnline();
     }
-//    std::cout << "Result: \n";
-//    printVector(end->getClear());
-//    auto res = fix2doubleVec(end->getClear());
-//    auto maxIt = std::max_element(res.begin(), res.end());
-//    int maxIndex = std::distance(res.begin(), maxIt);
-//    std::cout << maxIndex << "\n";
 
     return 0;
 }

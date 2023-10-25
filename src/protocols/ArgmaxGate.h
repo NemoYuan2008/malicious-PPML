@@ -25,9 +25,10 @@ public:
 //            throw std::logic_error("Dimension of the two inputs of addition don't match");
 //        }
         //TODO: ??
-        this->dimRow = this->input_x->getDimRow();
-        this->dimCol = 1;
-        this->cols = this->input_x->getDimCol();
+        this->dimRow = 1;
+        this->dimCol = input_x->getDimCol();
+
+        this->cols = input_x->getDimRow();
         uint32_t batchsize = this->dimRow;
         uint32_t count = this->cols - 1;
         auto initmax = this->circuit.slice(input_x, 0);
