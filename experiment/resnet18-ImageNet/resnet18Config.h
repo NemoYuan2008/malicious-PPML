@@ -4,10 +4,10 @@
 #include "utils/tensor.h"
 // using cifar10 32*32 dataset
 const int times = 1;
-const int rows = 32;
-const int cols = 32;
+const int rows = 224;
+const int cols = 224;
 const int layers = 4;
-const int classes = 200;
+const int classes = 1000;
 const int initchannels = 64;
 // ImageNet 224*224*1000
 
@@ -25,22 +25,22 @@ void InitializeConv(){
     uint32_t parameter_size=0;
     for (int i = 0; i < layers; ++i) {
         // cifar-10
-        conv1_out_channels = expansion1[i]*conv1_in_channels;
-        Conv1op[i].kernel_shape_ = {conv1_out_channels,conv1_in_channels,3,3};
-        Conv1op[i].input_shape_ = {conv1_in_channels,rows,cols};
-        Conv1op[i].output_shape_ = {conv1_out_channels,rows,cols};
-        Conv1op[i].dilations_ ={1,1};
-        Conv1op[i].pads_ ={1,1,1,1};
-        Conv1op[i].strides_ ={stride[i],stride[i]};
-
-        //ImageNet 224*224 * 1000
 //        conv1_out_channels = expansion1[i]*conv1_in_channels;
-//        Conv1op[i].kernel_shape_ = {conv1_out_channels,conv1_in_channels,11,11};
+//        Conv1op[i].kernel_shape_ = {conv1_out_channels,conv1_in_channels,3,3};
 //        Conv1op[i].input_shape_ = {conv1_in_channels,rows,cols};
 //        Conv1op[i].output_shape_ = {conv1_out_channels,rows,cols};
 //        Conv1op[i].dilations_ ={1,1};
-//        Conv1op[i].pads_ ={3,3,3,3};
-//        Conv1op[i].strides_ ={2,2}; //strides = 2
+//        Conv1op[i].pads_ ={1,1,1,1};
+//        Conv1op[i].strides_ ={stride[i],stride[i]};
+
+        //ImageNet 224*224 * 1000
+        conv1_out_channels = expansion1[i]*conv1_in_channels;
+        Conv1op[i].kernel_shape_ = {conv1_out_channels,conv1_in_channels,7,7};
+        Conv1op[i].input_shape_ = {conv1_in_channels,rows,cols};
+        Conv1op[i].output_shape_ = {conv1_out_channels,rows,cols};
+        Conv1op[i].dilations_ ={1,1};
+        Conv1op[i].pads_ ={3,3,3,3};
+        Conv1op[i].strides_ ={2,2}; //strides = 2
 
         conv2_in_channels = conv1_out_channels;
         conv2_out_channels = expansion2[i]*conv2_in_channels;
